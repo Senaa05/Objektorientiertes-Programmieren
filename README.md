@@ -9,17 +9,15 @@ Dozierende: Felix Härer, Grieder Hermann
 ### Administrator
 - Bücher erfassen, bearbeiten und löschen
 - Verfügbarkeit von Exemplaren verwalten
-- Überfällige Bücher manuell auf "verfügbar" setzen
-- Benutzerkonten erstellen und verwalten
-- Statistiken über Ausleihen einsehen
+- Überfällige Bücher einen Reminder auslösen
 
 ### Benutzer
 - Alle Bücher durchsuchen und anzeigen
-- Beliebteste Bücher einsehen
+- Beliebteste Bücher sehen auf der Startseite
 - Bis zu 5 Bücher gleichzeitig ausleihen
-- Ausleihen um 14 Tage verlängern (1x pro Buch)
-- Persönliche Merkliste verwalten
-- "Meine Liste" mit aktuellen Ausleihen
+- Man kann pro Buch 1x verlängern
+- (Persönliche Merkliste verwalten)
+- "Meine Ausleihhe" mit aktuellen Ausleihen, das älteste zu oberst und das neuste zu unterst. 
 
 ### Ausleihe 
 - 30 Tage Standard-Ausleihdauer
@@ -29,16 +27,15 @@ Dozierende: Felix Härer, Grieder Hermann
 
 ## User Stories
 
-**Als Administrator möchte ich:**
+**Als Administrator kann man:**
 - Bücher erfassen, damit die Bibliothek aktuell bleibt
 - Buch-Informationen bearbeiten, damit Daten korrekt sind
 - Bücher löschen, damit veraltete Medien entfernt werden
-- Überfällige Bücher zurücksetzen, damit sie wieder verfügbar sind
-- Benutzer erstellen, damit neue Leute Zugang erhalten
+- Züruckgebrachte Bücher wieder freigeben, damit sie wieder ausgeliehen werden können
 
 **Als Benutzer möchte ich:**
 - Alle Bücher durchsuchen, damit ich interessante Titel finde
-- Beliebteste Bücher sehen, damit ich weiß was gut ist
+- Beliebteste Bücher sehen, damit ich weiss was gut ist
 - Bücher ausleihen, damit ich sie lesen kann
 - Ausleihen verlängern, damit ich mehr Zeit habe
 - Bücher merken, damit ich sie später leicht finde
@@ -46,7 +43,7 @@ Dozierende: Felix Härer, Grieder Hermann
 
 ## Use Cases
 
-### UC1: Buch ausleihen (Benutzer)
+### USE CASE 1: Buch ausleihen (Benutzer)
 1. Benutzer loggt sich ein
 2. Benutzer sucht nach einem Buch
 3. System zeigt verfügbare Exemplare
@@ -56,7 +53,7 @@ Dozierende: Felix Härer, Grieder Hermann
 7. Exemplar-Status wird auf "ausgeliehen" gesetzt
 8. Ausleih wird zu "Meine Liste" hinzugefügt
 
-### UC2: Buch erfassen (Administrator)
+### USE CASE 2: Buch erfassen (Administrator)
 1. Administrator loggt sich ein
 2. Administrator wählt "Buch erfassen"
 3. Administrator gibt ISBN, Titel, Autor, Jahr ein
@@ -65,7 +62,7 @@ Dozierende: Felix Härer, Grieder Hermann
 6. System erstellt Buch mit Exemplaren
 7. Exemplare erhalten Status "verfügbar"
 
-### UC3: Ausleih verlängern (Benutzer)
+### USE CASE 3: Ausleih verlängern (Benutzer)
 1. Benutzer loggt sich ein
 2. Benutzer öffnet "Meine Liste"
 3. Benutzer wählt auszuleihendes Buch
@@ -73,7 +70,7 @@ Dozierende: Felix Härer, Grieder Hermann
 5. System fügt 14 Tage zur Frist hinzu
 6. Ausleih-Verlängerungszähler wird erhöht
 
-### UC4: Überfälliges Buch zurücksetzen (Administrator)
+### USE CASE 4: Überfälliges Buch zurücksetzen (Administrator)
 1. Administrator loggt sich ein
 2. Administrator sieht überfällige Bücher
 3. Administrator wählt überfälliges Exemplar
@@ -81,7 +78,7 @@ Dozierende: Felix Härer, Grieder Hermann
 5. System entfernt Ausleih-Eintrag
 6. Exemplar ist wieder ausleihbar
 
-### UC5: Buch zur Merkliste hinzufügen (Benutzer)
+### USE CASE 5: Buch zur Merkliste hinzufügen (Benutzer)
 1. Benutzer loggt sich ein
 2. Benutzer findet interessantes Buch
 3. Benutzer klickt "Zur Merkliste"
