@@ -70,10 +70,10 @@ Dozierende: Felix Härer, Grieder Hermann
 5. System fügt 14 Tage zur Frist hinzu
 6. Ausleih-Verlängerungszähler wird erhöht
 
-### USE CASE 4: Überfälliges Buch zurücksetzen (Administrator)
+### USE CASE 4: Zurückgegebenes Buch wieder verfügbar machen (Administrator)
 1. Administrator loggt sich ein
-2. Administrator sieht überfällige Bücher
-3. Administrator wählt überfälliges Exemplar
+2. Administrator sieht zurückgegebene Bücher
+3. Administrator wählt zurückgegebenes Exemplar
 4. Administrator setzt Status auf "verfügbar"
 5. System entfernt Ausleih-Eintrag
 6. Exemplar ist wieder ausleihbar
@@ -82,7 +82,7 @@ Dozierende: Felix Härer, Grieder Hermann
 1. Benutzer loggt sich ein
 2. Benutzer findet interessantes Buch
 3. Benutzer klickt "Zur Merkliste"
-4. System fügt ISBN zur Merkliste hinzu
+4. System fügt Buch zur Merkliste hinzu
 5. Buch erscheint in persönlicher Merkliste
 
 
