@@ -33,7 +33,7 @@ Dozierende: Felix Härer, Grieder Hermann
 - Bücher löschen, damit veraltete Medien entfernt werden
 - Züruckgebrachte Bücher wieder freigeben, damit sie wieder ausgeliehen werden können
 
-**Als Benutzer möchte ich:**
+**Als Benutzer kann man:**
 - Alle Bücher durchsuchen, damit ich interessante Titel finde
 - Beliebteste Bücher sehen, damit ich weiss was gut ist
 - Bücher ausleihen, damit ich sie lesen kann
