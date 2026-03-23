@@ -1,8 +1,9 @@
 # Bibflow
 
 Gruppenmitglieder: Sena Besir, Giulia Falone, Naomi Uwensuyi
-
 Dozierende: Felix Härer, Grieder Hermann
+
+Dieses Projekt ist ein webbasiertes Bibliothekssystem, das die Verwaltung und Ausleihe von Büchern übersichtlich und effizient gestaltet. Unterschiedliche Funktionen für Administratoren und Benutzer sorgen für eine klare und strukturierte Nutzung.
 
 ## Hauptfunktionen
 
