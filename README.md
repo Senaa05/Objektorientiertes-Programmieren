@@ -1,4 +1,4 @@
-# Bibflow
+# Bibflow :books:
 
 Gruppenmitglieder: Sena Besir, Giulia Falone, Naomi Uwensuyi
 Dozierende: Felix Härer, Grieder Hermann
@@ -9,7 +9,7 @@ Dieses Projekt ist ein webbasiertes Bibliothekssystem, das die Verwaltung und Au
 In der Bibliothek «Bibflow» ist die Verwaltung der Bücher und Ausleihen unübersichtlich, weil keine zentrale Lösung vorhanden ist. Benutzer wissen oft nicht, ob ein Buch verfügbar ist, und haben keinen Überblick über ihre Ausleihen. Zudem ist den Benutzern nicht bewusst, welche die beliebtesten Bücher in der Bibliothek sind. Dies führt häufig zu verspäteten Rückgaben und Missverständnissen zwischen Benutzern und Mitarbeitern.
 
 ## Szenario
-
+Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und den Überblick über ihre Ausleihen behalten wollen. Bei Bedarf können die Ausleihen verlängert werden. Dadurch wird das Problem der unübersichtlichen Verwaltung von Büchern und Ausleihen gelöst.
 
 ## Hauptfunktionen
 
