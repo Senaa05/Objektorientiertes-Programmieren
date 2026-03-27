@@ -1,6 +1,6 @@
 # Bibflow :books:
 
-Gruppenmitglieder: Sena Besir, Giulia Falone, Naomi Uwensuyi
+Gruppenmitglieder: Sena Besir, Giulia Falone, Naomi Uwensuyi 
 Dozierende: Felix Härer, Grieder Hermann
 
 Dieses Projekt ist ein webbasiertes Bibliothekssystem, das die Verwaltung und Ausleihe von Büchern übersichtlich und effizient gestaltet. Unterschiedliche Funktionen für Administratoren und Benutzer sorgen für eine klare und strukturierte Nutzung.
@@ -55,7 +55,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 2. Benutzer sucht nach einem Buch
 3. System zeigt verfügbare Exemplare
 4. Benutzer wählt ein Exemplar aus
-5. System prüft ob Benutzer < 5 Ausleihen hat
+5. System prüft ob Benutzer weniger als 5 Ausleihen hat
 6. System erstellt Ausleih mit 30-Tage Frist
 7. Exemplar-Status wird auf "ausgeliehen" gesetzt
 8. Ausleih wird zu "Meine Liste" hinzugefügt
