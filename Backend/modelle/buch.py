@@ -4,4 +4,5 @@ class Buch:
         self.titel = titel
         self.autor = autor
         self.isbn = isbn
-        self.jahr = jahr    
+        self.jahr = jahr
+        self.exemplare = []   
