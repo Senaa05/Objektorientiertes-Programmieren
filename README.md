@@ -24,7 +24,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 - Bis zu 5 Bücher gleichzeitig ausleihen
 - Man kann pro Buch 1x verlängern
 - (Persönliche Merkliste verwalten)
-- "Meine Ausleihhe" mit aktuellen Ausleihen, das älteste zu oberst und das neuste zu unterst. 
+- "Meine Ausleihe" mit aktuellen Ausleihen, das älteste zu oberst und das neuste zu unterst. 
 
 ### Ausleihe 
 - 30 Tage Standard-Ausleihdauer
@@ -58,7 +58,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 5. System prüft ob Benutzer weniger als 5 Ausleihen hat
 6. System erstellt Ausleih mit 30-Tage Frist
 7. Exemplar-Status wird auf "ausgeliehen" gesetzt
-8. Ausleih wird zu "Meine Liste" hinzugefügt
+8. Ausleih wird zu "Meine Ausleihe" hinzugefügt
 
 ### USE CASE 2: Buch erfassen (Administrator)
 1. Administrator loggt sich ein
@@ -71,7 +71,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 
 ### USE CASE 3: Ausleih verlängern (Benutzer)
 1. Benutzer loggt sich ein
-2. Benutzer öffnet "Meine Liste"
+2. Benutzer öffnet "Meine Ausleihe"
 3. Benutzer wählt auszuleihendes Buch
 4. System prüft ob Verlängerung möglich (< 1x)
 5. System fügt 14 Tage zur Frist hinzu
