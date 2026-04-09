@@ -9,7 +9,23 @@ class Ausleihe:
         self.ausleihdatum = date.today()
         # Fälligkeit des Buches in 30 Tagen
         self.faelligkeit = self.ausleihdatum + timedelta(days=30)
-        self.verlaengern = 0
+        self.verlaengerungsanzahl = 0
         self.rueckgabedatum = None
         
-      
+    # Methode für Verlängerung der Ausleihe
+    def verlaengern_ausleihe(self):
+        # Überprüfen, ob die Ausleihe bereits verlängert wurde
+        if self.verlaengerungsanzahl >= 1:
+            raise ValueError("Ausleihe kann nur einmal verlängert werden")
+        # Verlängerung um weitere 14 Tage
+        self.faelligkeit += timedelta(days=14)
+        self.verlaengerungsanzahl += 1
+
+    # Methode für Rückgabe der Ausleihe
+    def rueckgabe_ausleihe(self):
+        # Überprüfen, ob die Ausleihe bereits zurückgegeben wurde
+        if self.rueckgabedatum is not None:
+            raise ValueError("Ausleihe wurde bereits zurückgegeben")
+        self.rueckgabedatum = date.today()
+        self.exemplar.zurueckgeben()
+    
