@@ -8,6 +8,8 @@ class User:
         self.email = email
         # Rolle Standardbenutzer zuweisen
         self.rolle = "Benutzer"
+        # User besitzt mehrere Ausleihen
+        self.ausleihen = []
 
 # Klasse für Administratoren
 class Administrator(User):
