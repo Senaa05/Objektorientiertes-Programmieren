@@ -92,7 +92,11 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 4. System fügt Buch zur Merkliste hinzu
 5. Buch erscheint in persönlicher Merkliste
 
-### Mockup
+### Akteure
+- Administrator
+- Benutzer
 
-### Architektur
+## Mockup
+
+## Architektur
 
