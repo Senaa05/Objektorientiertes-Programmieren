@@ -1,9 +1,11 @@
-from modelle.benutzer import User, Administrator
+from modelle.benutzer import Administrator
+from modelle.benutzer import User
 from modelle.buch import Buch
 from modelle.exemplar import Exemplar
-from modelle.ausleihe import Ausleihe
+from services.ausleihe_service import AusleiheService
 
-# Beispiel für die Erstellung von Benutzern, Büchern, Exemplaren und Ausleihen
+
+# Beispiel für die Erstellung von Benutzern, Büchern und Exemplaren
 def main():
     # Erstellen von Benutzern
     benutzer1 = User("lilly2", "passwort123", "Lilly", "Müller", "lilly.mueller@example.com")
@@ -23,30 +25,26 @@ def main():
     buch1.exemplare.append(exemplar2)
     buch2.exemplare.append(exemplar3)
 
-    # Erstellen von Ausleihen
-    ausleihe1 = Ausleihe(benutzer1, exemplar1)
-    benutzer1.ausleihen.append(ausleihe1)
+    # Service erstellen
+    service = AusleiheService()
 
-    # ausleihen
+    # Ausleihe testen
     try:
-        exemplar1.ausleihen()
-        print(f"{benutzer1.vorname} hat '{exemplar1.buch.titel}' ausgeliehen.")
+        ausleihe = service.ausleihen(benutzer1, buch1)
+        print(f"{benutzer1.vorname} hat '{ausleihe.exemplar.buch.titel}' ausgeliehen.")
+        print(f"Exemplar-ID: {ausleihe.exemplar.exemplar_id}")
+        print(f"Status: {ausleihe.exemplar.status}")
+        print(f"Fällig am: {ausleihe.faelligkeit}")
     except ValueError as e:
         print(e)
 
-    # Rückgabe
+    # Ausleihe testen, wenn das gleiche Buch bereits ausgeliehen wurde
     try:
-        ausleihe1.rueckgabe_ausleihe()
-        print(f"{benutzer1.vorname} hat '{exemplar1.buch.titel}' zurückgegeben.")   
-    except ValueError as e:
-        print(e)
-
-    # Verlängerung
-    try:    
-        ausleihe1.verlaengern_ausleihe()
-        print(f"{benutzer1.vorname} hat die Ausleihe von '{exemplar1.buch.titel}' verlängert.")
+        service.ausleihen(benutzer1, buch1)
     except ValueError as e:
         print(e)
 
 if __name__ == "__main__":
     main()
+
+
