@@ -34,34 +34,34 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 
 ## User Stories
 
-### User Story 1: Bücher erfassen 📝
+### User Story 1: Bücher erfassen 
 - Als Administrator möchte ich Bücher erfassen, damit die Bibliothek aktuell bleibt.
 
-### User Story 2: Buchinformationen bearbeiten ℹ
+### User Story 2: Buchinformationen bearbeiten 
 - Als Administrator möchte ich Buchinformationen bearbeiten können, damit Daten korrekt sind.
 
-### User Story 3: Bücher löschen ❌
+### User Story 3: Bücher löschen 
 - Als Administrator möchte ich Bücher löschen, damit veraltete Medien entfernt werden.
 
-### User Story 4: Bücher freigeben ☑️
+### User Story 4: Bücher freigeben 
 - Als Administrator möchte ich zurückgegebene Bücher wieder freigeben können, damit sie wieder ausgeliehen werden können.
 
-### User Story 5: Bücher durchsuchen 🔎
+### User Story 5: Bücher durchsuchen 
 - Als Benutzer möchte ich alle Bücher durchsuchen, damit ich interessante Titel finde.
 
-### User Story 6: Beliebte Bücher anzeigen 🔝
+### User Story 6: Beliebte Bücher anzeigen 
 - Als Benutzer möchte ich beliebteste Bücher sehen, damit ich weiss was gut ist.
 
-### User Story 7: Bücher ausleihen 📚
+### User Story 7: Bücher ausleihen 
 - Als Benutzer möchte ich Bücher ausleihen, damit ich sie lesen kann.
 
-### User Story 8: Ausleihe verlängern ↔️
+### User Story 8: Ausleihe verlängern 
 - Als Benutzer möchte ich Ausleihen verlängern, damit ich mehr Zeit zum Lesen habe.
 
-### User Story 9: Eigene Ausleihe anzeigen 🧾
+### User Story 9: Eigene Ausleihe anzeigen
 - Als Benutzer möchte ich meine Ausleihen sehen, damit ich den Überblick habe
 
-### User Story 10: Bücher in die Merkliste hinzufügen 📌
+### User Story 10: Bücher in die Merkliste hinzufügen 
 - Als Benutzer möchte ich Bücher merken, damit ich sie später leicht finde.
 
 ## Use Cases
