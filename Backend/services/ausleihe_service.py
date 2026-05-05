@@ -1,10 +1,10 @@
 from datetime import date, timedelta
 import uuid
 
-from Backend.modelle.ausleihe import Ausleihe
+from modelle.ausleihe import Ausleihe
 
 class AusleiheService:
-    """Service fuer alle Geschaeftsregeln rund um Ausleihe, Verlaengerung und Rueckgabe."""
+    """Service fuer alle Geschäftsregeln rund um Ausleihe, Verlängerung und Rueckgabe."""
 
     def __init__(self, db):
         self.db = db
@@ -20,7 +20,7 @@ class AusleiheService:
         if not buch:
             raise ValueError("Buch existiert nicht.")
 
-        aktive_anzahl = self.db.anzahl_aktive_ausleihen_benutzer(benutzername)
+        aktive_anzahl = self.db.anzahl_ausleihen_benutzer(benutzername)
         if aktive_anzahl >= 5:
             raise ValueError("Benutzer darf maximal 5 Bücher gleichzeitig ausleihen.")
 
@@ -35,7 +35,7 @@ class AusleiheService:
         ausleihdatum = date.today()
         faelligkeit = ausleihdatum + timedelta(days=30)
 
-        erfolg = self.db.ausleihe_speichern(
+        erfolg = self.db.ausleih_speichern(
             ausleih_id=ausleih_id,
             benutzername=benutzername,
             exemplar_id=exemplar_id,
@@ -105,7 +105,7 @@ class AusleiheService:
     def meine_ausleihen(self, benutzername: str):
         """Liefert alle aktiven Ausleihen eines Benutzers, sortiert von alt nach neu."""
         # Anzeige-Reihenfolge: aelteste Ausleihe zuerst.
-        ausleihen = self.db.aktive_ausleihen_benutzer(benutzername)
+        ausleihen = self.db.ausleihen_benutzer(benutzername)
         return sorted(ausleihen, key=lambda eintrag: eintrag["ausleihdatum"])
 
     def ueberfaellige_ausleihen(self):

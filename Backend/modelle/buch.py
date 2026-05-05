@@ -5,6 +5,7 @@ class Buch:
         self.autor = autor
         self.isbn = isbn
         self.jahr = jahr
+        self.exemplare = []  # Liste der Exemplare dieses Buches
 
     def als_dict(self) -> dict:
         return {
