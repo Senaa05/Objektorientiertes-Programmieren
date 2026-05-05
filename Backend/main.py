@@ -59,16 +59,16 @@ def main():
     # Ausleihe mit Datenbank testen
     try:
         ausleihe_id = ausleihe_service.buch_ausleihen("lilly2", "978-3-123456-78-9")
-        print(f"\n✅ Buch ausgeliehen! Ausleih-ID: {ausleihe_id}")
+        print(f"\n Buch ausgeliehen! Ausleih-ID: {ausleihe_id}")
         
         # Ausleihen des Benutzers anzeigen
         ausleihen = ausleihe_service.meine_ausleihen("lilly2")
-        print(f"\n📚 Ausleihen von {benutzer1.vorname}:")
+        print(f"\n Ausleihen von {benutzer1.vorname}:")
         for ausleihe in ausleihen:
             print(f"  - {ausleihe['titel']} (fällig: {ausleihe['faelligkeit']})")
             
     except ValueError as e:
-        print(f"\n❌ Fehler bei Ausleihe: {e}")
+        print(f"\n Fehler bei Ausleihe: {e}")
 
 if __name__ == "__main__":
     main()
