@@ -65,6 +65,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 - Als Benutzer möchte ich Bücher merken, damit ich sie später leicht finde.
 ---
 ## Use Cases
+![UML Use Case Diagram](Diagramm/BibliothekUseCasesDiagramm.png)
 
 ### USE CASE 1: Registrieren (Benutzer)
 1. Benutzer öffnet die Registrierungsseite
