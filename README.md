@@ -116,3 +116,22 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 
 ## Architektur
 
+## Datenbank 
+
+### ER-Diagramm
+
+## Projektanforderungen
+
+### Browser-Based App
+
+### Datenvalidierung
+Die Applikation stellt sicher, dass alle Eingaben und Operationen durch geeignete Validierungen geprüft werden. Diese Validierungen sind hauptsächlich in den Service-Klassen implementiert, bevor Daten in der Datenbank gespeichert und verarbeitet werden.
+
+### 1. Benutzer
+Bei der Registrierung wird geprüft, ob alle Pflichtfelder ausgefüllt sind und ob Benutzername sowie E-Mail eindeutig sind. Beim Login werden die Zugangsdaten validiert; bei Fehlern wird eine einheitliche Fehlermeldung verwendet.
+### 2. Buch
+In der Buchverwaltung wird sichergestellt, dass jede ISBN nur einmal existiert. Ein Buch kann nur gelöscht werden, wenn keine zugehörigen Exemplare aktuell ausgeliehen sind.
+### 3. Ausleihe
+Ein Benutzer darf maximal fünf Bücher gleichzeitig ausleihen. Die Standard-Ausleihdauer beträgt 30 Tage. Eine Verlängerung ist nur einmal pro Ausleihe möglich und verlängert die Frist um 14 Tage.
+### 4. Merkliste
+Beim Hinzufügen zur Merkliste wird geprüft, ob Benutzer und Buch existieren. Zusätzlich werden doppelte Einträge verhindert.
