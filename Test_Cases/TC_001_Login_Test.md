@@ -1,92 +1,92 @@
-# Test Case: Login Functionality
+# Test Case: Login-Funktionalität
 
 ## 1. Test Case ID
 **TC_001**
 
-## 2. Test Case Title/Description
-**User Login Authentication - Verify that users can successfully authenticate with valid credentials and access the library dashboard.**
+## 2. Test Case Titel/Beschreibung
+**Benutzer-Login-Authentifizierung - Überprüfen, dass Benutzer sich erfolgreich mit gültigen Anmeldedaten authentifizieren und auf das Bibliotheks-Dashboard zugreifen können.**
 
-## 3. Preconditions
-- NiceGUI application is running on http://127.0.0.1:8080
-- Database contains test users:
-  - Username: "lilly2", Role: "Benutzer"
-  - Username: "admin1", Role: "Admin"
-- Mock database is properly initialized
-- Web browser is available and can access the application URL
+## 3. Voraussetzungen
+- NiceGUI-Anwendung läuft auf http://127.0.0.1:8080
+- Datenbank enthält Test-Benutzer:
+  - Benutzername: "lilly2", Rolle: "Benutzer"
+  - Benutzername: "admin1", Rolle: "Admin"
+- Mock-Datenbank ist korrekt initialisiert
+- Web-Browser ist verfügbar und kann auf die Anwendungs-URL zugreifen
 
-## 4. Test Steps
-1. Open web browser and navigate to http://127.0.0.1:8080
-2. Verify login page is displayed with:
-   - Title "📚 Bibliothek"
-   - Username input field
-   - Password input field
-   - "Anmelden" (Login) button
-   - Test account information displayed
-3. Enter valid username "lilly2" in the username field
-4. Enter any password (since mock database accepts any password for test users)
-5. Click the "Anmelden" button
-6. Verify successful navigation to dashboard page
-7. Verify user information is displayed in the header
-8. Verify appropriate tabs are visible based on user role
+## 4. Test-Schritte
+1. Web-Browser öffnen und zu http://127.0.0.1:8080 navigieren
+2. Überprüfen, dass die Login-Seite angezeigt wird mit:
+   - Titel "📚 Bibliothek"
+   - Benutzername-Eingabefeld
+   - Passwort-Eingabefeld
+   - "Anmelden"-Button
+   - Test-Kontoinformationen angezeigt
+3. Gültigen Benutzernamen "lilly2" im Benutzernamen-Feld eingeben
+4. Beliebiges Passwort eingeben (da Mock-Datenbank jedes Passwort für Test-Benutzer akzeptiert)
+5. Auf "Anmelden"-Button klicken
+6. Erfolgreiche Navigation zur Dashboard-Seite überprüfen
+7. Überprüfen, dass Benutzerinformationen im Header angezeigt werden
+8. Überprüfen, dass entsprechende Tabs basierend auf der Benutzerrolle sichtbar sind
 
-## 5. Test Data/Input
-- **Valid Test User 1:**
-  - Username: "lilly2"
-  - Password: "test123" (any password works in mock)
-  - Expected Role: "Benutzer"
+## 5. Test-Daten/Eingabe
+- **Gültiger Test-Benutzer 1:**
+  - Benutzername: "lilly2"
+  - Passwort: "test123" (beliebiges Passwort funktioniert im Mock)
+  - Erwartete Rolle: "Benutzer"
   
-- **Valid Test User 2:**
-  - Username: "admin1" 
-  - Password: "admin123" (any password works in mock)
-  - Expected Role: "Admin"
+- **Gültiger Test-Benutzer 2:**
+  - Benutzername: "admin1" 
+  - Passwort: "admin123" (beliebiges Passwort funktioniert im Mock)
+  - Erwartete Rolle: "Admin"
 
-- **Invalid Test Data:**
-  - Username: "nonexistent"
-  - Password: "anypassword"
+- **Ungültige Test-Daten:**
+  - Benutzername: "nichtvorhanden"
+  - Passwort: "beliebigespasswort"
 
-## 6. Expected Result
-**For Valid Credentials:**
-- Login succeeds without errors
-- User is redirected to /dashboard page
-- Header displays: "📚 Bibliothek" and user information
-- User role is correctly identified and applied
-- Appropriate navigation tabs are shown:
-  - For "Benutzer": "Bücher" and "Meine Ausleihen" tabs
-  - For "Admin": "Bücher", "Meine Ausleihen", and "Admin" tabs
-- No error messages are displayed
+## 6. Erwartetes Ergebnis
+**Bei gültigen Anmeldedaten:**
+- Login erfolgreich ohne Fehler
+- Benutzer wird zur Seite /dashboard weitergeleitet
+- Header zeigt: "📚 Bibliothek" und Benutzerinformationen
+- Benutzerrolle wird korrekt identifiziert und angewendet
+- Entsprechende Navigations-Tabs werden angezeigt:
+  - Für "Benutzer": "Bücher" und "Meine Ausleihen" Tabs
+  - Für "Admin": "Bücher", "Meine Ausleihen" und "Admin" Tabs
+- Keine Fehlermeldungen werden angezeigt
 
-**For Invalid Credentials:**
-- Login fails
-- User remains on login page
-- Appropriate error message is displayed
-- No access to dashboard is granted
+**Bei ungültigen Anmeldedaten:**
+- Login schlägt fehl
+- Benutzer bleibt auf der Login-Seite
+- Entsprechende Fehlermeldung wird angezeigt
+- Kein Zugriff auf das Dashboard wird gewährt
 
-## 7. Actual Result
-*To be filled during test execution*
+## 7. Tatsächliches Ergebnis
+*Während der Testausführung auszufüllen*
 
 ## 8. Status
-*To be marked after test execution*
-- [ ] PASS
-- [ ] FAIL
+*Nach der Testausführung zu markieren*
+- [ ] BESTANDEN
+- [ ] FEHLGESCHLAGEN
 
-## 9. Comments
-**Test Environment:**
+## 9. Kommentare
+**Test-Umgebung:**
 - Browser: Chrome/Firefox/Safari
 - OS: macOS
-- Application Version: v1.0
-- Test Date: [Date of execution]
+- Anwendungsversion: v1.0
+- Test-Datum: [Datum der Ausführung]
 
-**Additional Notes:**
-- Mock database accepts any password for existing users
-- Test accounts are hardcoded in the UI application
-- Session management should be verified (user stays logged in when navigating)
-- UI responsiveness should be checked on different screen sizes
-- Error handling should be tested with various invalid inputs
+**Zusätzliche Hinweise:**
+- Mock-Datenbank akzeptiert jedes Passwort für vorhandene Benutzer
+- Test-Konten sind in der UI-Anwendung hartcodiert
+- Sitzungsverwaltung sollte überprüft werden (Benutzer bleibt beim Navigieren angemeldet)
+- UI-Responsivität sollte auf verschiedenen Bildschirmgrößen überprüft werden
+- Fehlerbehandlung sollte mit verschiedenen ungültigen Eingaben getestet werden
 
-**Known Issues:**
-- Password validation is bypassed in mock implementation
-- No password hashing implemented in test environment
-- Session timeout not implemented in current version
+**Bekannte Probleme:**
+- Passwort-Validierung wird in Mock-Implementierung umgangen
+- Keine Passwort-Hashing in Test-Umgebung implementiert
+- Sitzungs-Timeout in aktueller Version nicht implementiert
 
-**Defects Found:**
-*To be documented if any issues are discovered during testing*
+**Gefundene Fehler:**
+*Zu dokumentieren, wenn bei der Tests Probleme entdeckt werden*
