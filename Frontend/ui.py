@@ -1,5 +1,5 @@
 """
-Bibliothek NiceGUI - Startdatei mit MockDB
+Bibliothek NiceGUI - Bibflow
 ==========================================
 """
  
@@ -11,8 +11,7 @@ from datetime import date
 # ─────────────────────────────────────────────
  
 class DatenbankManager():
-    """Simuliert die Datenbank mit festen Testdaten."""
- 
+     
     def benutzer_laden(self, benutzername):
         nutzer = {
             "lilly2":  {"benutzername": "lilly2",  "vorname": "Lilly", "nachname": "Müller",    "email": "lilly@example.com",  "rolle": "Benutzer"},
@@ -187,32 +186,90 @@ def aktueller_benutzer():
  
 def zeige_login():
     ui.query("body").style("background: #f0f4f8")
-    with ui.card().classes("absolute-center").style("width:360px; padding:2rem"):
-        ui.label("📚 Bibliothek").style("font-size:1.8rem; font-weight:700; margin-bottom:1rem")
-        benutzername_input = ui.input("Benutzername").classes("w-full")
-        passwort_input     = ui.input("Passwort", password=True).classes("w-full")
-        fehler_label       = ui.label("").style("color:red; font-size:0.85rem")
- 
-        def anmelden():
-            bn = benutzername_input.value.strip()
-            benutzer = db.benutzer_laden(bn)
-            if not benutzer:
-                fehler_label.set_text("Benutzername nicht gefunden.")
-                return
-            # Passwort-Prüfung: In Produktion mit Hash!
-            if benutzer["passwort"] != passwort_input.value if "passwort" in benutzer else False:
-                fehler_label.set_text("Falsches Passwort.")
-                return
-            zustand["angemeldet"]   = True
-            zustand["benutzername"] = bn
-            zustand["rolle"]        = benutzer.get("rolle", "Benutzer")
-            ui.navigate.to("/dashboard")
- 
-        ui.button("Anmelden", on_click=anmelden).classes("w-full").style(
-            "background:#2563eb; color:white; margin-top:1rem")
- 
-        ui.label("Testkonten: lilly2 | admin1  (Passwort beliebig)").style(
-            "font-size:0.75rem; color:#888; margin-top:0.5rem")
+    with ui.card().classes("absolute-center").style("width:400px; padding:2rem"):
+        ui.label("Willkommen bei Bibflow").style(
+            "font-size:1.6rem; font-weight:700; margin-bottom:1.5rem; text-align:center")
+
+        # Tab-Buttons
+        with ui.row().classes("w-full mb-4").style("border:1px solid #ddd; border-radius:6px; overflow:hidden"):
+            login_btn = ui.button("Login", on_click=lambda: zeige_tab("login")).style(
+                "flex:1; border-radius:0; background:black; color:white")
+            reg_btn = ui.button("Registrieren", on_click=lambda: zeige_tab("register")).style(
+                "flex:1; border-radius:0; background:white; color:black; border:none")
+
+        fehler_label = ui.label("").style("color:red; font-size:0.85rem")
+
+        # ── LOGIN FELDER ──
+        login_panel = ui.column().classes("w-full gap-2")
+        with login_panel:
+            bn_input = ui.input(placeholder="Benutzername").classes("w-full")
+            pw_input = ui.input(placeholder="Passwort", password=True).classes("w-full")
+
+            def anmelden():
+                bn = bn_input.value.strip()
+                benutzer = db.benutzer_laden(bn)
+                if not benutzer:
+                    fehler_label.set_text("Benutzername nicht gefunden.")
+                    return
+                zustand["angemeldet"]   = True
+                zustand["benutzername"] = bn
+                zustand["rolle"]        = benutzer.get("rolle", "Benutzer")
+                ui.navigate.to("/dashboard")
+
+            ui.button("Login", on_click=anmelden).classes("w-full").style(
+                "background:black; color:white; margin-top:0.5rem")
+
+        # ── REGISTRIEREN FELDER ──
+        reg_panel = ui.column().classes("w-full gap-2").style("display:none")
+        with reg_panel:
+            vorname_in  = ui.input(placeholder="Vorname").classes("w-full")
+            nachname_in = ui.input(placeholder="Nachname").classes("w-full")
+            email_in    = ui.input(placeholder="Email").classes("w-full")
+            reg_bn_in   = ui.input(placeholder="Benutzername").classes("w-full")
+            reg_pw_in   = ui.input(placeholder="Passwort", password=True).classes("w-full")
+
+            def registrieren():
+                if not all([vorname_in.value, nachname_in.value, email_in.value,
+                            reg_bn_in.value, reg_pw_in.value]):
+                    fehler_label.set_text("Bitte alle Felder ausfüllen.")
+                    return
+                ok = db.benutzer_speichern(
+                    benutzername=reg_bn_in.value,
+                    passwort=reg_pw_in.value,
+                    vorname=vorname_in.value,
+                    nachname=nachname_in.value,
+                    email=email_in.value
+                )
+                if ok:
+                    ui.notify("✅ Registrierung erfolgreich! Bitte einloggen.", color="positive")
+                    zeige_tab("login")
+                else:
+                    fehler_label.set_text("Fehler – Benutzername oder Email bereits vergeben.")
+
+            ui.button("Registrieren", on_click=registrieren).classes("w-full").style(
+                "background:black; color:white; margin-top:0.5rem")
+
+        # Tab-Wechsel Logik
+        def zeige_tab(tab):
+            fehler_label.set_text("")
+            if tab == "login":
+                login_panel.style("display:block")
+                reg_panel.style("display:none")
+                login_btn.style("background:black; color:white")
+                reg_btn.style("background:white; color:black")
+            else:
+                login_panel.style("display:none")
+                reg_panel.style("display:block")
+                login_btn.style("background:white; color:black")
+                reg_btn.style("background:black; color:white")
+
+        # Footer
+        with ui.row().classes("w-full justify-between items-center").style("margin-top:2rem; border-top:1px solid #eee; padding-top:1rem"):
+            ui.label("✳ Bibflow").style("font-weight:600")
+            with ui.row().classes("gap-3"):
+                ui.label("Bücher").style("cursor:pointer; color:#666")
+                ui.label("FAQ").style("cursor:pointer; color:#666")
+                ui.label("Support").style("cursor:pointer; color:#666")
  
  
 def zeige_dashboard():
@@ -223,7 +280,7 @@ def zeige_dashboard():
     # ── Navigationsleiste ──
     with ui.header().style("background:#1e3a5f; color:white; padding:0.75rem 1.5rem"):
         with ui.row().classes("items-center justify-between w-full"):
-            ui.label("📚 Bibliothek").style("font-size:1.3rem; font-weight:700")
+            ui.label("📚 Bibflow").style("font-size:1.3rem; font-weight:700")
             with ui.row().classes("gap-2"):
                 ui.button("Bücher",        on_click=lambda: tabs.set_value("buecher")).props("flat color=white")
                 ui.button("Meine Ausleihen", on_click=lambda: tabs.set_value("ausleihen")).props("flat color=white")
