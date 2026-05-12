@@ -143,6 +143,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 ## Mockup
 
 ## Architektur
+<img width="861" height="671" alt="Architektur" src="https://github.com/user-attachments/assets/f24a27e7-d921-4457-998d-bda20b477337" />
 
 ## Datenbank 
 
