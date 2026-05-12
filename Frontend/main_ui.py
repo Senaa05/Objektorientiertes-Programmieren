@@ -451,13 +451,13 @@ def zeige_dashboard():
                         autor_in  = ui.input("Autor").classes("w-full")
                         isbn_in   = ui.input("ISBN").classes("w-full")
                         jahr_in   = ui.number("Erscheinungsjahr", min=1000, max=2100).classes("w-full")
- 
+
                         def buch_hinzufuegen():
                             if not titel_in.value or not autor_in.value or not isbn_in.value:
                                 ui.notify("Bitte alle Felder ausfüllen.", color="warning")
                                 return
                             ok = db.buch_speichern(titel_in.value, autor_in.value,
-                                                   isbn_in.value, int(jahr_in.value or 0))
+                                                isbn_in.value, int(jahr_in.value or 0))
                             if ok:
                                 ui.notify(f"✅ '{titel_in.value}' hinzugefügt.", color="positive")
                                 titel_in.set_value("")
@@ -466,10 +466,114 @@ def zeige_dashboard():
                                 jahr_in.set_value(None)
                             else:
                                 ui.notify("❌ Fehler beim Speichern.", color="negative")
- 
+
                         ui.button("Buch speichern", on_click=buch_hinzufuegen).style(
                             "background:#2563eb; color:white; margin-top:0.5rem")
- 
+
+                            # ── Exemplare verwalten ──
+                                                # ── Exemplare verwalten ──
+                    with ui.card().style("width:100%; padding:1rem; margin-top:1rem"):
+                        ui.label("📦 Exemplare verwalten").style("font-weight:600; margin-bottom:0.5rem")
+
+                        with ui.row().classes("items-center gap-2 mb-4"):
+                            isbn_such = ui.input(placeholder="ISBN eingeben...").style("width:220px")
+                            titel_such = ui.input(placeholder="Titel...").style("width:200px")
+                            autor_such = ui.input(placeholder="Autor...").style("width:200px")
+
+                            def suche_ausfuehren():
+                                isbn = isbn_such.value.strip()
+                                titel = titel_such.value.strip().lower()
+                                autor = autor_such.value.strip().lower()
+                                alle_buecher = db.alle_buecher_laden()
+                                treffer = [
+                                    b for b in alle_buecher
+                                    if (not isbn or isbn in b["isbn"])
+                                    and (not titel or titel in b["titel"].lower())
+                                    and (not autor or autor in b["autor"].lower())
+                                ]
+                                if not treffer:
+                                    exemplar_container.clear()
+                                    with exemplar_container:
+                                        ui.label("Keine Bücher gefunden.").style("color:#888")
+                                    return
+                                if len(treffer) == 1:
+                                    exemplare_laden(treffer[0]["isbn"])
+                                else:
+                                    exemplar_container.clear()
+                                    with exemplar_container:
+                                        ui.label(f"{len(treffer)} Bücher gefunden – bitte auswählen:").style("color:#555; margin-bottom:0.5rem")
+                                        for b in treffer:
+                                            with ui.card().classes("w-full").style("padding:0.75rem"):
+                                                with ui.row().classes("justify-between items-center w-full"):
+                                                    with ui.column():
+                                                        ui.label(b["titel"]).style("font-weight:600")
+                                                        ui.label(f"{b['autor']} · ISBN: {b['isbn']}").style("color:#666; font-size:0.85rem")
+                                                    ui.button("Auswählen",
+                                                        on_click=lambda _, i=b["isbn"]: exemplare_laden(i)
+                                                    ).style("background:#2563eb; color:white; font-size:0.8rem")
+
+                            ui.button("Suchen", on_click=suche_ausfuehren).style("background:#2563eb; color:white")
+                            ui.button("Zurücksetzen", on_click=lambda: (
+                                isbn_such.set_value(""),
+                                titel_such.set_value(""),
+                                autor_such.set_value(""),
+                                exemplar_container.clear()
+                            )).props("outline")
+
+                        exemplar_container = ui.column().classes("w-full gap-2")
+
+                        def exemplare_laden(isbn):
+                            exemplar_container.clear()
+                            if not isbn:
+                                ui.notify("Bitte ISBN eingeben.", color="warning")
+                                return
+                            buch = db.buch_laden(isbn)
+                            if not buch:
+                                with exemplar_container:
+                                    ui.label("Kein Buch mit dieser ISBN gefunden.").style("color:#888")
+                                return
+                            alle = db.exemplare_laden(isbn)
+                            with exemplar_container:
+                                ui.label(f"Buch: {buch['titel']} — {len(alle)} Exemplar(e)").style(
+                                    "font-weight:600; margin-bottom:0.5rem")
+                                for ex in alle:
+                                    farbe = "#16a34a" if ex["status"] == "verfuegbar" else "#dc2626"
+                                    with ui.card().classes("w-full").style("padding:0.75rem"):
+                                        with ui.row().classes("justify-between items-center w-full"):
+                                            with ui.column():
+                                                ui.label(f"Exemplar-ID: {ex['exemplar_id']}").style("font-size:0.9rem")
+                                                ui.label(f"Status: {ex['status']}").style(f"color:{farbe}; font-size:0.85rem")
+                                            if ex["status"] != "verfuegbar":
+                                                ex_id = ex["exemplar_id"]
+                                                ui.button("✅ Verfügbar setzen",
+                                                    on_click=lambda _, i=ex_id, s=isbn: (
+                                                        db.exemplar_status_aktualisieren(i, "verfuegbar"),
+                                                        ui.notify("Status aktualisiert.", color="positive"),
+                                                        exemplare_laden(s)
+                                                    )).style("background:#16a34a; color:white; font-size:0.8rem")
+
+                                ui.separator()
+                                ui.label("Neues Exemplar hinzufügen").style("font-weight:600; margin-top:0.5rem")
+                                with ui.row().classes("items-center gap-2"):
+                                    anzahl_in = ui.number("Anzahl Exemplare", min=1, max=20, value=1).style("width:200px")
+
+                                def exemplar_hinzufuegen(isbn=isbn):
+                                    import uuid
+                                    anzahl = int(anzahl_in.value or 1)
+                                    fehler = 0
+                                    for _ in range(anzahl):
+                                        neue_id = "EX-" + str(uuid.uuid4())[:6].upper()
+                                        ok = db.exemplar_speichern(neue_id, isbn)
+                                        if not ok:
+                                            fehler += 1
+                                    if fehler == 0:
+                                        ui.notify(f"✅ {anzahl} Exemplar(e) hinzugefügt.", color="positive")
+                                    else:
+                                        ui.notify(f"⚠️ {anzahl - fehler} hinzugefügt, {fehler} fehlgeschlagen.", color="warning")
+                                    exemplare_laden(isbn)
+
+                                ui.button("Exemplare hinzufügen", on_click=exemplar_hinzufuegen).style(
+                                    "background:#2563eb; color:white; margin-top:0.5rem")
  
 # ─────────────────────────────────────────────
 #  ROUTEN REGISTRIEREN
