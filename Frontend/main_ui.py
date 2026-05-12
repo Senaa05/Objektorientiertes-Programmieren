@@ -2,10 +2,14 @@
 Bibliothek NiceGUI - Bibflow
 ==========================================
 """
- 
+
 from nicegui import ui
 from datetime import date
- 
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # ─────────────────────────────────────────────
 #  DATENBANK  
 # ─────────────────────────────────────────────
@@ -56,13 +60,13 @@ class DatenbankManager():
         }
         return alle.get(isbn, [])
  
-    def anzahl_aktive_ausleihen_benutzer(self, benutzername):
-        return len(self.aktive_ausleihen_benutzer(benutzername))
+    def anzahl_ausleihen_benutzer(self, benutzername):
+        return len(self.ausleihen_benutzer(benutzername))
  
     def anzahl_ausleihen_benutzer(self, benutzername):
-        return self.anzahl_aktive_ausleihen_benutzer(benutzername)
+        return self.anzahl_ausleihen_benutzer(benutzername)
  
-    def aktive_ausleihen_benutzer(self, benutzername):
+    def ausleihen_benutzer(self, benutzername):
         alle = {
             "lilly2": [
                 {"ausleih_id": "abc-001", "benutzername": "lilly2", "exemplar_id": "EX-001",
@@ -74,7 +78,7 @@ class DatenbankManager():
         }
         return alle.get(benutzername, [])
  
-    def ausleihe_laden(self, ausleih_id):
+    def ausleih_laden(self, ausleih_id):
         ausleihen = {
             "abc-001": {"ausleih_id": "abc-001", "benutzername": "lilly2",
                         "exemplar_id": "EX-001", "ausleihdatum": "2025-04-01",
@@ -83,7 +87,7 @@ class DatenbankManager():
         }
         return ausleihen.get(ausleih_id)
  
-    def ausleihe_speichern(self, **kwargs):
+    def ausleih_speichern(self, **kwargs):
         return True
  
     def ausleih_speichern(self, **kwargs):
@@ -92,13 +96,13 @@ class DatenbankManager():
     def exemplar_status_aktualisieren(self, exemplar_id, status):
         return True
  
-    def ausleihe_verlaengern(self, ausleih_id, neue_faelligkeit):
+    def ausleih_verlaengern(self, ausleih_id, neue_faelligkeit):
         return True
  
     def ausleih_verlaengern(self, ausleih_id, neue_faelligkeit):
         return True
  
-    def ausleihe_rueckgabe(self, ausleih_id):
+    def ausleih_rueckgabe(self, ausleih_id):
         return True
  
     def ausleih_rueckgabe(self, ausleih_id):
@@ -138,11 +142,12 @@ class DatenbankManager():
 #  SERVICE INITIALISIEREN
 # ─────────────────────────────────────────────
  
-# ⬇️  Hier später austauschen:
-# from Backend.datenbank.datenbank_manager import DatenbankManager
-# db = DatenbankManager()
- 
-db = DatenbankManager()
+from Datenbank.DatenbankManager import DatenbankManager
+
+basis_pfad = os.path.dirname(os.path.abspath(__file__))
+db_pfad = os.path.join(basis_pfad, "..", "Backend", "bibliothek.db")
+
+db = DatenbankManager(db_pfad)
  
 try:
     from Backend.services.ausleihe_service import AusleiheService
@@ -151,8 +156,8 @@ except ImportError:
     # Falls Backend-Pfad noch nicht passt, Dummy-Service
     class DummyService:
         def buch_ausleihen(self, b, i):     raise ValueError("Service nicht geladen")
-        def meine_ausleihen(self, b):       return db.aktive_ausleihen_benutzer(b)
-        def ausleihe_verlaengern(self, i):  raise ValueError("Service nicht geladen")
+        def meine_ausleihen(self, b):       return db.ausleihen_benutzer(b)
+        def ausleih_verlaengern(self, i):  raise ValueError("Service nicht geladen")
         def buch_zurueckgeben(self, i):     raise ValueError("Service nicht geladen")
         def ueberfaellige_ausleihen(self):  return db.ueberfaellige_ausleihen()
     service = DummyService()
@@ -233,6 +238,12 @@ def zeige_login():
                             reg_bn_in.value, reg_pw_in.value]):
                     fehler_label.set_text("Bitte alle Felder ausfüllen.")
                     return
+
+                # Prüfen ob Benutzername schon existiert
+                if db.benutzer_laden(reg_bn_in.value):
+                    fehler_label.set_text("Benutzername bereits vergeben.")
+                    return
+
                 ok = db.benutzer_speichern(
                     benutzername=reg_bn_in.value,
                     passwort=reg_pw_in.value,
@@ -241,8 +252,13 @@ def zeige_login():
                     email=email_in.value
                 )
                 if ok:
-                    ui.notify("✅ Registrierung erfolgreich! Bitte einloggen.", color="positive")
-                    zeige_tab("login")
+                    # Direkt prüfen ob der Benutzer wirklich in der DB ist
+                    gespeichert = db.benutzer_laden(reg_bn_in.value)
+                    if gespeichert:
+                        ui.notify("✅ Registrierung erfolgreich! Bitte einloggen.", color="positive")
+                        zeige_tab("login")
+                    else:
+                        fehler_label.set_text("Benutzer wurde nicht gespeichert – Datenbankfehler.")
                 else:
                     fehler_label.set_text("Fehler – Benutzername oder Email bereits vergeben.")
 
@@ -358,7 +374,7 @@ def zeige_dashboard():
                 try:
                     ausleihen = service.meine_ausleihen(aktueller_benutzer())
                 except Exception:
-                    ausleihen = db.aktive_ausleihen_benutzer(aktueller_benutzer())
+                    ausleihen = db.ausleihen_benutzer(aktueller_benutzer())
  
                 if not ausleihen:
                     with ausleihen_container:
@@ -380,15 +396,15 @@ def zeige_dashboard():
                                     aid = a["ausleih_id"]
                                     if a.get("verlaengerungsanzahl", 0) < 1:
                                         ui.button("Verlängern",
-                                                  on_click=lambda _, i=aid: ausleihe_verlaengern(i)
+                                                  on_click=lambda _, i=aid: ausleih_verlaengern(i)
                                                   ).props("outline").style("color:#2563eb")
                                     ui.button("Zurückgeben",
                                               on_click=lambda _, i=aid: buch_zurueckgeben(i)
                                               ).style("background:#dc2626; color:white")
  
-            def ausleihe_verlaengern(ausleih_id):
+            def ausleih_verlaengern(ausleih_id):
                 try:
-                    service.ausleihe_verlaengern(ausleih_id)
+                    service.ausleih_verlaengern(ausleih_id)
                     ui.notify("✅ Ausleihe um 14 Tage verlängert.", color="positive")
                     ausleihen_laden()
                 except ValueError as e:
