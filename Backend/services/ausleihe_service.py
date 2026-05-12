@@ -55,7 +55,7 @@ class AusleiheService:
     def ausleihe_verlaengern(self, ausleih_id: str) -> bool:
         """Verlaengert eine aktive Ausleihe einmalig um 14 Tage."""
         # Verlaengerung ist nur einmal erlaubt und erhoeht um 14 Tage.
-        ausleihe = self.db.ausleihe_laden(ausleih_id)
+        ausleihe = self.db.ausleih_laden(ausleih_id)
         if not ausleihe:
             raise ValueError("Ausleihe nicht gefunden.")
 
@@ -67,7 +67,7 @@ class AusleiheService:
         aktuelle_faelligkeit = date.fromisoformat(ausleihe_obj.faelligkeit)
         neue_faelligkeit = aktuelle_faelligkeit + timedelta(days=14)
 
-        erfolg = self.db.ausleihe_verlaengern(
+        erfolg = self.db.ausleih_verlaengern(
             ausleih_id=ausleih_id,
             neue_faelligkeit=neue_faelligkeit.strftime("%Y-%m-%d")
         )
@@ -80,7 +80,7 @@ class AusleiheService:
     def buch_zurueckgeben(self, ausleih_id: str) -> bool:
         """Markiert eine Ausleihe als zurueckgegeben und setzt das Exemplar auf verfuegbar."""
         # Rueckgabe markiert Ausleihe und gibt Exemplar wieder frei.
-        ausleihe = self.db.ausleihe_laden(ausleih_id)
+        ausleihe = self.db.ausleih_laden(ausleih_id)
         if not ausleihe:
             raise ValueError("Ausleihe nicht gefunden.")
 
@@ -89,7 +89,7 @@ class AusleiheService:
         if ausleihe_obj.ist_zurueckgegeben():
             raise ValueError("Buch wurde bereits zurückgegeben.")
 
-        erfolg = self.db.ausleihe_rueckgabe(ausleih_id)
+        erfolg = self.db.ausleih_rueckgabe(ausleih_id)
         if not erfolg:
             raise ValueError("Rückgabe fehlgeschlagen.")
 
