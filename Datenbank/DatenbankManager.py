@@ -1,4 +1,3 @@
-
 import sqlite3
 from datetime import date, timedelta
 from typing import List, Dict, Optional
@@ -294,14 +293,14 @@ class DatenbankManager:
         return dict(row) if row else None
     
     def ausleihen_benutzer(self, benutzername: str) -> List[Dict]:
-        """Lädt alle Ausleihen eines Benutzers"""
+        """Lädt alle aktiven Ausleihen eines Benutzers"""
         cursor = self.connection.cursor()
         cursor.execute('''
             SELECT a.*, e.isbn, b.titel, b.autor
             FROM ausleihen a
             JOIN exemplare e ON a.exemplar_id = e.exemplar_id
             JOIN buecher b ON e.isbn = b.isbn
-            WHERE a.benutzername = ?
+            WHERE a.benutzername = ? AND a.rueckgabedatum IS NULL
             ORDER BY a.faelligkeit
         ''', (benutzername,))
         return [dict(row) for row in cursor.fetchall()]
@@ -346,25 +345,15 @@ class DatenbankManager:
             return False
     
     def ausleih_rueckgabe(self, ausleih_id: str) -> bool:
-        """Verarbeitet die Rückgabe einer Ausleihe"""
+        """Markiert eine Ausleihe als zurückgegeben (setzt rueckgabedatum)"""
         try:
             cursor = self.connection.cursor()
             heute = date.today().strftime('%Y-%m-%d')
-            
-            # Zuerst das Exemplar-Status aktualisieren
-            cursor.execute('''
-                UPDATE exemplare 
-                SET status = 'verfuegbar'
-                WHERE exemplar_id = (SELECT exemplar_id FROM ausleihen WHERE ausleih_id = ?)
-            ''', (ausleih_id,))
-            
-            # Dann die Ausleihe als zurückgegeben markieren
             cursor.execute('''
                 UPDATE ausleihen 
                 SET rueckgabedatum = ?
-                WHERE ausleih_id = ?
+                WHERE ausleih_id = ? AND rueckgabedatum IS NULL
             ''', (heute, ausleih_id))
-            
             self.connection.commit()
             return cursor.rowcount > 0
         except sqlite3.Error as e:
