@@ -114,6 +114,22 @@ class DatenbankManager:
         cursor.execute('SELECT * FROM buecher ORDER BY titel')
         return [dict(row) for row in cursor.fetchall()]
     
+    def beliebteste_buecher_laden(self, limit: int = 5) -> List[Dict]:
+        """Gibt die am häufigsten ausgeliehenen Bücher zurück"""
+        cursor = self.connection.cursor()
+        cursor.execute('''
+        SELECT b.isbn, b.titel, b.autor, b.jahr,
+               COUNT(a.ausleih_id) AS anzahl_ausleihen
+        FROM buecher b
+        LEFT JOIN exemplare e ON b.isbn = e.isbn
+        LEFT JOIN ausleihen a ON e.exemplar_id = a.exemplar_id
+        GROUP BY b.isbn
+        ORDER BY anzahl_ausleihen DESC
+        LIMIT ?
+    ''', (limit,))
+        return [dict(row) for row in cursor.fetchall()]
+    
+    
     def bucher_suchen(self, suchbegriff: str) -> List[Dict]:
         """Sucht Bücher nach Titel, Autor oder ISBN"""
         cursor = self.connection.cursor()
