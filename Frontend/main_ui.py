@@ -309,15 +309,6 @@ def zeige_login():
                 reg_panel.style("display:block")
                 login_btn.style("background:white; color:black")
                 reg_btn.style("background:black; color:white")
-
-        # Footer
-        with ui.row().classes("w-full justify-between items-center").style("margin-top:2rem; border-top:1px solid #eee; padding-top:1rem"):
-            ui.label("✳ Bibflow").style("font-weight:600")
-            with ui.row().classes("gap-3"):
-                ui.label("Bücher").style("cursor:pointer; color:#666")
-                ui.label("FAQ").style("cursor:pointer; color:#666")
-                ui.label("Support").style("cursor:pointer; color:#666")
- 
  
 def zeige_dashboard():
     if not zustand["angemeldet"]:
