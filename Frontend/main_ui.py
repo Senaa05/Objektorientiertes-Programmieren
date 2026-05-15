@@ -497,8 +497,74 @@ def zeige_dashboard():
                         ui.button("Buch speichern", on_click=buch_hinzufuegen).style(
                             "background:#2563eb; color:white; margin-top:0.5rem")
 
-                            # ── Exemplare verwalten ──
-                                                # ── Exemplare verwalten ──
+                        ui.separator()
+                        ui.label("🗑️ Buch löschen").style("font-weight:600; margin-top:0.5rem")
+
+                        with ui.row().classes("gap-2"):
+                            isbn_loeschen  = ui.input("ISBN").style("width:150px")
+                            titel_loeschen = ui.input("Titel").style("width:150px")
+                            autor_loeschen = ui.input("Autor").style("width:150px")
+
+                        loeschen_container = ui.column().classes("w-full gap-2")
+
+                        def buecher_zum_loeschen_suchen():
+                            loeschen_container.clear()
+                            isbn   = isbn_loeschen.value.strip().lower()
+                            titel  = titel_loeschen.value.strip().lower()
+                            autor  = autor_loeschen.value.strip().lower()
+
+                            if not isbn and not titel and not autor:
+                                ui.notify("Bitte mindestens ein Suchfeld ausfüllen.", color="warning")
+                                return
+
+                            alle = db.alle_buecher_laden()
+                            treffer = [
+                                b for b in alle
+                                if (not isbn  or isbn  in b["isbn"].lower())
+                                and (not titel or titel in b["titel"].lower())
+                                and (not autor or autor in b["autor"].lower())
+                            ]
+
+                            if not treffer:
+                                with loeschen_container:
+                                    ui.label("Keine Bücher gefunden.").style("color:#888")
+                                return
+
+                            with loeschen_container:
+                                for b in treffer:
+                                    with ui.card().classes("w-full").style("padding:0.75rem"):
+                                        with ui.row().classes("justify-between items-center w-full"):
+                                            with ui.column():
+                                                ui.label(b["titel"]).style("font-weight:600")
+                                                ui.label(f"{b['autor']} · {b['jahr']} · ISBN: {b['isbn']}"
+                                                        ).style("color:#666; font-size:0.85rem")
+                                            ui.button("🗑️ Löschen",
+                                                    on_click=lambda _, buch=b: buch_loeschen_bestaetigen(buch)
+                                                    ).style("background:#dc2626; color:white; font-size:0.8rem")
+
+                        def buch_loeschen_bestaetigen(buch):
+                            def bestaetigen():
+                                ok = db.buch_loeschen(buch["isbn"])
+                                if ok:
+                                    ui.notify("✅ Buch wurde erfolgreich gelöscht.", color="positive")
+                                    loeschen_container.clear()
+                                    dialog.close()
+                                else:
+                                    ui.notify("❌ Löschen fehlgeschlagen – möglicherweise noch Exemplare ausgeliehen.", color="negative")
+                                    dialog.close()
+
+                            with ui.dialog() as dialog, ui.card():
+                                ui.label("Buch wirklich löschen?").style("font-weight:600")
+                                ui.label(f"'{buch['titel']}' von {buch['autor']} wird unwiderruflich gelöscht."
+                                        ).style("color:#666")
+                                with ui.row().classes("gap-2 mt-2"):
+                                    ui.button("Ja, löschen", on_click=bestaetigen).style("background:#dc2626; color:white")
+                                    ui.button("Abbrechen", on_click=dialog.close).props("outline")
+                            dialog.open()
+
+                        ui.button("Suchen", on_click=buecher_zum_loeschen_suchen).style(
+                            "background:#2563eb; color:white; margin-top:0.5rem")
+                    # ── Exemplare verwalten ──
                     with ui.card().style("width:100%; padding:1rem; margin-top:1rem"):
                         ui.label("📦 Exemplare verwalten").style("font-weight:600; margin-bottom:0.5rem")
 
@@ -548,6 +614,22 @@ def zeige_dashboard():
                             )).props("outline")
 
                         exemplar_container = ui.column().classes("w-full gap-2")
+                        def exemplar_loeschen(exemplar_id, isbn):
+                            def bestaetigen():
+                                cursor = db.connection.cursor()
+                                cursor.execute("DELETE FROM exemplare WHERE exemplar_id = ?", (exemplar_id,))
+                                db.connection.commit()
+                                ui.notify(f"✅ Exemplar {exemplar_id} gelöscht.", color="positive")
+                                dialog.close()
+                                exemplare_laden(isbn)
+
+                            with ui.dialog() as dialog, ui.card():
+                                ui.label("Exemplar wirklich löschen?").style("font-weight:600")
+                                ui.label(f"Exemplar-ID: {exemplar_id}").style("color:#666")
+                                with ui.row().classes("gap-2 mt-2"):
+                                    ui.button("Ja, löschen", on_click=bestaetigen).style("background:#dc2626; color:white")
+                                    ui.button("Abbrechen", on_click=dialog.close).props("outline")
+                            dialog.open()
 
                         def exemplare_laden(isbn):
                             exemplar_container.clear()
@@ -570,8 +652,8 @@ def zeige_dashboard():
                                             with ui.column():
                                                 ui.label(f"Exemplar-ID: {ex['exemplar_id']}").style("font-size:0.9rem")
                                                 ui.label(f"Status: {ex['status']}").style(f"color:{farbe}; font-size:0.85rem")
+                                            ex_id = ex["exemplar_id"]
                                             if ex["status"] != "verfuegbar":
-                                                ex_id = ex["exemplar_id"]
                                                 ui.button("✅ Verfügbar setzen",
                                                     on_click=lambda _, i=ex_id, s=isbn: (
                                                         db.exemplar_status_aktualisieren(i, "verfuegbar"),
@@ -579,6 +661,9 @@ def zeige_dashboard():
                                                         exemplare_laden(s)
                                                     )).style("background:#16a34a; color:white; font-size:0.8rem")
 
+                                            ui.button("🗑️ Löschen",
+                                                on_click=lambda _, i=ex_id, s=isbn: exemplar_loeschen(i, s)
+                                            ).style("background:#dc2626; color:white; font-size:0.8rem")
                                 ui.separator()
                                 ui.label("Neues Exemplar hinzufügen").style("font-weight:600; margin-top:0.5rem")
                                 with ui.row().classes("items-center gap-2"):
