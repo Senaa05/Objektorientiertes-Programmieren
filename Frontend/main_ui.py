@@ -320,8 +320,9 @@ def zeige_dashboard():
         with ui.row().classes("items-center justify-between w-full"):
             ui.label("📚 Bibflow").style("font-size:1.3rem; font-weight:700")
             with ui.row().classes("gap-2"):
-                ui.button("Bücher",        on_click=lambda: tabs.set_value("buecher")).props("flat color=white")
-                ui.button("Meine Ausleihen", on_click=lambda: tabs.set_value("ausleihen")).props("flat color=white")
+                ui.button("Bücher", on_click=lambda: tabs.set_value("buecher")).props("flat color=white")
+                if not ist_admin():
+                    ui.button("Meine Ausleihen", on_click=lambda: tabs.set_value("ausleihen")).props("flat color=white")
                 if ist_admin():
                     ui.button("Admin", on_click=lambda: tabs.set_value("admin")).props("flat color=white")
                 ui.button(f"Abmelden ({aktueller_benutzer()})",
@@ -332,7 +333,8 @@ def zeige_dashboard():
     # ── Haupt-Tabs ──
     with ui.tabs().props("dense").classes("hidden") as tabs:
         ui.tab("buecher")
-        ui.tab("ausleihen")
+        if not ist_admin():
+            ui.tab("ausleihen")
         if ist_admin():
             ui.tab("admin")
  
@@ -387,42 +389,43 @@ def zeige_dashboard():
             buecher_laden()
  
         # ── TAB: MEINE AUSLEIHEN ──
-        with ui.tab_panel("ausleihen"):
-            ui.label("Meine Ausleihen").style("font-size:1.4rem; font-weight:600; margin:1rem 0")
-            ausleihen_container = ui.column().classes("w-full gap-2")
- 
-            def ausleihen_laden():
-                ausleihen_container.clear()
-                try:
-                    ausleihen = service.meine_ausleihen(aktueller_benutzer())
-                except Exception:
-                    ausleihen = db.ausleihen_benutzer(aktueller_benutzer())
- 
-                if not ausleihen:
-                    with ausleihen_container:
-                        ui.label("Du hast aktuell keine aktiven Ausleihen.").style("color:#888")
-                    return
- 
-                for a in ausleihen:
-                    with ausleihen_container:
-                        with ui.card().classes("w-full").style("padding:1rem"):
-                            with ui.row().classes("justify-between items-center w-full"):
-                                with ui.column():
-                                    ui.label(a.get("titel", "Unbekanntes Buch")).style("font-weight:600")
-                                    ui.label(f"Ausgeliehen: {a['ausleihdatum']}  ·  Fällig: {a['faelligkeit']}"
-                                             ).style("color:#666; font-size:0.85rem")
-                                    verlaengerungen = a.get("verlaengerungsanzahl", 0)
-                                    ui.label(f"Verlängerungen: {verlaengerungen}/1").style(
-                                        "font-size:0.8rem; color:#999")
-                                with ui.row().classes("gap-2"):
-                                    aid = a["ausleih_id"]
-                                    if a.get("verlaengerungsanzahl", 0) < 1:
-                                        ui.button("Verlängern",
-                                                  on_click=lambda _, i=aid: ausleih_verlaengern(i)
-                                                  ).props("outline").style("color:#2563eb")
-                                    ui.button("Zurückgeben",
-                                              on_click=lambda _, i=aid: buch_zurueckgeben(i)
-                                              ).style("background:#dc2626; color:white")
+        if not ist_admin():
+            with ui.tab_panel("ausleihen"):
+                ui.label("Meine Ausleihen").style("font-size:1.4rem; font-weight:600; margin:1rem 0")
+                ausleihen_container = ui.column().classes("w-full gap-2")
+    
+                def ausleihen_laden():
+                    ausleihen_container.clear()
+                    try:
+                        ausleihen = service.meine_ausleihen(aktueller_benutzer())
+                    except Exception:
+                        ausleihen = db.ausleihen_benutzer(aktueller_benutzer())
+    
+                    if not ausleihen:
+                        with ausleihen_container:
+                            ui.label("Du hast aktuell keine aktiven Ausleihen.").style("color:#888")
+                        return
+    
+                    for a in ausleihen:
+                        with ausleihen_container:
+                            with ui.card().classes("w-full").style("padding:1rem"):
+                                with ui.row().classes("justify-between items-center w-full"):
+                                    with ui.column():
+                                        ui.label(a.get("titel", "Unbekanntes Buch")).style("font-weight:600")
+                                        ui.label(f"Ausgeliehen: {a['ausleihdatum']}  ·  Fällig: {a['faelligkeit']}"
+                                                ).style("color:#666; font-size:0.85rem")
+                                        verlaengerungen = a.get("verlaengerungsanzahl", 0)
+                                        ui.label(f"Verlängerungen: {verlaengerungen}/1").style(
+                                            "font-size:0.8rem; color:#999")
+                                    with ui.row().classes("gap-2"):
+                                        aid = a["ausleih_id"]
+                                        if a.get("verlaengerungsanzahl", 0) < 1:
+                                            ui.button("Verlängern",
+                                                    on_click=lambda _, i=aid: ausleih_verlaengern(i)
+                                                    ).props("outline").style("color:#2563eb")
+                                        ui.button("Zurückgeben",
+                                                on_click=lambda _, i=aid: buch_zurueckgeben(i)
+                                                ).style("background:#dc2626; color:white")
  
             def ausleih_verlaengern(ausleih_id):
                 try:
@@ -620,4 +623,6 @@ if __name__ in {"__main__", "__mp_main__"}:
         port=8080,
         reload=True,       # Hot-Reload: Änderungen sofort sichtbar
         dark=False,
+        native=False,     # Keine native App, sondern im Browser (für Entwicklung)
+        show=True,           # Browser automatisch öffnen
     )
