@@ -369,9 +369,11 @@ def zeige_dashboard():
                                     ui.label(f"{buch['autor']} · {buch['jahr']}").style("color:#666; font-size:0.85rem")
                                     ui.label(f"ISBN: {buch['isbn']}").style("color:#999; font-size:0.8rem")
                                 with ui.row().classes("items-center gap-2"):
-                                    status_text = "✅ Verfügbar" if verfuegbar else "❌ Nicht verfügbar"
-                                    status_farbe = "color:#16a34a" if verfuegbar else "color:#dc2626"
-                                    ui.label(status_text).style(status_farbe)
+                                    anzahl_verfuegbar = len(db.verfuegbare_exemplare(buch["isbn"]))
+                                    if anzahl_verfuegbar > 0:
+                                        ui.label(f"📗 Exemplare übrig: {anzahl_verfuegbar}").style("color:#16a34a")
+                                    else:
+                                        ui.label("❌ Nicht verfügbar").style("color:#dc2626")
                                     if verfuegbar:
                                         isbn_kopie = buch["isbn"]
                                         ui.button("Ausleihen", on_click=lambda _, i=isbn_kopie: buch_ausleihen(i)
