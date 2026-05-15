@@ -477,22 +477,29 @@ def zeige_dashboard():
                         titel_in  = ui.input("Titel").classes("w-full")
                         autor_in  = ui.input("Autor").classes("w-full")
                         isbn_in   = ui.input("ISBN").classes("w-full")
-                        jahr_in   = ui.number("Erscheinungsjahr", min=1000, max=2100).classes("w-full")
+                        jahr_in   = ui.input("Erscheinungsjahr (z.B. 2024)").classes("w-full")
 
                         def buch_hinzufuegen():
-                            if not titel_in.value or not autor_in.value or not isbn_in.value:
+                            if not titel_in.value or not autor_in.value or not isbn_in.value or not jahr_in.value:
                                 ui.notify("Bitte alle Felder ausfüllen.", color="warning")
                                 return
-                            ok = db.buch_speichern(titel_in.value, autor_in.value,
-                                                isbn_in.value, int(jahr_in.value or 0))
+                            jahr_str = jahr_in.value.strip()
+                            if not jahr_str.isdigit() or len(jahr_str) != 4:
+                                ui.notify("Erscheinungsjahr muss eine vierstellige Zahl sein (z.B. 2024).", color="warning")
+                                return
+                            jahr = int(jahr_str)
+                            if not (1000 <= jahr <= 2100):
+                                ui.notify("Erscheinungsjahr muss zwischen 1000 und 2100 liegen.", color="warning")
+                                return
+                            ok = db.buch_speichern(titel_in.value, autor_in.value, isbn_in.value, jahr)
                             if ok:
                                 ui.notify(f"✅ '{titel_in.value}' hinzugefügt.", color="positive")
                                 titel_in.set_value("")
                                 autor_in.set_value("")
                                 isbn_in.set_value("")
-                                jahr_in.set_value(None)
+                                jahr_in.set_value("")
                             else:
-                                ui.notify("❌ Fehler beim Speichern.", color="negative")
+                                ui.notify("❌ Fehler beim Speichern. Möglicherweise Buch bereits vorhanden.", color="negative")
 
                         ui.button("Buch speichern", on_click=buch_hinzufuegen).style(
                             "background:#2563eb; color:white; margin-top:0.5rem")
