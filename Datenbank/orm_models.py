@@ -94,16 +94,31 @@ class Merkliste(Base):
         return f"<Merkliste(benutzer='{self.benutzername}', isbn='{self.isbn}')>"
 
 # Database-Konfiguration
-DATABASE_URL = "sqlite:///bibliothek_orm.db"
+import os as _os
 
-engine = create_engine(DATABASE_URL, echo=False)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+_DEFAULT_DB = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "Backend", "bibliothek.db")
+_DEFAULT_DB = _os.path.normpath(_DEFAULT_DB)
+DATABASE_URL = f"sqlite:///{_DEFAULT_DB}"
+
+engine = None
+SessionLocal = None
+
+def init_engine(db_path: str = None):
+    """Initialisiert Engine mit optionalem Pfad"""
+    global engine, SessionLocal
+    url = f"sqlite:///{db_path}" if db_path else DATABASE_URL
+    engine = create_engine(url, echo=False)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def create_tables():
     """Erstellt alle Tabellen in der Datenbank"""
+    if engine is None:
+        init_engine()
     Base.metadata.create_all(bind=engine)
     print("ORM-Tabellen erstellt")
 
 def get_session():
     """Gibt eine neue Datenbank-Session zurück"""
+    if SessionLocal is None:
+        init_engine()
     return SessionLocal()

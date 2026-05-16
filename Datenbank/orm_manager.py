@@ -9,16 +9,22 @@ from datetime import date, timedelta
 from typing import List, Optional, Dict
 import uuid
 
+import sys, os as _os
+_datenbank_pfad = _os.path.dirname(_os.path.abspath(__file__))
+if _datenbank_pfad not in sys.path:
+    sys.path.insert(0, _datenbank_pfad)
+
 from orm_models import (
     Buch, Exemplar, Benutzer, Ausleihe, Merkliste,
-    get_session, create_tables
+    get_session, create_tables, init_engine
 )
 
 class ORMDatenbankManager:
     """ORM-basierter Datenbank-Manager mit SQLAlchemy"""
     
-    def __init__(self, db_path: str = "bibliothek_orm.db"):
+    def __init__(self, db_path: str = None):
         self.db_path = db_path
+        init_engine(db_path)
         create_tables()
         print(f"ORM-Datenbank verbunden: {db_path}")
     
@@ -360,6 +366,138 @@ class ORMDatenbankManager:
             print(f"Fehler beim Entfernen aus der Merkliste: {e}")
             return False
     
+    def ausleih_laden(self, ausleih_id: str) -> Optional[Dict]:
+        """Lädt eine einzelne Ausleihe per ID"""
+        with self.get_session() as session:
+            a = session.query(Ausleihe).filter(Ausleihe.ausleih_id == ausleih_id).first()
+            if a:
+                return {
+                    'ausleih_id': a.ausleih_id,
+                    'benutzername': a.benutzername,
+                    'exemplar_id': a.exemplar_id,
+                    'ausleihdatum': a.ausleihdatum.strftime('%Y-%m-%d'),
+                    'faelligkeit': a.faelligkeit.strftime('%Y-%m-%d'),
+                    'rueckgabedatum': a.rueckgabedatum.strftime('%Y-%m-%d') if a.rueckgabedatum else None,
+                    'verlaengerungsanzahl': a.verlaengerungsanzahl,
+                }
+        return None
+
+    def ausleih_rueckgabe(self, ausleih_id: str) -> bool:
+        """Setzt rueckgabedatum (Service setzt Exemplar-Status separat)"""
+        try:
+            with self.get_session() as session:
+                a = session.query(Ausleihe).filter(
+                    Ausleihe.ausleih_id == ausleih_id,
+                    Ausleihe.rueckgabedatum.is_(None)
+                ).first()
+                if a:
+                    a.rueckgabedatum = date.today()
+                    session.commit()
+                    return True
+                return False
+        except Exception as e:
+            print(f"Fehler bei Rückgabe: {e}")
+            return False
+
+    def ueberfaellige_ausleihen(self) -> List[Dict]:
+        """Gibt alle überfälligen aktiven Ausleihen zurück"""
+        with self.get_session() as session:
+            heute = date.today()
+            ausleihen = session.query(Ausleihe).filter(
+                Ausleihe.faelligkeit < heute,
+                Ausleihe.rueckgabedatum.is_(None)
+            ).join(Ausleihe.benutzer).join(Ausleihe.exemplar).join(Exemplar.buch).order_by(Ausleihe.faelligkeit).all()
+            return [
+                {
+                    'ausleih_id': a.ausleih_id,
+                    'benutzername': a.benutzername,
+                    'exemplar_id': a.exemplar_id,
+                    'faelligkeit': a.faelligkeit.strftime('%Y-%m-%d'),
+                    'vorname': a.benutzer.vorname,
+                    'nachname': a.benutzer.nachname,
+                    'email': a.benutzer.email,
+                    'titel': a.exemplar.buch.titel,
+                }
+                for a in ausleihen
+            ]
+
+    def benutzer_mit_email_laden(self, email: str) -> Optional[Dict]:
+        """Lädt einen Benutzer anhand der E-Mail"""
+        with self.get_session() as session:
+            b = session.query(Benutzer).filter(Benutzer.email == email).first()
+            if b:
+                return {'benutzername': b.benutzername, 'email': b.email, 'rolle': b.rolle}
+        return None
+
+    def beliebteste_buecher_laden(self, limit: int = 5) -> List[Dict]:
+        """Gibt die am häufigsten ausgeliehenen Bücher zurück"""
+        from sqlalchemy import func
+        with self.get_session() as session:
+            ergebnisse = session.query(
+                Buch.isbn, Buch.titel, Buch.autor, Buch.jahr,
+                func.count(Ausleihe.ausleih_id).label('anzahl_ausleihen')
+            ).outerjoin(Exemplar, Buch.isbn == Exemplar.isbn
+            ).outerjoin(Ausleihe, Exemplar.exemplar_id == Ausleihe.exemplar_id
+            ).group_by(Buch.isbn).order_by(func.count(Ausleihe.ausleih_id).desc()
+            ).limit(limit).all()
+            return [
+                {'isbn': r.isbn, 'titel': r.titel, 'autor': r.autor,
+                 'jahr': r.jahr, 'anzahl_ausleihen': r.anzahl_ausleihen}
+                for r in ergebnisse
+            ]
+
+    def exemplare_laden(self, isbn: str) -> List[Dict]:
+        """Lädt alle Exemplare eines Buches"""
+        with self.get_session() as session:
+            exemplare = session.query(Exemplar).filter(Exemplar.isbn == isbn).order_by(Exemplar.exemplar_id).all()
+            return [{'exemplar_id': e.exemplar_id, 'isbn': e.isbn, 'status': e.status} for e in exemplare]
+
+    def exemplare_fuer_buch_anlegen(self, isbn: str, anzahl: int) -> bool:
+        """Legt mehrere Exemplare für ein Buch an"""
+        try:
+            with self.get_session() as session:
+                for _ in range(anzahl):
+                    neue_id = "EX-" + str(uuid.uuid4())[:6].upper()
+                    session.add(Exemplar(exemplar_id=neue_id, isbn=isbn))
+                session.commit()
+                return True
+        except Exception as e:
+            print(f"Fehler beim Anlegen von Exemplaren: {e}")
+            return False
+
+    def buch_loeschen(self, isbn: str) -> bool:
+        """Löscht ein Buch wenn keine aktiven Ausleihen bestehen"""
+        try:
+            with self.get_session() as session:
+                aktiv = session.query(Exemplar).join(Ausleihe, Exemplar.exemplar_id == Ausleihe.exemplar_id).filter(
+                    Exemplar.isbn == isbn, Ausleihe.rueckgabedatum.is_(None)
+                ).count()
+                if aktiv > 0:
+                    return False
+                session.query(Exemplar).filter(Exemplar.isbn == isbn).delete()
+                session.query(Buch).filter(Buch.isbn == isbn).delete()
+                session.commit()
+                return True
+        except Exception as e:
+            print(f"Fehler beim Löschen: {e}")
+            return False
+
+    def buch_bearbeiten(self, isbn: str, titel: str = None, autor: str = None, jahr: int = None) -> bool:
+        """Aktualisiert Buchfelder"""
+        try:
+            with self.get_session() as session:
+                buch = session.query(Buch).filter(Buch.isbn == isbn).first()
+                if not buch:
+                    return False
+                if titel: buch.titel = titel
+                if autor: buch.autor = autor
+                if jahr:  buch.jahr = jahr
+                session.commit()
+                return True
+        except Exception as e:
+            print(f"Fehler beim Bearbeiten: {e}")
+            return False
+
     def schliessen(self):
         """Schließt die Datenbankverbindung (ORM benötigt explizites Schließen nicht)"""
         print("ORM-Datenbankverbindung geschlossen")

@@ -154,28 +154,37 @@ for pfad in [projekt_pfad,
 
 db_pfad = os.path.join(projekt_pfad, "Backend", "bibliothek.db")
 
-from Datenbank.DatenbankManager import DatenbankManager
-db = DatenbankManager(db_pfad)
+try:
+    from Datenbank.orm_manager import ORMDatenbankManager
+    db = ORMDatenbankManager(db_pfad)
+    print("✅ ORM-Datenbank geladen.")
+except Exception as e:
+    print(f"⚠️ ORM fehlgeschlagen ({e}), SQLite-Fallback wird verwendet.")
+    from Datenbank.DatenbankManager import DatenbankManager
+    db = DatenbankManager(db_pfad)
 
 try:
     from Backend.services.ausleihe_service import AusleiheService
-    _service = AusleiheService(db)
+    from Backend.services.benutzer_service import BenutzerService
+    _ausleihe_service = AusleiheService(db)
+    _benutzer_service = BenutzerService(db)
 
-    # Wrapper damit Methodennamen zur UI passen
     class Service:
         def buch_ausleihen(self, b, i):
-            return _service.buch_ausleihen(b, i)
+            return _ausleihe_service.buch_ausleihen(b, i)
         def meine_ausleihen(self, b):
-            return _service.meine_ausleihen(b)
-        def ausleih_verlaengern(self, i):       # UI ruft diesen Namen auf
-            return _service.ausleihe_verlaengern(i)
+            return _ausleihe_service.meine_ausleihen(b)
+        def ausleih_verlaengern(self, i):
+            return _ausleihe_service.ausleihe_verlaengern(i)
         def buch_zurueckgeben(self, i):
-            return _service.buch_zurueckgeben(i)
+            return _ausleihe_service.buch_zurueckgeben(i)
         def ueberfaellige_ausleihen(self):
-            return _service.ueberfaellige_ausleihen()
+            return _ausleihe_service.ueberfaellige_ausleihen()
+        def login(self, benutzername, passwort):
+            return _benutzer_service.login(benutzername, passwort)
 
     service = Service()
-    print("✅ AusleiheService erfolgreich geladen.")
+    print("✅ Services erfolgreich geladen.")
 
 except Exception as e:
     print(f"⚠️ Service-Fehler: {e} – DummyService wird verwendet.")
@@ -186,6 +195,13 @@ except Exception as e:
         def ausleih_verlaengern(self, i):   raise ValueError("Service nicht geladen")
         def buch_zurueckgeben(self, i):     raise ValueError("Service nicht geladen")
         def ueberfaellige_ausleihen(self):  return db.ueberfaellige_ausleihen()
+        def login(self, benutzername, passwort):
+            benutzer = db.benutzer_laden(benutzername)
+            if not benutzer:
+                raise ValueError("Benutzername oder Passwort ist falsch.")
+            if benutzer.get("passwort") != passwort:
+                raise ValueError("Benutzername oder Passwort ist falsch.")
+            return benutzer
 
     service = Service()
  
@@ -239,13 +255,15 @@ def zeige_login():
 
             def anmelden():
                 bn = bn_input.value.strip()
-                benutzer = db.benutzer_laden(bn)
-                if not benutzer:
-                    fehler_label.set_text("Benutzername nicht gefunden.")
+                pw = pw_input.value
+                try:
+                    benutzer = service.login(bn, pw)
+                except ValueError as e:
+                    fehler_label.set_text(str(e))
                     return
                 zustand["angemeldet"]   = True
                 zustand["benutzername"] = bn
-                zustand["rolle"]        = benutzer.get("rolle", "Benutzer")
+                zustand["rolle"]        = benutzer.get("rolle", "Benutzer") if isinstance(benutzer, dict) else getattr(benutzer, "rolle", "Benutzer")
                 ui.navigate.to("/dashboard")
 
             ui.button("Login", on_click=anmelden).classes("w-full").style(
@@ -506,9 +524,10 @@ def zeige_dashboard():
                 try:
                     service.buch_zurueckgeben(ausleih_id)
                     ui.notify("✅ Buch zurückgegeben.", color="positive")
-                    ausleihen_laden()
                 except ValueError as e:
                     ui.notify(f"❌ {e}", color="negative")
+                finally:
+                    ausleihen_laden()
  
             ausleihen_laden()
 
