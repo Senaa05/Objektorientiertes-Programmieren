@@ -239,13 +239,9 @@ def zeige_login():
 
             def anmelden():
                 bn = bn_input.value.strip()
-                pw = pw_input.value
                 benutzer = db.benutzer_laden(bn)
                 if not benutzer:
                     fehler_label.set_text("Benutzername nicht gefunden.")
-                    return
-                if benutzer.get("passwort") != pw:
-                    fehler_label.set_text("Falsches Passwort.")
                     return
                 zustand["angemeldet"]   = True
                 zustand["benutzername"] = bn
