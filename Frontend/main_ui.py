@@ -323,6 +323,8 @@ def zeige_dashboard():
                 ui.button("Bücher", on_click=lambda: tabs.set_value("buecher")).props("flat color=white")
                 if not ist_admin():
                     ui.button("Meine Ausleihen", on_click=lambda: tabs.set_value("ausleihen")).props("flat color=white")
+                if not ist_admin():
+                    ui.button("Meine Merkliste", on_click=lambda: tabs.set_value("merkliste")).props("flat color=white")
                 if ist_admin():
                     ui.button("Admin", on_click=lambda: tabs.set_value("admin")).props("flat color=white")
                 ui.button(f"Abmelden ({aktueller_benutzer()})",
@@ -335,6 +337,8 @@ def zeige_dashboard():
         ui.tab("buecher")
         if not ist_admin():
             ui.tab("ausleihen")
+        if not ist_admin():
+            ui.tab("merkliste")
         if ist_admin():
             ui.tab("admin")
  
@@ -374,8 +378,14 @@ def zeige_dashboard():
                                         ui.label(f"📗 Exemplare übrig: {anzahl_verfuegbar}").style("color:#16a34a")
                                     else:
                                         ui.label("❌ Nicht verfügbar").style("color:#dc2626")
+                                    isbn_kopie = buch["isbn"]
+                                    merkliste = db.merkliste_laden(aktueller_benutzer())
+                                    ist_gemerkt = any(m["isbn"] == isbn_kopie for m in merkliste)
+                                    stern = "⭐" if ist_gemerkt else "☆"
+                                    ui.button(stern,
+                                        on_click=lambda _, i=isbn_kopie: merkliste_toggle(i)
+                                    ).props("flat").style("font-size:1.3rem")
                                     if verfuegbar:
-                                        isbn_kopie = buch["isbn"]
                                         ui.button("Ausleihen", on_click=lambda _, i=isbn_kopie: buch_ausleihen(i)
                                                   ).style("background:#2563eb; color:white")
  
@@ -386,7 +396,17 @@ def zeige_dashboard():
                     buecher_laden("")
                 except ValueError as e:
                     ui.notify(f"❌ {e}", color="negative")
- 
+
+            def merkliste_toggle(isbn):
+                merkliste = db.merkliste_laden(aktueller_benutzer())
+                ist_gemerkt = any(m["isbn"] == isbn for m in merkliste)
+                if ist_gemerkt:
+                    db.merkliste_entfernen(aktueller_benutzer(), isbn)
+                    ui.notify("☆ Von Merkliste entfernt.", color="info")
+                else:
+                    db.merkliste_hinzufuegen(aktueller_benutzer(), isbn)
+                    ui.notify("⭐ Zur Merkliste hinzugefügt.", color="positive")
+                buecher_laden("")
             # Initial alle Bücher laden
             buecher_laden()
  
@@ -446,7 +466,50 @@ def zeige_dashboard():
                     ui.notify(f"❌ {e}", color="negative")
  
             ausleihen_laden()
- 
+
+        # ── TAB: MEINE MERKLISTE ──
+        if not ist_admin():
+            with ui.tab_panel("merkliste"):
+                ui.label("Meine Merkliste").style("font-size:1.4rem; font-weight:600; margin:1rem 0")
+                merkliste_container = ui.column().classes("w-full gap-2")
+
+                def merkliste_laden_seite():
+                    merkliste_container.clear()
+                    eintraege = db.merkliste_laden(aktueller_benutzer())
+                    if not eintraege:
+                        with merkliste_container:
+                            ui.label("Deine Merkliste ist leer.").style("color:#888")
+                        return
+                    for eintrag in eintraege:
+                        verfuegbar = len(db.verfuegbare_exemplare(eintrag["isbn"])) > 0
+                        with merkliste_container:
+                            with ui.card().classes("w-full").style("padding:1rem"):
+                                with ui.row().classes("justify-between items-center w-full"):
+                                    with ui.column():
+                                        ui.label(eintrag["titel"]).style("font-weight:600; font-size:1rem")
+                                        ui.label(f"{eintrag['autor']} · ISBN: {eintrag['isbn']}"
+                                                 ).style("color:#666; font-size:0.85rem")
+                                        anzahl = len(db.verfuegbare_exemplare(eintrag["isbn"]))
+                                        if anzahl > 0:
+                                            ui.label(f"📗 Exemplare übrig: {anzahl}").style("color:#16a34a")
+                                        else:
+                                            ui.label("❌ Nicht verfügbar").style("color:#dc2626")
+                                    with ui.row().classes("gap-2"):
+                                        isbn_kopie = eintrag["isbn"]
+                                        if verfuegbar:
+                                            ui.button("Ausleihen",
+                                                on_click=lambda _, i=isbn_kopie: buch_ausleihen(i)
+                                            ).style("background:#2563eb; color:white")
+                                        ui.button("⭐ Entfernen",
+                                            on_click=lambda _, i=isbn_kopie: (
+                                                db.merkliste_entfernen(aktueller_benutzer(), i),
+                                                ui.notify("☆ Von Merkliste entfernt.", color="info"),
+                                                merkliste_laden_seite()
+                                            )
+                                        ).props("outline").style("color:#dc2626")
+
+                merkliste_laden_seite()
+
         # ── TAB: ADMIN ──
         if ist_admin():
             with ui.tab_panel("admin"):
