@@ -604,7 +604,7 @@ def zeige_dashboard():
                         titel_in  = ui.input("Titel").classes("w-full")
                         autor_in  = ui.input("Autor").classes("w-full")
                         isbn_in   = ui.input("ISBN").classes("w-full")
-                        jahr_in   = ui.input("Erscheinungsjahr (z.B. 2024)").classes("w-full")
+                        jahr_in = ui.number("Erscheinungsjahr", min=1000, max=2100).classes("w-full")
                         anzahl_ex_in = ui.number("Anzahl Exemplare", min=1, max=20, value=1).classes("w-full") 
 
                         def buch_hinzufuegen():
@@ -612,7 +612,7 @@ def zeige_dashboard():
                                 ui.notify("Bitte alle Felder ausfüllen.", color="warning")
                                 return
                             ok = db.buch_speichern(titel_in.value, autor_in.value,
-                                                isbn_in.value, int(jahr_in.value or 0))
+                                                isbn_in.value, int(jahr_in.value or 1000))
                             if ok:
                                 # Exemplare automatisch hinzufügen
                                 import uuid
@@ -625,7 +625,7 @@ def zeige_dashboard():
                                 titel_in.set_value("")
                                 autor_in.set_value("")
                                 isbn_in.set_value("")
-                                jahr_in.set_value("")
+                                jahr_in.set_value(None)
                                 anzahl_ex_in.set_value(1)
                             else:
                                 ui.notify("❌ Fehler beim Speichern – ISBN bereits vorhanden?", color="negative")
@@ -743,7 +743,7 @@ def zeige_dashboard():
 
                                         neuer_titel = ui.input("Neuer Titel", value=b["titel"]).classes("w-full")
                                         neuer_autor = ui.input("Neuer Autor", value=b["autor"]).classes("w-full")
-                                        neues_jahr  = ui.input("Neues Jahr",  value=str(b["jahr"])).classes("w-full")
+                                        neues_jahr = ui.number("Neues Jahr", min=1000, max=2100, value=b["jahr"]).classes("w-full")
 
                                         def speichern(isbn=b["isbn"], t=neuer_titel, a=neuer_autor, j=neues_jahr):
                                             ok = db.buch_bearbeiten(
@@ -754,6 +754,9 @@ def zeige_dashboard():
                                             )
                                             if ok:
                                                 ui.notify("✅ Buch erfolgreich aktualisiert.", color="positive")
+                                                t.set_value("")
+                                                a.set_value("")
+                                                j.set_value(None)
                                                 bearb_container.clear()
                                             else:
                                                 ui.notify("❌ Fehler beim Bearbeiten.", color="negative")
