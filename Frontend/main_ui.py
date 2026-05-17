@@ -605,28 +605,30 @@ def zeige_dashboard():
                         autor_in  = ui.input("Autor").classes("w-full")
                         isbn_in   = ui.input("ISBN").classes("w-full")
                         jahr_in   = ui.input("Erscheinungsjahr (z.B. 2024)").classes("w-full")
+                        anzahl_ex_in = ui.number("Anzahl Exemplare", min=1, max=20, value=1).classes("w-full") 
 
                         def buch_hinzufuegen():
                             if not titel_in.value or not autor_in.value or not isbn_in.value or not jahr_in.value:
                                 ui.notify("Bitte alle Felder ausfüllen.", color="warning")
                                 return
-                            jahr_str = jahr_in.value.strip()
-                            if not jahr_str.isdigit() or len(jahr_str) != 4:
-                                ui.notify("Erscheinungsjahr muss eine vierstellige Zahl sein (z.B. 2024).", color="warning")
-                                return
-                            jahr = int(jahr_str)
-                            if not (1000 <= jahr <= 2100):
-                                ui.notify("Erscheinungsjahr muss zwischen 1000 und 2100 liegen.", color="warning")
-                                return
-                            ok = db.buch_speichern(titel_in.value, autor_in.value, isbn_in.value, jahr)
+                            ok = db.buch_speichern(titel_in.value, autor_in.value,
+                                                isbn_in.value, int(jahr_in.value or 0))
                             if ok:
-                                ui.notify(f"✅ '{titel_in.value}' hinzugefügt.", color="positive")
+                                # Exemplare automatisch hinzufügen
+                                import uuid
+                                anzahl = int(anzahl_ex_in.value or 1)
+                                for _ in range(anzahl):
+                                    neue_id = "EX-" + str(uuid.uuid4())[:6].upper()
+                                    db.exemplar_speichern(neue_id, isbn_in.value)
+
+                                ui.notify(f"✅ '{titel_in.value}' mit {anzahl} Exemplar(en) hinzugefügt.", color="positive")
                                 titel_in.set_value("")
                                 autor_in.set_value("")
                                 isbn_in.set_value("")
                                 jahr_in.set_value("")
+                                anzahl_ex_in.set_value(1)
                             else:
-                                ui.notify("❌ Fehler beim Speichern. Möglicherweise Buch bereits vorhanden.", color="negative")
+                                ui.notify("❌ Fehler beim Speichern – ISBN bereits vorhanden?", color="negative")
 
                         ui.button("Buch speichern", on_click=buch_hinzufuegen).style(
                             "background:#2563eb; color:white; margin-top:0.5rem")
