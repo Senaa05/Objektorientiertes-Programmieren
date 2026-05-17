@@ -353,6 +353,7 @@ def zeige_dashboard():
                 ui.button("Suchen", on_click=lambda: buecher_laden(such_input.value)).style(
                     "background:#2563eb; color:white")
                 ui.button("Alle anzeigen", on_click=lambda: buecher_laden("")).props("outline")
+
             # ── Beliebteste Bücher Karussell ──
             ui.label("Unsere beliebtesten Ausleihen").style("font-size:1.1rem; font-weight:600; margin:0.5rem 0")
 
@@ -371,35 +372,49 @@ def zeige_dashboard():
             ''')
             beliebt = [dict(row) for row in cursor.fetchall()]
 
-            with ui.row().classes("w-full items-center gap-2 mb-4").style(
-                "overflow-x:auto; padding:0.5rem 0"):
-                for buch in beliebt:
-                    with ui.card().style(
-                        "min-width:160px; max-width:160px; padding:0; overflow:hidden; cursor:pointer"):
-                        # Farbiger Header als Buchcover-Ersatz
+            if beliebt:
+                with ui.row().classes("w-full items-center gap-2"):
+
+                    # Pfeil links
+                    pfeil_links = ui.button("←", on_click=lambda: karussell.run_method(
+                        "scrollBy", {"left": -200, "behavior": "smooth"}
+                    )).props("flat dense").style("font-size:1.2rem; min-width:2rem")
+
+                    # Scrollbarer Container
+                    with ui.element("div").style(
+                        "display:flex; gap:1rem; overflow:hidden; flex:1; scroll-behavior:smooth"
+                    ) as karussell:
                         farben = ["#fce7f3", "#dbeafe", "#dcfce7", "#fef9c3", "#ede9fe"]
-                        farbe = farben[beliebt.index(buch) % len(farben)]
-                        with ui.element("div").style(
-                            f"background:{farbe}; height:120px; display:flex; "
-                            f"align-items:center; justify-content:center; padding:0.5rem"):
-                            ui.label(buch["titel"]).style(
-                                "font-weight:700; font-size:0.85rem; text-align:center; "
-                                "word-break:break-word")
-                        with ui.element("div").style("padding:0.5rem"):
-                            ui.label(buch["autor"]).style("font-size:0.75rem; color:#666")
-                            ui.label(f"📖 {buch.get('anzahl_ausleihen', 0)}x ausgeliehen"
-                                    ).style("font-size:0.7rem; color:#999")
-                            isbn_kopie = buch["isbn"]
-                            verfuegbar = len(db.verfuegbare_exemplare(isbn_kopie)) > 0
-                            if verfuegbar:
-                                ui.button("Ausleihen",
-                                    on_click=lambda _, i=isbn_kopie: buch_ausleihen(i)
-                                ).classes("w-full").style(
-                                    "background:#1e3a5f; color:white; font-size:0.75rem; "
-                                    "margin-top:0.25rem")
-                            else:
-                                ui.label("Nicht verfügbar").style(
-                                    "color:#dc2626; font-size:0.75rem; margin-top:0.25rem")
+                        for idx, buch in enumerate(beliebt):
+                            with ui.card().style(
+                                "min-width:160px; max-width:160px; padding:0; overflow:hidden; flex-shrink:0"):
+                                farbe = farben[idx % len(farben)]
+                                with ui.element("div").style(
+                                    f"background:{farbe}; height:120px; display:flex; "
+                                    f"align-items:center; justify-content:center; padding:0.5rem"):
+                                    ui.label(buch["titel"]).style(
+                                        "font-weight:700; font-size:0.85rem; text-align:center; "
+                                        "word-break:break-word")
+                                with ui.element("div").style("padding:0.5rem"):
+                                    ui.label(buch["autor"]).style("font-size:0.75rem; color:#666")
+                                    ui.label(f"📖 {buch.get('anzahl_ausleihen', 0)}x ausgeliehen"
+                                            ).style("font-size:0.7rem; color:#999")
+                                    isbn_kopie = buch["isbn"]
+                                    verfuegbar = len(db.verfuegbare_exemplare(isbn_kopie)) > 0
+                                    if verfuegbar:
+                                        ui.button("Ausleihen",
+                                            on_click=lambda _, i=isbn_kopie: buch_ausleihen(i)
+                                        ).classes("w-full").style(
+                                            "background:#1e3a5f; color:white; font-size:0.75rem; "
+                                            "margin-top:0.25rem")
+                                    else:
+                                        ui.label("Nicht verfügbar").style(
+                                            "color:#dc2626; font-size:0.75rem; margin-top:0.25rem")
+
+                    # Pfeil rechts
+                    ui.button("→", on_click=lambda: karussell.run_method(
+                        "scrollBy", {"left": 200, "behavior": "smooth"}
+                    )).props("flat dense").style("font-size:1.2rem; min-width:2rem")
 
             ui.separator().classes("mb-4")
 
