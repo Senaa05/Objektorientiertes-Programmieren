@@ -1,4 +1,4 @@
-from modelle.benutzer import Administrato
+from modelle.benutzer import Administrator
 
 from modelle.benutzer import User
 from modelle.buch import Buch

@@ -842,7 +842,7 @@ if __name__ in {"__main__", "__mp_main__"}:
     ui.run(
         title="Bibliothek",
         port=8080,
-        reload=True,       # Hot-Reload: Änderungen sofort sichtbar
+        reload=False,       # Hot-Reload: Änderungen sofort sichtbar
         dark=False,
         native=False,     # Keine native App, sondern im Browser (für Entwicklung)
         show=True,           # Browser automatisch öffnen
