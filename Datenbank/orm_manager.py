@@ -277,30 +277,6 @@ class ORMDatenbankManager:
             print(f"Fehler beim Verlängern der Ausleihe: {e}")
             return False
     
-    def ausleihe_rueckgabe(self, ausleih_id: str) -> bool:
-        """Verarbeitet die Rückgabe über ORM"""
-        try:
-            with self.get_session() as session:
-                ausleihe = session.query(Ausleihe).filter(
-                    Ausleihe.ausleih_id == ausleih_id
-                ).first()
-                if ausleihe:
-                    # Exemplar-Status aktualisieren
-                    exemplar = session.query(Exemplar).filter(
-                        Exemplar.exemplar_id == ausleihe.exemplar_id
-                    ).first()
-                    if exemplar:
-                        exemplar.status = 'verfuegbar'
-                    
-                    # Ausleihe als zurückgegeben markieren
-                    ausleihe.rueckgabedatum = date.today()
-                    session.commit()
-                    return True
-                return False
-        except Exception as e:
-            print(f"Fehler bei der Ausleih-Rückgabe: {e}")
-            return False
-    
     # ==================== MERKLISTE-CRUD ====================
     
     def merkliste_hinzufuegen(self, benutzername: str, isbn: str) -> bool:
@@ -496,6 +472,22 @@ class ORMDatenbankManager:
                 return True
         except Exception as e:
             print(f"Fehler beim Bearbeiten: {e}")
+            return False
+
+    def exemplar_loeschen(self, exemplar_id: str) -> bool:
+        """Löscht ein einzelnes Exemplar"""
+        try:
+            with self.get_session() as session:
+                exemplar = session.query(Exemplar).filter(
+                    Exemplar.exemplar_id == exemplar_id
+                ).first()
+                if exemplar:
+                    session.delete(exemplar)
+                    session.commit()
+                    return True
+                return False
+        except Exception as e:
+            print(f"Fehler beim Löschen des Exemplars: {e}")
             return False
 
     def schliessen(self):

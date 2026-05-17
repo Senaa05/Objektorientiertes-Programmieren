@@ -370,20 +370,7 @@ def zeige_dashboard():
             # ── Beliebteste Bücher Karussell ──
             ui.label("Unsere beliebtesten Ausleihen").style("font-size:1.1rem; font-weight:600; margin:0.5rem 0")
 
-            cursor = db.connection.cursor()
-            cursor.execute('''
-                SELECT b.isbn, b.titel, b.autor, b.jahr,
-                    COUNT(a.ausleih_id) AS anzahl_ausleihen
-                FROM buecher b
-                JOIN exemplare e ON b.isbn = e.isbn
-                JOIN ausleihen a ON e.exemplar_id = a.exemplar_id
-                WHERE a.rueckgabedatum IS NULL
-                GROUP BY b.isbn
-                HAVING COUNT(a.ausleih_id) >= 2
-                ORDER BY anzahl_ausleihen DESC
-                LIMIT 5
-            ''')
-            beliebt = [dict(row) for row in cursor.fetchall()]
+            beliebt = db.beliebteste_buecher_laden(5)
 
             with ui.row().classes("w-full items-center gap-2 mb-4").style(
                 "overflow-x:auto; padding:0.5rem 0"):
@@ -750,9 +737,7 @@ def zeige_dashboard():
                         exemplar_container = ui.column().classes("w-full gap-2")
                         def exemplar_loeschen(exemplar_id, isbn):
                             def bestaetigen():
-                                cursor = db.connection.cursor()
-                                cursor.execute("DELETE FROM exemplare WHERE exemplar_id = ?", (exemplar_id,))
-                                db.connection.commit()
+                                db.exemplar_loeschen(exemplar_id)
                                 ui.notify(f"✅ Exemplar {exemplar_id} gelöscht.", color="positive")
                                 dialog.close()
                                 exemplare_laden(isbn)
@@ -842,7 +827,7 @@ if __name__ in {"__main__", "__mp_main__"}:
     ui.run(
         title="Bibliothek",
         port=8080,
-        reload=False,       # Hot-Reload: Änderungen sofort sichtbar
+        reload=True,       # Hot-Reload: Änderungen sofort sichtbar
         dark=False,
         native=False,     # Keine native App, sondern im Browser (für Entwicklung)
         show=True,           # Browser automatisch öffnen
