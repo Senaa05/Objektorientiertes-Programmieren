@@ -352,7 +352,7 @@ def zeige_dashboard():
                 such_input = ui.input(placeholder="Titel, Autor oder ISBN...").style("width:300px")
                 ui.button("Suchen", on_click=lambda: buecher_laden(such_input.value)).style(
                     "background:#2563eb; color:white")
-                ui.button("Alle anzeigen", on_click=lambda: buecher_laden("")).props("outline")
+                ui.button("Zurücksetzen", on_click=lambda: (such_input.set_value(""), buecher_laden(""))).props("outline")
 
             # ── Beliebteste Bücher Karussell ──
             ui.label("Unsere beliebtesten Ausleihen").style("font-size:1.1rem; font-weight:600; margin:0.5rem 0")
