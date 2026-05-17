@@ -826,9 +826,9 @@ def zeige_dashboard():
                         with ui.row().classes("gap-2"):
                             ui.button("Suchen", on_click=buecher_zum_loeschen_suchen).style("background:#2563eb; color:white")
                             ui.button("Zurücksetzen", on_click=lambda: (
-                                        isbn_such.set_value(""),
-                                        titel_such.set_value(""),
-                                        autor_such.set_value(""),
+                                        isbn_loeschen.set_value(""),
+                                        titel_loeschen.set_value(""),
+                                        autor_loeschen.set_value(""),
                                         loeschen_container.clear()
                                     )).props("outline")
                             
@@ -898,9 +898,9 @@ def zeige_dashboard():
                         with ui.row().classes("gap-2"):
                             ui.button("Suchen", on_click=buecher_zum_bearbeiten_suchen).style("background:#2563eb; color:white")
                             ui.button("Zurücksetzen", on_click=lambda: (
-                                        isbn_such.set_value(""),
-                                        titel_such.set_value(""),
-                                        autor_such.set_value(""),
+                                        isbn_bearb_such.set_value(""),
+                                        titel_bearb_such.set_value(""),
+                                        autor_bearb_such.set_value(""),
                                         bearb_container.clear()
                                 )).props("outline")
 
