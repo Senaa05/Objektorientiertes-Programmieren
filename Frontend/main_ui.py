@@ -700,6 +700,70 @@ def zeige_dashboard():
 
                         ui.button("Suchen", on_click=buecher_zum_loeschen_suchen).style(
                             "background:#2563eb; color:white; margin-top:0.5rem")
+                        
+                        # ── Bücher bearbeiten ──
+                        ui.separator()
+                        ui.label("✏️ Buch bearbeiten").style("font-weight:600; margin-top:0.5rem")
+
+                        with ui.row().classes("gap-2"):
+                            isbn_bearb_such  = ui.input("ISBN").style("width:150px")
+                            titel_bearb_such = ui.input("Titel").style("width:150px")
+                            autor_bearb_such = ui.input("Autor").style("width:150px")
+
+                        bearb_container = ui.column().classes("w-full gap-2")
+
+                        def buecher_zum_bearbeiten_suchen():
+                            bearb_container.clear()
+                            isbn  = isbn_bearb_such.value.strip().lower()
+                            titel = titel_bearb_such.value.strip().lower()
+                            autor = autor_bearb_such.value.strip().lower()
+
+                            if not isbn and not titel and not autor:
+                                ui.notify("Bitte mindestens ein Suchfeld ausfüllen.", color="warning")
+                                return
+
+                            alle = db.alle_buecher_laden()
+                            treffer = [
+                                b for b in alle
+                                if (not isbn  or isbn  in b["isbn"].lower())
+                                and (not titel or titel in b["titel"].lower())
+                                and (not autor or autor in b["autor"].lower())
+                            ]
+
+                            if not treffer:
+                                with bearb_container:
+                                    ui.label("Keine Bücher gefunden.").style("color:#888")
+                                return
+
+                            with bearb_container:
+                                for b in treffer:
+                                    with ui.card().classes("w-full").style("padding:0.75rem"):
+                                        ui.label(f"{b['titel']} — {b['autor']} · {b['jahr']}").style("font-weight:600")
+                                        ui.label(f"ISBN: {b['isbn']}").style("color:#888; font-size:0.8rem")
+
+                                        neuer_titel = ui.input("Neuer Titel", value=b["titel"]).classes("w-full")
+                                        neuer_autor = ui.input("Neuer Autor", value=b["autor"]).classes("w-full")
+                                        neues_jahr  = ui.input("Neues Jahr",  value=str(b["jahr"])).classes("w-full")
+
+                                        def speichern(isbn=b["isbn"], t=neuer_titel, a=neuer_autor, j=neues_jahr):
+                                            ok = db.buch_bearbeiten(
+                                                isbn,
+                                                titel=t.value if t.value else None,
+                                                autor=a.value if a.value else None,
+                                                jahr=int(j.value) if j.value else None
+                                            )
+                                            if ok:
+                                                ui.notify("✅ Buch erfolgreich aktualisiert.", color="positive")
+                                                bearb_container.clear()
+                                            else:
+                                                ui.notify("❌ Fehler beim Bearbeiten.", color="negative")
+
+                                        ui.button("💾 Speichern", on_click=speichern).style(
+                                            "background:#2563eb; color:white; margin-top:0.5rem")
+
+                        ui.button("Suchen", on_click=buecher_zum_bearbeiten_suchen).style(
+                            "background:#2563eb; color:white; margin-top:0.5rem")
+
                     # ── Exemplare verwalten ──
                     with ui.card().style("width:100%; padding:1rem; margin-top:1rem"):
                         ui.label("📦 Exemplare verwalten").style("font-weight:600; margin-bottom:0.5rem")
