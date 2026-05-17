@@ -443,13 +443,14 @@ def zeige_dashboard():
                                     else:
                                         ui.label("❌ Nicht verfügbar").style("color:#dc2626")
                                     isbn_kopie = buch["isbn"]
-                                    merkliste = db.merkliste_laden(aktueller_benutzer())
-                                    ist_gemerkt = any(m["isbn"] == isbn_kopie for m in merkliste)
-                                    stern = "⭐" if ist_gemerkt else "☆"
-                                    ui.button(stern,
-                                        on_click=lambda _, i=isbn_kopie: merkliste_toggle(i)
-                                    ).props("flat").style("font-size:1.3rem")
-                                    if verfuegbar:
+                                    if not ist_admin():
+                                        merkliste = db.merkliste_laden(aktueller_benutzer())
+                                        ist_gemerkt = any(m["isbn"] == isbn_kopie for m in merkliste)
+                                        stern = "⭐" if ist_gemerkt else "☆"
+                                        ui.button(stern,
+                                            on_click=lambda _, i=isbn_kopie: merkliste_toggle(i)
+                                        ).props("flat").style("font-size:1.3rem")
+                                    if not ist_admin() and verfuegbar:
                                         ui.button("Ausleihen", on_click=lambda _, i=isbn_kopie: buch_ausleihen(i)
                                                   ).style("background:#2563eb; color:white")
  
