@@ -1,7 +1,10 @@
 from datetime import date, timedelta
 import uuid
 
-from modelle.ausleihe import Ausleihe
+try:
+    from Backend.modelle.ausleihe import Ausleihe
+except ImportError:
+    from modelle.ausleihe import Ausleihe
 
 class AusleiheService:
     """Service fuer alle Geschäftsregeln rund um Ausleihe, Verlängerung und Rueckgabe."""

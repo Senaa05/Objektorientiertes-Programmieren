@@ -261,6 +261,10 @@ class ORMDatenbankManager:
             ).count()
     
     def ausleihe_verlaengern(self, ausleih_id: str, neue_faelligkeit: str) -> bool:
+        """Alias – Service ruft diesen Namen auf"""
+        return self.ausleihe_verlaengern(ausleih_id, neue_faelligkeit)
+
+    def ausleihe_verlaengern(self, ausleih_id: str, neue_faelligkeit: str) -> bool:
         """Verlängert eine Ausleihe über ORM"""
         try:
             with self.get_session() as session:
