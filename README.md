@@ -150,6 +150,14 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 ### ER-Diagramm
 
 ## Projektanforderungen
+## Projektmanagement
+| Name      | Beitrag |
+|-----------|--------------|
+| Sena | Backend + Dokumentation |
+| Naomi | Datenbanken & ORM + Dokumentation |
+| Giulia | Frontend UI + Dokumentation |
+
+---
 
 ### Browser-Based App
 

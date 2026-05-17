@@ -928,6 +928,5 @@ if __name__ in {"__main__", "__mp_main__"}:
         port=8080,
         reload=True,       # Hot-Reload: Änderungen sofort sichtbar
         dark=False,
-        native=False,     # Keine native App, sondern im Browser (für Entwicklung)
         show=True,           # Browser automatisch öffnen
     )
