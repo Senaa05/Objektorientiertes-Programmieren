@@ -823,9 +823,15 @@ def zeige_dashboard():
                                     ui.button("Abbrechen", on_click=dialog.close).props("outline")
                             dialog.open()
 
-                        ui.button("Suchen", on_click=buecher_zum_loeschen_suchen).style(
-                            "background:#2563eb; color:white; margin-top:0.5rem")
-                        
+                        with ui.row().classes("gap-2"):
+                            ui.button("Suchen", on_click=buecher_zum_loeschen_suchen).style("background:#2563eb; color:white")
+                            ui.button("Zurücksetzen", on_click=lambda: (
+                                        isbn_such.set_value(""),
+                                        titel_such.set_value(""),
+                                        autor_such.set_value(""),
+                                        loeschen_container.clear()
+                                    )).props("outline")
+                            
                         # ── Bücher bearbeiten ──
                         ui.separator()
                         ui.label("✏️ Buch bearbeiten").style("font-weight:600; margin-top:0.5rem")
@@ -889,8 +895,14 @@ def zeige_dashboard():
                                         ui.button("💾 Speichern", on_click=speichern).style(
                                             "background:#2563eb; color:white; margin-top:0.5rem")
 
-                        ui.button("Suchen", on_click=buecher_zum_bearbeiten_suchen).style(
-                            "background:#2563eb; color:white; margin-top:0.5rem")
+                        with ui.row().classes("gap-2"):
+                            ui.button("Suchen", on_click=buecher_zum_bearbeiten_suchen).style("background:#2563eb; color:white")
+                            ui.button("Zurücksetzen", on_click=lambda: (
+                                        isbn_such.set_value(""),
+                                        titel_such.set_value(""),
+                                        autor_such.set_value(""),
+                                        bearb_container.clear()
+                                )).props("outline")
 
                     
 # ─────────────────────────────────────────────
