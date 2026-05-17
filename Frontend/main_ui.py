@@ -441,7 +441,7 @@ def zeige_dashboard():
             def buch_ausleihen(isbn):
                 try:
                     ausleih_id = service.buch_ausleihen(aktueller_benutzer(), isbn)
-                    ui.notify(f"✅ Erfolgreich ausgeliehen! ID: {ausleih_id[:8]}...", color="positive")
+                    ui.notify(f"✅ Erfolgreich ausgeliehen!", color="positive")
                     buecher_laden("")
                 except ValueError as e:
                     ui.notify(f"❌ {e}", color="negative")
@@ -818,7 +818,7 @@ def login_seite():
 def dashboard_seite():
     zeige_dashboard()
  
- 
+
 # ─────────────────────────────────────────────
 #  START
 # ─────────────────────────────────────────────

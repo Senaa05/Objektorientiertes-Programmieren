@@ -21,7 +21,7 @@ class AusleiheService:
             raise ValueError("Buch existiert nicht.")
 
         aktive_anzahl = self.db.anzahl_ausleihen_benutzer(benutzername)
-        if aktive_anzahl >= 6:
+        if aktive_anzahl > 6:
             raise ValueError("Benutzer darf maximal 5 Bücher gleichzeitig ausleihen.")
 
         verfuegbare_exemplare = self.db.verfuegbare_exemplare(isbn)
