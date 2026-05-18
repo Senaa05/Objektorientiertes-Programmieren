@@ -148,7 +148,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 ## Datenbank 
 
 ### ER-Diagramm
-
+![ERM Diagramm](Diagramm/BibflowERM.png)
 ## Projektanforderungen
 ## Projektmanagement
 | Name      | Beitrag |
