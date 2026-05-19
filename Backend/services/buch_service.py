@@ -94,15 +94,18 @@ class BuchService:
 
         return True
 
-    def buch_loeschen(self, isbn: str) -> bool:
+    def buch_loeschen(self, isbn: str, benutzer_rolle: str) -> bool:
         """Loescht ein Buch, sofern keine aktive Ausleihe dagegen spricht."""
+        if benutzer_rolle != "Admin":
+            raise ValueError("Nur Admins duerfen Buecher loeschen.")
+
         bestehendes_buch = self.db.buch_laden(isbn)
         if not bestehendes_buch:
             raise ValueError("Buch nicht gefunden.")
 
         erfolg = self.db.buch_loeschen(isbn)
         if not erfolg:
-            raise ValueError("Buch konnte nicht gelöscht werden. Es ist möglicherweise noch ausgeliehen.")
+            raise ValueError("Buch kann nicht geloescht werden, solange mindestens ein Exemplar ausgeliehen ist.")
 
         return True
 

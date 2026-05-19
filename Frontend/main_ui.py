@@ -27,7 +27,9 @@ for pfad in [projekt_pfad,
 db_pfad = os.path.join(projekt_pfad, "bibliothek_orm.db")
 
 from Datenbank.orm_manager import ORMDatenbankManager
+from Backend.services.buch_service import BuchService
 db = ORMDatenbankManager(db_pfad)
+buch_service = BuchService(db)
 
 try:
     from Backend.services.ausleihe_service import AusleiheService
@@ -706,13 +708,13 @@ def zeige_dashboard():
 
                         def buch_loeschen_bestaetigen(buch):
                             def bestaetigen():
-                                ok = db.buch_loeschen(buch["isbn"])
-                                if ok:
+                                try:
+                                    buch_service.buch_loeschen(buch["isbn"], zustand.get("rolle", ""))
                                     ui.notify("✅ Buch wurde erfolgreich gelöscht.", color="positive")
                                     loeschen_container.clear()
                                     dialog.close()
-                                else:
-                                    ui.notify("❌ Löschen fehlgeschlagen – möglicherweise noch Exemplare ausgeliehen.", color="negative")
+                                except ValueError as e:
+                                    ui.notify(f"❌ {str(e)}", color="negative")
                                     dialog.close()
 
                             with ui.dialog() as dialog, ui.card():
