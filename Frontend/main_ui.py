@@ -874,7 +874,7 @@ def zeige_dashboard():
 
                                         neuer_titel = ui.input("Neuer Titel", value=b["titel"]).classes("w-full")
                                         neuer_autor = ui.input("Neuer Autor", value=b["autor"]).classes("w-full")
-                                        neues_jahr = ui.number("Neues Jahr", min=1000, max=2100, value=b["jahr"]).classes("w-full")
+                                        neues_jahr = ui.number("Neues Jahr", value=b["jahr"]).classes("w-full")
 
                                         def speichern(isbn=b["isbn"], t=neuer_titel, a=neuer_autor, j=neues_jahr):
                                             ok = db.buch_bearbeiten(
