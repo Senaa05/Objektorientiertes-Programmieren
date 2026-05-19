@@ -15,6 +15,9 @@ class BuchService:
         exemplar_anzahl: int = 1
     ) -> bool:
         """Erstellt ein neues Buch und legt die gewuenschte Anzahl Exemplare an."""
+        if sum(1 for z in (isbn or "") if z.isdigit()) < 13:
+            raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")  
+        
         # ISBN muss eindeutig sein.
         bestehendes_buch = self.db.buch_laden(isbn)
         if bestehendes_buch:
