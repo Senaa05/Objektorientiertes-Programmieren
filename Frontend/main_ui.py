@@ -615,15 +615,30 @@ def zeige_dashboard():
                         titel_in  = ui.input("Titel").classes("w-full")
                         autor_in  = ui.input("Autor").classes("w-full")
                         isbn_in   = ui.input("ISBN").classes("w-full")
-                        jahr_in = ui.number("Erscheinungsjahr", min=1000, max=2100).classes("w-full")
+                        jahr_in = ui.input("Erscheinungsjahr (JJJJ)").classes("w-full")
                         anzahl_ex_in = ui.number("Anzahl Exemplare", min=1, max=20, value=1).classes("w-full") 
 
                         def buch_hinzufuegen():
                             if not titel_in.value or not autor_in.value or not isbn_in.value or not jahr_in.value:
                                 ui.notify("Bitte alle Felder ausfüllen.", color="warning")
                                 return
+
+                            aktuelles_jahr = date.today().year
+                            jahr_text = str(jahr_in.value).strip()
+                            if len(jahr_text) != 4 or not jahr_text.isdigit():
+                                ui.notify("Das Jahr muss genau 4 Ziffern haben (z. B. 2020).", color="warning")
+                                return
+
+                            jahr = int(jahr_text)
+                            if jahr < 1000:
+                                ui.notify("Das Jahr muss mindestens 1000 sein.", color="warning")
+                                return
+                            if jahr > aktuelles_jahr:
+                                ui.notify(f"Das Jahr darf nicht in der Zukunft liegen (max. {aktuelles_jahr}).", color="warning")
+                                return
+
                             ok = db.buch_speichern(titel_in.value, autor_in.value,
-                                                isbn_in.value, int(jahr_in.value or 1000))
+                                                isbn_in.value, jahr)
                             if ok:
                                 # Exemplare automatisch hinzufügen
                                 import uuid

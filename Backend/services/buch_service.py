@@ -1,4 +1,5 @@
 from Backend.modelle.buch import Buch
+from datetime import date
 
 class BuchService:
     """Service fuer Buchverwaltung, Suche, Verfuegbarkeit und Popularitaet."""
@@ -15,6 +16,16 @@ class BuchService:
         exemplar_anzahl: int = 1
     ) -> bool:
         """Erstellt ein neues Buch und legt die gewuenschte Anzahl Exemplare an."""
+        jahr_text = str(jahr).strip()
+        aktuelles_jahr = date.today().year
+        if len(jahr_text) != 4 or not jahr_text.isdigit():
+            raise ValueError("Jahr muss genau 4 Ziffern enthalten.")
+        jahr_int = int(jahr_text)
+        if jahr_int < 1000:
+            raise ValueError("Jahr muss mindestens 1000 sein.")
+        if jahr_int > aktuelles_jahr:
+            raise ValueError(f"Jahr darf nicht in der Zukunft liegen (max. {aktuelles_jahr}).")
+
         if sum(1 for z in (isbn or "") if z.isdigit()) < 13:
             raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")  
         
