@@ -11,134 +11,6 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # ─────────────────────────────────────────────
-#  DATENBANK  
-# ─────────────────────────────────────────────
- 
-class DatenbankManager():
-     
-    def benutzer_laden(self, benutzername):
-        nutzer = {
-            "lilly2":  {"benutzername": "lilly2",  "vorname": "Lilly", "nachname": "Müller",    "email": "lilly@example.com",  "rolle": "Benutzer"},
-            "admin1":  {"benutzername": "admin1",  "vorname": "Max",   "nachname": "Mustermann", "email": "max@example.com",    "rolle": "Admin"},
-        }
-        return nutzer.get(benutzername)
- 
-    def alle_benutzer_laden(self):
-        return list(self._benutzer().values())
- 
-    def _benutzer(self):
-        return {
-            "lilly2": {"benutzername": "lilly2", "vorname": "Lilly", "nachname": "Müller",    "email": "lilly@example.com",  "rolle": "Benutzer"},
-            "admin1": {"benutzername": "admin1", "vorname": "Max",   "nachname": "Mustermann", "email": "max@example.com",    "rolle": "Admin"},
-        }
- 
-    def buch_laden(self, isbn):
-        return next((b for b in self._buecher() if b["isbn"] == isbn), None)
- 
-    def alle_buecher_laden(self):
-        return self._buecher()
- 
-    def bucher_suchen(self, suchbegriff):
-        s = suchbegriff.lower()
-        return [b for b in self._buecher()
-                if s in b["titel"].lower() or s in b["autor"].lower() or s in b["isbn"]]
- 
-    def _buecher(self):
-        return [
-            {"isbn": "978-3-123456-78-9", "titel": "Der Alchimist",   "autor": "Paulo Coelho",  "jahr": 1988},
-            {"isbn": "978-3-987654-32-1", "titel": "Die Verwandlung",  "autor": "Franz Kafka",   "jahr": 1915},
-            {"isbn": "978-3-111111-11-1", "titel": "Faust",            "autor": "Goethe",        "jahr": 1808},
-            {"isbn": "978-3-222222-22-2", "titel": "Der Prozess",      "autor": "Franz Kafka",   "jahr": 1925},
-        ]
- 
-    def verfuegbare_exemplare(self, isbn):
-        alle = {
-            "978-3-123456-78-9": [{"exemplar_id": "EX-001"}, {"exemplar_id": "EX-002"}],
-            "978-3-987654-32-1": [{"exemplar_id": "EX-003"}],
-            "978-3-111111-11-1": [],
-            "978-3-222222-22-2": [{"exemplar_id": "EX-004"}],
-        }
-        return alle.get(isbn, [])
- 
-    def anzahl_ausleihen_benutzer(self, benutzername):
-        return len(self.ausleihen_benutzer(benutzername))
- 
-    def anzahl_ausleihen_benutzer(self, benutzername):
-        return self.anzahl_ausleihen_benutzer(benutzername)
- 
-    def ausleihen_benutzer(self, benutzername):
-        alle = {
-            "lilly2": [
-                {"ausleih_id": "abc-001", "benutzername": "lilly2", "exemplar_id": "EX-001",
-                 "titel": "Der Alchimist", "autor": "Paulo Coelho",
-                 "ausleihdatum": "2025-04-01", "faelligkeit": "2025-05-01",
-                 "verlaengerungsanzahl": 0, "rueckgabedatum": None},
-            ],
-            "admin1": [],
-        }
-        return alle.get(benutzername, [])
- 
-    def ausleih_laden(self, ausleih_id):
-        ausleihen = {
-            "abc-001": {"ausleih_id": "abc-001", "benutzername": "lilly2",
-                        "exemplar_id": "EX-001", "ausleihdatum": "2025-04-01",
-                        "faelligkeit": "2025-05-01", "rueckgabedatum": None,
-                        "verlaengerungsanzahl": 0},
-        }
-        return ausleihen.get(ausleih_id)
- 
-    def ausleih_speichern(self, **kwargs):
-        return True
- 
-    def ausleih_speichern(self, **kwargs):
-        return True
- 
-    def exemplar_status_aktualisieren(self, exemplar_id, status):
-        return True
- 
-    def ausleih_verlaengern(self, ausleih_id, neue_faelligkeit):
-        return True
- 
-    def ausleih_verlaengern(self, ausleih_id, neue_faelligkeit):
-        return True
- 
-    def ausleih_rueckgabe(self, ausleih_id):
-        return True
- 
-    def ausleih_rueckgabe(self, ausleih_id):
-        return True
- 
-    def ueberfaellige_ausleihen(self):
-        return [
-            {"ausleih_id": "alt-001", "benutzername": "lilly2",
-             "vorname": "Lilly", "nachname": "Müller",
-             "titel": "Faust", "faelligkeit": "2025-03-01",
-             "exemplar_id": "EX-003"},
-        ]
- 
-    def bald_faellige_ausleihen(self, tage=7):
-        return []
- 
-    def benutzer_hat_ueberfaellige_buecher(self, benutzername):
-        return any(e["benutzername"] == benutzername for e in self.ueberfaellige_ausleihen())
- 
-    def benutzer_speichern(self, benutzername, passwort, vorname, nachname, email, rolle="Benutzer"):
-        return True
- 
-    def buch_speichern(self, titel, autor, isbn, jahr):
-        return True
- 
-    def merkliste_laden(self, benutzername):
-        return []
- 
-    def merkliste_hinzufuegen(self, benutzername, isbn):
-        return True
- 
-    def merkliste_entfernen(self, benutzername, isbn):
-        return True
- 
- 
-# ─────────────────────────────────────────────
 #  SERVICE INITIALISIEREN
 # ─────────────────────────────────────────────
 
@@ -152,10 +24,10 @@ for pfad in [projekt_pfad,
     if pfad not in sys.path:
         sys.path.insert(0, pfad)
 
-db_pfad = os.path.join(projekt_pfad, "Backend", "bibliothek.db")
+db_pfad = os.path.join(projekt_pfad, "bibliothek_orm.db")
 
-from Datenbank.DatenbankManager import DatenbankManager
-db = DatenbankManager(db_pfad)
+from Datenbank.orm_manager import ORMDatenbankManager
+db = ORMDatenbankManager(db_pfad)
 
 try:
     from Backend.services.ausleihe_service import AusleiheService
@@ -314,6 +186,13 @@ def zeige_dashboard():
     if not zustand["angemeldet"]:
         ui.navigate.to("/")
         return
+
+    tab_refresh = {"ausleihen": None, "merkliste": None}
+
+    def nav_zu(tab_name: str):
+        if tab_refresh.get(tab_name):
+            tab_refresh[tab_name]()
+        tabs.set_value(tab_name)
  
     # ── Navigationsleiste ──
     with ui.header().style("background:#1e3a5f; color:white; padding:0.75rem 1.5rem"):
@@ -322,9 +201,9 @@ def zeige_dashboard():
             with ui.row().classes("gap-2"):
                 ui.button("Bücher", on_click=lambda: tabs.set_value("buecher")).props("flat color=white")
                 if not ist_admin():
-                    ui.button("Meine Ausleihen", on_click=lambda: tabs.set_value("ausleihen")).props("flat color=white")
+                    ui.button("Meine Ausleihen", on_click=lambda: nav_zu("ausleihen")).props("flat color=white")
                 if not ist_admin():
-                    ui.button("Meine Merkliste", on_click=lambda: tabs.set_value("merkliste")).props("flat color=white")
+                    ui.button("Meine Merkliste", on_click=lambda: nav_zu("merkliste")).props("flat color=white")
                 if ist_admin():
                     ui.button("Admin", on_click=lambda: tabs.set_value("admin")).props("flat color=white")
                 ui.button(f"Abmelden ({aktueller_benutzer()})",
@@ -357,20 +236,7 @@ def zeige_dashboard():
             # ── Beliebteste Bücher Karussell ──
             ui.label("Unsere beliebtesten Ausleihen").style("font-size:1.1rem; font-weight:600; margin:0.5rem 0")
 
-            cursor = db.connection.cursor()
-            cursor.execute('''
-                SELECT b.isbn, b.titel, b.autor, b.jahr,
-                    COUNT(a.ausleih_id) AS anzahl_ausleihen
-                FROM buecher b
-                JOIN exemplare e ON b.isbn = e.isbn
-                JOIN ausleihen a ON e.exemplar_id = a.exemplar_id
-                WHERE a.rueckgabedatum IS NULL
-                GROUP BY b.isbn
-                HAVING COUNT(a.ausleih_id) >= 2
-                ORDER BY anzahl_ausleihen DESC
-                LIMIT 5
-            ''')
-            beliebt = [dict(row) for row in cursor.fetchall()]
+            beliebt = db.beliebte_buecher_karussell()
 
             if beliebt:
                 with ui.row().classes("w-full items-center gap-2"):
@@ -456,11 +322,17 @@ def zeige_dashboard():
  
             def buch_ausleihen(isbn):
                 try:
-                    ausleih_id = service.buch_ausleihen(aktueller_benutzer(), isbn)
-                    ui.notify(f"✅ Erfolgreich ausgeliehen!", color="positive")
+                    service.buch_ausleihen(aktueller_benutzer(), isbn)
+                    ui.notify("✅ Erfolgreich ausgeliehen!", color="positive")
                     buecher_laden("")
+                    if tab_refresh["ausleihen"]:
+                        tab_refresh["ausleihen"]()
+                    if tab_refresh["merkliste"]:
+                        tab_refresh["merkliste"]()
                 except ValueError as e:
                     ui.notify(f"❌ {e}", color="negative")
+                except Exception as e:
+                    ui.notify(f"❌ Fehler: {e}", color="negative")
 
             def merkliste_toggle(isbn):
                 merkliste = db.merkliste_laden(aktueller_benutzer())
@@ -469,9 +341,13 @@ def zeige_dashboard():
                     db.merkliste_entfernen(aktueller_benutzer(), isbn)
                     ui.notify("☆ Von Merkliste entfernt.", color="info")
                 else:
-                    db.merkliste_hinzufuegen(aktueller_benutzer(), isbn)
-                    ui.notify("⭐ Zur Merkliste hinzugefügt.", color="positive")
+                    if db.merkliste_hinzufuegen(aktueller_benutzer(), isbn):
+                        ui.notify("⭐ Zur Merkliste hinzugefügt.", color="positive")
+                    else:
+                        ui.notify("Buch steht bereits auf der Merkliste.", color="warning")
                 buecher_laden("")
+                if tab_refresh["merkliste"]:
+                    tab_refresh["merkliste"]()
             # Initial alle Bücher laden
             buecher_laden()
  
@@ -519,17 +395,24 @@ def zeige_dashboard():
                     service.ausleih_verlaengern(ausleih_id)
                     ui.notify("✅ Ausleihe um 14 Tage verlängert.", color="positive")
                     ausleihen_laden()
+                    buecher_laden("")
                 except ValueError as e:
                     ui.notify(f"❌ {e}", color="negative")
+                except Exception as e:
+                    ui.notify(f"❌ Fehler: {e}", color="negative")
  
             def buch_zurueckgeben(ausleih_id):
                 try:
                     service.buch_zurueckgeben(ausleih_id)
                     ui.notify("✅ Buch zurückgegeben.", color="positive")
                     ausleihen_laden()
+                    buecher_laden("")
                 except ValueError as e:
                     ui.notify(f"❌ {e}", color="negative")
- 
+                except Exception as e:
+                    ui.notify(f"❌ Fehler: {e}", color="negative")
+
+            tab_refresh["ausleihen"] = ausleihen_laden
             ausleihen_laden()
 
         # ── TAB: MEINE MERKLISTE ──
@@ -573,6 +456,7 @@ def zeige_dashboard():
                                             )
                                         ).props("outline").style("color:#dc2626")
 
+                tab_refresh["merkliste"] = merkliste_laden_seite
                 merkliste_laden_seite()
 
         # ── TAB: ADMIN ──
@@ -652,10 +536,12 @@ def zeige_dashboard():
                             exemplar_container = ui.column().classes("w-full gap-2")
                             def exemplar_loeschen(exemplar_id, isbn):
                                 def bestaetigen():
-                                    cursor = db.connection.cursor()
-                                    cursor.execute("DELETE FROM exemplare WHERE exemplar_id = ?", (exemplar_id,))
-                                    db.connection.commit()
-                                    ui.notify(f"✅ Exemplar {exemplar_id} gelöscht.", color="positive")
+                                    if db.exemplar_loeschen(exemplar_id):
+                                        ui.notify(f"✅ Exemplar {exemplar_id} gelöscht.", color="positive")
+                                    else:
+                                        ui.notify("Exemplar konnte nicht gelöscht werden.", color="negative")
+                                        dialog.close()
+                                        return
                                     dialog.close()
                                     exemplare_laden(isbn)
 

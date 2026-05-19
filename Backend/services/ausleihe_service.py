@@ -20,8 +20,9 @@ class AusleiheService:
         if not buch:
             raise ValueError("Buch existiert nicht.")
 
-        aktive_anzahl = self.db.anzahl_ausleihen_benutzer(benutzername)
-        if aktive_anzahl > 6:
+        # Gleiche Basis wie „Meine Ausleihen“ (nur echte, sichtbare aktive Ausleihen)
+        aktive_anzahl = len(self.db.ausleihen_benutzer(benutzername))
+        if aktive_anzahl >= 5:
             raise ValueError("Benutzer darf maximal 5 Bücher gleichzeitig ausleihen.")
 
         verfuegbare_exemplare = self.db.verfuegbare_exemplare(isbn)
@@ -103,10 +104,9 @@ class AusleiheService:
         return True
 
     def meine_ausleihen(self, benutzername: str):
-        """Liefert alle aktiven Ausleihen eines Benutzers, sortiert von alt nach neu."""
-        # Anzeige-Reihenfolge: aelteste Ausleihe zuerst.
+        """Liefert aktive Ausleihen – bald fällige (und überfällige) zuerst."""
         ausleihen = self.db.ausleihen_benutzer(benutzername)
-        return sorted(ausleihen, key=lambda eintrag: eintrag["ausleihdatum"])
+        return sorted(ausleihen, key=lambda eintrag: eintrag["faelligkeit"])
 
     def ueberfaellige_ausleihen(self):
         """Gibt alle aktuell ueberfaelligen Ausleihen zurueck."""
