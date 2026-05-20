@@ -1,8 +1,5 @@
 # Bibflow :books:
 
-Gruppenmitglieder: Sena Besir, Giulia Falone, Naomi Uwensuyi 
-Dozierende: Felix Härer, Grieder Hermann
-
 Dieses Projekt ist ein webbasiertes Bibliothekssystem, das die Verwaltung und Ausleihe von Büchern übersichtlich und effizient gestaltet. Unterschiedliche Funktionen für Administratoren und Benutzer sorgen für eine klare und strukturierte Nutzung.
 
 ## Problem
@@ -108,7 +105,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 3. Administrator wählt ein Buch und sieht die zugehörigen Exemplare
 4. Administrator kann Exemplare hinzufügen (Anzahl erhöhen)
 5. Administrator kann ein Exemplar löschen (sofern nicht ausgeliehen)
-6. Administrator kann den Status eines Exemplars manuell setzen (z. B. "verfügbar", "ausgeliehen")
+6. Administrator kann den Status eines Exemplars manuell setzen (z. B. "verfügbar", "ausgeliehen", "defekt")
 7. System speichert die Änderungen und aktualisiert die Verfügbarkeit
 
 ### USE CASE 6: Buch löschen (Administrator)
@@ -151,6 +148,13 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 <img width="861" height="671" alt="Architektur" src="https://github.com/user-attachments/assets/f24a27e7-d921-4457-998d-bda20b477337" />
 
 ## Datenbank 
+Die Datenbank beinhaltet die folgenden Entitäten:
+
+- **Benutzer** (`User` / `Administrator`)
+- **Buch** (`Buch`)
+- **Exemplar** (`Exemplar`)
+- **Ausleihe** (`Ausleihe`)
+- **Merkliste-Eintrag** (`MerklisteEintrag`)
 
 ### ER-Diagramm
 ![ERM Diagramm](Diagramm/BibflowERM.png)
@@ -166,14 +170,28 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 
 ### Browser-Based App
 
+Die Anwendung ist browserbasiert und läuft in modernen Webbrowsern ohne separaten Desktop-Client. Das Frontend kommuniziert über die Service-Schicht mit dem Backend und zeigt Echtzeit-Statusupdates (z. B. Verfügbarkeit von Exemplaren). Die Oberfläche ist auf einfache Bedienbarkeit für Benutzer und Administratoren optimiert.
+
 ### Datenvalidierung
-Die Applikation stellt sicher, dass alle Eingaben und Operationen durch geeignete Validierungen geprüft werden. Diese Validierungen sind hauptsächlich in den Service-Klassen implementiert, bevor Daten in der Datenbank gespeichert und verarbeitet werden.
+Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte Prüfungen in den Service-Klassen validiert werden, bevor Daten in der Datenbank gespeichert oder verarbeitet werden. Wichtige Validierungsregeln im Projekt sind:
 
 ### 1. Benutzer
-Bei der Registrierung wird geprüft, ob alle Pflichtfelder ausgefüllt sind und ob Benutzername sowie E-Mail eindeutig sind. Beim Login werden die Zugangsdaten validiert; bei Fehlern wird eine einheitliche Fehlermeldung verwendet.
+- Registrierung: Pflichtfelder (`Benutzername`, `Passwort`, `Vorname`, `Nachname`, `E-Mail`) werden auf Nicht-Leer geprüft; `Benutzername` und `E-Mail` müssen eindeutig sein. Neue Benutzer erhalten standardmäßig die Rolle `Benutzer`.
+- Login: Bei falschen Zugangsdaten wird aus Sicherheitsgründen die einheitliche Fehlermeldung "Benutzername oder Passwort ist falsch." verwendet.
+- Rollen: Die Werte `Admin` oder `Administrator` werden als Administratorrolle erkannt.
+
 ### 2. Buch
-In der Buchverwaltung wird sichergestellt, dass jede ISBN nur einmal existiert. Ein Buch kann nur gelöscht werden, wenn keine zugehörigen Exemplare aktuell ausgeliehen sind.
+- ISBN: Es wird geprüft, dass die ISBN mindestens 13 Ziffern enthält und dass keine ISBN-Duplikate existieren.
+- Jahr: Das Erscheinungsjahr muss vierstellig, mindestens `1000` und darf nicht in der Zukunft liegen.
+- Exemplare: Beim Anlegen ist `exemplar_anzahl >= 1`; Exemplare werden beim Erfassen erzeugt und erhalten den Status `verfügbar`.
+- Löschen: Nur Benutzer mit Admin-Rechten dürfen Bücher löschen; das Löschen wird verhindert, solange Exemplare des Buches ausgeliehen sind.
+
 ### 3. Ausleihe
-Ein Benutzer darf maximal fünf Bücher gleichzeitig ausleihen. Die Standard-Ausleihdauer beträgt 30 Tage. Eine Verlängerung ist nur einmal pro Ausleihe möglich und verlängert die Frist um 14 Tage.
+- Maximalanzahl: Ein Benutzer darf höchstens 5 aktive Ausleihen gleichzeitig haben.
+- Frist: Standard-Ausleihdauer beträgt 30 Tage.
+- Verlängerung: Eine Ausleihe kann nur einmalig verlängert werden; die Verlängerung addiert 14 Tage zur aktuellen Fälligkeit.
+- Rückgabe: Bei Rückgabe wird die Ausleihe als zurückgegeben markiert und das Exemplar auf `verfügbar` gesetzt.
+
 ### 4. Merkliste
-Beim Hinzufügen zur Merkliste wird geprüft, ob Benutzer und Buch existieren. Zusätzlich werden doppelte Einträge verhindert.
+- Existenzprüfung: Beim Hinzufügen wird geprüft, ob Benutzer und Buch existieren.
+- Duplikatschutz: Doppelte Einträge werden verhindert.
