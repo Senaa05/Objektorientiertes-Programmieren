@@ -195,3 +195,13 @@ Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte
 ### 4. Merkliste
 - Existenzprüfung: Beim Hinzufügen wird geprüft, ob Benutzer und Buch existieren.
 - Duplikatschutz: Doppelte Einträge werden verhindert.
+
+## Verwendete Bibliotheken
+
+NiceGUI — UI Frontend
+SQLAlchemy — ORM Backend
+SQLite3 — Lokale Datenbank
+uuid — ID Erzeugung
+typing, datetime — Standard Bibliothek
+
+## Repository Struktur
