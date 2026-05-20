@@ -648,8 +648,18 @@ def zeige_dashboard():
                                 ui.notify(f"Das Jahr darf nicht in der Zukunft liegen (max. {aktuelles_jahr}).", color="warning")
                                 return
 
+                            # ISBN-Validierung: mindestens 13 Ziffern
+                            isbn_text = str(isbn_in.value).strip()
+                            if sum(1 for ch in isbn_text if ch.isdigit()) < 13:
+                                ui.notify("Die ISBN muss mindestens 13 Ziffern enthalten.", color="warning")
+                                return
+                            # Prüfen, ob ISBN bereits in der DB existiert
+                            if db.buch_laden(isbn_text):
+                                ui.notify("ISBN bereits vorhanden.", color="warning")
+                                return
+
                             ok = db.buch_speichern(titel_in.value, autor_in.value,
-                                                isbn_in.value, jahr)
+                                                isbn_text, jahr)
                             if ok:
                                 # Exemplare automatisch hinzufügen
                                 import uuid
