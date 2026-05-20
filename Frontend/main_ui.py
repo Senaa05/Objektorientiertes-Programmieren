@@ -269,15 +269,12 @@ def zeige_dashboard():
                                             ).style("font-size:0.7rem; color:#999")
                                     isbn_kopie = buch["isbn"]
                                     verfuegbar = len(db.verfuegbare_exemplare(isbn_kopie)) > 0
-                                    if verfuegbar:
+                                    if verfuegbar and not ist_admin():
                                         ui.button("Ausleihen",
                                             on_click=lambda _, i=isbn_kopie: buch_ausleihen(i)
-                                        ).classes("w-full").style(
-                                            "background:#1e3a5f; color:white; font-size:0.75rem; "
-                                            "margin-top:0.25rem")
-                                    else:
-                                        ui.label("Nicht verfügbar").style(
-                                            "color:#dc2626; font-size:0.75rem; margin-top:0.25rem")
+                                        ).classes("w-full").style("background:#2563eb; color:white")
+                                    elif not verfuegbar:
+                                        ui.label("Nicht verfügbar").style("color:#dc2626; font-size:0.75rem; margin-top:0.25rem")
 
                     # Pfeil rechts
                     ui.button("→", on_click=lambda: karussell.run_method(
