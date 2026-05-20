@@ -110,6 +110,18 @@ def zeige_login():
         with login_panel:
             bn_input = ui.input(placeholder="Benutzername").classes("w-full")
             pw_input = ui.input(placeholder="Passwort", password=True).classes("w-full")
+            pw_input.props('type=password')
+
+            def toggle_passwort():
+                if pw_input.props.get('type') == 'password':
+                    pw_input.props('type=text')
+                    auge_btn.props('icon=visibility_off')
+                else:
+                    pw_input.props('type=password')
+                    auge_btn.props('icon=visibility')
+
+            with pw_input.add_slot('append'):
+                auge_btn = ui.icon('visibility').on('click', toggle_passwort).style('cursor:pointer')
 
             def anmelden():
                 bn = bn_input.value.strip()
