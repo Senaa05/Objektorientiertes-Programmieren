@@ -784,19 +784,22 @@ def zeige_dashboard():
                                         ui.label(f"{b['titel']} — {b['autor']} · {b['jahr']}").style("font-weight:600")
                                         ui.label(f"ISBN: {b['isbn']}").style("color:#888; font-size:0.8rem")
 
+                                        neue_isbn = ui.input("Neue ISBN", value=b["isbn"]).classes("w-full")
                                         neuer_titel = ui.input("Neuer Titel", value=b["titel"]).classes("w-full")
                                         neuer_autor = ui.input("Neuer Autor", value=b["autor"]).classes("w-full")
                                         neues_jahr = ui.number("Neues Jahr", value=b["jahr"]).classes("w-full")
 
-                                        def speichern(isbn=b["isbn"], t=neuer_titel, a=neuer_autor, j=neues_jahr):
+                                        def speichern(isbn=b["isbn"], ni=neue_isbn, t=neuer_titel, a=neuer_autor, j=neues_jahr):
                                             ok = db.buch_bearbeiten(
                                                 isbn,
+                                                isbn_neu=ni.value if ni.value else None,
                                                 titel=t.value if t.value else None,
                                                 autor=a.value if a.value else None,
                                                 jahr=int(j.value) if j.value else None
                                             )
                                             if ok:
                                                 ui.notify("✅ Buch erfolgreich aktualisiert.", color="positive")
+                                                ni.set_value("")
                                                 t.set_value("")
                                                 a.set_value("")
                                                 j.set_value(None)

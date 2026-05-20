@@ -69,7 +69,7 @@ class ORMDatenbankManager:
                 for buch in buecher
             ]
     
-    def buch_bearbeiten(self, isbn: str, titel: str = None, autor: str = None, jahr: int = None) -> bool:
+    def buch_bearbeiten(self, isbn: str, titel: str = None, autor: str = None, jahr: int = None, isbn_neu: str = None) -> bool:
         try:
             with self.get_session() as session:
                 buch = session.query(Buch).filter(Buch.isbn == isbn).first()
@@ -81,6 +81,8 @@ class ORMDatenbankManager:
                     buch.autor = autor
                 if jahr:
                     buch.jahr = jahr
+                if isbn_neu:
+                    buch.isbn = isbn_neu
                 session.commit()
                 return True
         except Exception as e:
