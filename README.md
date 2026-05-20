@@ -198,10 +198,10 @@ Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte
 
 ## Verwendete Bibliotheken
 
-NiceGUI — UI Frontend
-SQLAlchemy — ORM Backend
-SQLite3 — Lokale Datenbank
-uuid — ID Erzeugung
-typing, datetime — Standard Bibliothek
+- NiceGUI — UI Frontend
+- SQLAlchemy — ORM Backend
+- SQLite3 — Lokale Datenbank
+- uuid — ID Erzeugung
+- typing, datetime — Standard Bibliothek
 
 ## Repository Struktur
