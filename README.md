@@ -70,71 +70,76 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 ### USE CASE 1: Registrieren (Benutzer)
 1. Benutzer öffnet die Registrierungsseite
 2. Benutzer gibt Benutzername, Passwort, Vorname, Nachname und E-Mail ein
-3. System prüft, ob alle Pflichtfelder ausgefüllt sind
-4. System prüft, ob Benutzername und E-Mail noch nicht existieren
-5. System speichert den neuen Benutzer
-6. Benutzer kann sich anschließend einloggen
+3. System prüft Pflichtfelder und Validität
+4. System prüft, ob Benutzername und E-Mail eindeutig sind
+5. System speichert den neuen Benutzer mit Standardrolle "Benutzer"
+6. Benutzer kann sich anschliessend einloggen
 
 ### USE CASE 2: Login mit rollenbasierter Ansicht (Benutzer/Admin)
 1. Benutzer öffnet die Login-Seite
 2. Benutzer gibt Benutzername und Passwort ein
-3. System prüft die Zugangsdaten
-4. Bei falschen Daten zeigt das System eine Fehlermeldung an
-5. Bei korrekten Daten prüft das System die Rolle
-6. Benutzer mit Rolle „Benutzer“ gelangt zur Benutzeransicht
-7. Benutzer mit Rolle „Admin“ oder „Administrator“ gelangt zur Admin-Ansicht
+3. System prüft die Zugangsdaten 
+4. Bei korrekten Daten prüft das System die Rolle
+5. Benutzer mit Rolle "Benutzer" gelangt zur Benutzeransicht
+6. Benutzer mit Rolle "Admin" oder "Administrator" gelangt zur Admin-Ansicht
 
 ### USE CASE 3: Buch ausleihen (Benutzer)
 1. Benutzer loggt sich ein
 2. Benutzer sucht nach einem Buch
-3. System zeigt verfügbare Exemplare
+3. System zeigt verfügbare Exemplare an
 4. Benutzer wählt ein Exemplar aus
-5. System prüft ob Benutzer weniger als 5 Ausleihen hat
-6. System erstellt Ausleih mit 30-Tage Frist
+5. System prüft, ob Benutzer weniger als 5 aktive Ausleihen hat
+6. System erstellt eine Ausleihe (Standardfrist 30 Tage) und speichert sie
 7. Exemplar-Status wird auf "ausgeliehen" gesetzt
-8. Ausleih wird zu "Meine Ausleihen" hinzugefügt
+8. Ausleihe erscheint in "Meine Ausleihen"
 
 ### USE CASE 4: Buch erfassen (Administrator)
 1. Administrator loggt sich ein
 2. Administrator wählt "Buch erfassen"
-3. Administrator gibt ISBN, Titel, Autor, Jahr ein
-4. Administrator gibt Anzahl Exemplare an
-5. System prüft ob ISBN bereits existiert
-6. System erstellt Buch mit Exemplaren
-7. Exemplare erhalten Status "verfügbar"
+3. Administrator gibt ISBN, Titel, Autor und Jahr ein
+4. Administrator legt die Anzahl der Exemplare fest
+5. System validiert ISBN (mind. 13 Ziffern), Jahr (4-stellig, nicht in Zukunft) und Eindeutigkeit
+6. System speichert das Buch und legt Exemplare an
+7. Exemplare erhalten den Status "verfügbar"
 
-### USE CASE 5: Buch löschen (Administrator)
+### USE CASE 5: Exemplar verwalten (Administrator)
+1. Administrator loggt sich ein
+2. Administrator öffnet die Exemplarverwaltung / Buchverwaltung
+3. Administrator wählt ein Buch und sieht die zugehörigen Exemplare
+4. Administrator kann Exemplare hinzufügen (Anzahl erhöhen)
+5. Administrator kann ein Exemplar löschen (sofern nicht ausgeliehen)
+6. Administrator kann den Status eines Exemplars manuell setzen (z. B. "verfügbar", "ausgeliehen")
+7. System speichert die Änderungen und aktualisiert die Verfügbarkeit
+
+### USE CASE 6: Buch löschen (Administrator)
 1. Administrator loggt sich ein
 2. Administrator öffnet die Buchverwaltung
 3. Administrator wählt ein Buch zum Löschen aus
 4. System prüft, ob das Buch existiert
-5. System prüft, ob keine Exemplare dieses Buches aktuell ausgeliehen sind
-6. Wenn keine Exemplare ausgeliehen sind, löscht das System die zugehörigen Exemplare
-7. System löscht das Buch
-8. Buch erscheint nicht mehr im Buchbestand
+5. System verhindert das Löschen, falls noch Exemplare ausgeliehen sind
+6. Falls möglich, löscht das System die Exemplare und das Buch
+7. Buch erscheint nicht mehr im Bestand
 
 ### USE CASE 6: Ausleih verlängern (Benutzer)
 1. Benutzer loggt sich ein
 2. Benutzer öffnet "Meine Ausleihe"
-3. Benutzer wählt auszuleihendes Buch
-4. System prüft ob Verlängerung möglich (< 1x)
-5. System fügt 14 Tage zur Frist hinzu
-6. Ausleih-Verlängerungszähler wird erhöht
+3. Benutzer wählt eine aktive Ausleihe
+4. System prüft, ob die Ausleihe noch verlängerbar ist (nur 1x erlaubt)
+5. System verlängert die Frist um 14 Tage und speichert die Änderung
 
 ### USE CASE 7: Buch verfügbar machen (Administrator)
 1. Administrator loggt sich ein
-2. Administrator sieht zurückgegebene Bücher
-3. Administrator wählt zurückgegebenes Exemplar
-4. Administrator setzt Status auf "verfügbar"
-5. System entfernt Ausleih-Eintrag
-6. Exemplar ist wieder ausleihbar
+2. Administrator wählt ein zurückgegebenes Exemplar
+3. System setzt den Exemplar-Status auf "verfügbar"
+4. System markiert die Ausleihe als zurückgegeben
+5. Exemplar ist wieder ausleihbar
 
 ### USE CASE 8: Buch zur Merkliste hinzufügen (Benutzer)
 1. Benutzer loggt sich ein
-2. Benutzer findet interessantes Buch
-3. Benutzer klickt "Zur Merkliste"
-4. System fügt Buch zur Merkliste hinzu
-5. Buch erscheint in persönlicher Merkliste
+2. Benutzer merkt ein Buch
+3. System prüft, ob Benutzer und Buch existieren
+4. System verhindert Duplikate auf der Merkliste
+5. System speichert den Merkliste-Eintrag
 
 ### Akteure
 - Administrator
