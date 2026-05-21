@@ -455,7 +455,8 @@ def zeige_dashboard():
                                             on_click=lambda _, i=isbn_kopie: (
                                                 db.merkliste_entfernen(aktueller_benutzer(), i),
                                                 ui.notify("☆ Von Merkliste entfernt.", color="info"),
-                                                merkliste_laden_seite()
+                                                merkliste_laden_seite(),
+                                                buecher_laden("")
                                             )
                                         ).props("outline").style("color:#dc2626")
 
