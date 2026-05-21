@@ -22,12 +22,12 @@ class BuchService:
             raise ValueError("Jahr muss genau 4 Ziffern enthalten.")
         jahr_int = int(jahr_text)
         if jahr_int < 1000:
-            raise ValueError("Jahr muss mindestens 1000 sein.")
+            raise ValueError("Ein Buch muss mindestens 1000 sein.")
         if jahr_int > aktuelles_jahr:
             raise ValueError(f"Jahr darf nicht in der Zukunft liegen (max. {aktuelles_jahr}).")
 
         if sum(1 for z in (isbn or "") if z.isdigit()) < 13:
-            raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")  
+            raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")
         
         # ISBN muss eindeutig sein.
         bestehendes_buch = self.db.buch_laden(isbn)
@@ -47,6 +47,41 @@ class BuchService:
             raise ValueError("Exemplare konnten nicht erstellt werden.")
 
         return True
+
+    def buch_speichern(self, titel: str, autor: str, isbn: str, jahr: int) -> bool:
+        """Wrapper für das direkte Speichern eines Buches in der DB."""
+        jahr_text = str(jahr).strip()
+        aktuelles_jahr = date.today().year
+        if len(jahr_text) != 4 or not jahr_text.isdigit():
+            raise ValueError("Jahr muss genau 4 Ziffern enthalten.")
+        jahr_int = int(jahr_text)
+        if jahr_int < 1000:
+            raise ValueError("Ein Buch muss mindestens 1000 sein.")
+        if jahr_int > aktuelles_jahr:
+            raise ValueError(f"Jahr darf nicht in der Zukunft liegen (max. {aktuelles_jahr}).")
+
+        if sum(1 for z in (isbn or "") if z.isdigit()) < 13:
+            raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")
+
+        bestehendes_buch = self.db.buch_laden(isbn)
+        if bestehendes_buch:
+            raise ValueError("Ein Buch mit dieser ISBN existiert bereits.")
+
+        erfolg = self.db.buch_speichern(titel, autor, isbn, jahr)
+        if not erfolg:
+            raise ValueError("Buch konnte nicht gespeichert werden.")
+
+        return True
+
+    def alle_buecher_laden(self) -> list[dict]:
+        """Lädt alle Bücher als Rohdaten aus der DB."""
+        return self.db.alle_buecher_laden()
+
+    def bucher_suchen(self, suchbegriff: str) -> list[dict]:
+        """Sucht Bücher mit Rohdatenformat."""
+        if not suchbegriff or not suchbegriff.strip():
+            return self.alle_buecher_laden()
+        return self.db.bucher_suchen(suchbegriff.strip())
 
     def buch_laden(self, isbn: str) -> Buch:
         """Laedt ein Buch anhand der ISBN als Buch-Objekt."""
@@ -128,3 +163,48 @@ class BuchService:
         if limit < 1:
             raise ValueError("Limit muss mindestens 1 sein.")
         return self.db.beliebteste_buecher_laden(limit)
+
+    def beliebte_buecher_karussell(self, limit: int = 5):
+        """Gibt die Buchdaten fuer das Karussell zurueck."""
+        if limit < 1:
+            raise ValueError("Limit muss mindestens 1 sein.")
+        if not hasattr(self.db, "beliebte_buecher_karussell"):
+            raise NotImplementedError("Die DB unterstützt keine Karussell-Abfrage.")
+        return self.db.beliebte_buecher_karussell(limit)
+
+    def exemplare_laden(self, isbn: str) -> list[dict]:
+        """Lädt alle Exemplare eines Buches."""
+        buch = self.db.buch_laden(isbn)
+        if not buch:
+            raise ValueError("Buch nicht gefunden.")
+        return self.db.exemplare_laden(isbn)
+
+    def exemplar_speichern(self, exemplar_id: str, isbn: str) -> bool:
+        """Speichert ein einzelnes Exemplar zu einem Buch."""
+        buch = self.db.buch_laden(isbn)
+        if not buch:
+            raise ValueError("Buch nicht gefunden.")
+        erfolg = self.db.exemplar_speichern(exemplar_id, isbn)
+        if not erfolg:
+            raise ValueError("Exemplar konnte nicht gespeichert werden.")
+        return True
+
+    def exemplar_loeschen(self, exemplar_id: str) -> bool:
+        """Löscht ein Exemplar, sofern es nicht ausgeliehen ist."""
+        if not hasattr(self.db, "exemplar_loeschen"):
+            raise NotImplementedError("Die DB unterstützt das Löschen von Exemplaren nicht.")
+        erfolg = self.db.exemplar_loeschen(exemplar_id)
+        if not erfolg:
+            raise ValueError("Exemplar konnte nicht gelöscht werden.")
+        return True
+
+    def exemplar_status_aktualisieren(self, exemplar_id: str, status: str) -> bool:
+        """Aktualisiert den Status eines Exemplars."""
+        if status not in ["verfuegbar", "ausgeliehen"]:
+            raise ValueError("Ungültiger Exemplar-Status.")
+        if not hasattr(self.db, "exemplar_status_aktualisieren"):
+            raise NotImplementedError("Die DB unterstützt keine Statusaktualisierung für Exemplare.")
+        erfolg = self.db.exemplar_status_aktualisieren(exemplar_id, status)
+        if not erfolg:
+            raise ValueError("Exemplarstatus konnte nicht aktualisiert werden.")
+        return True

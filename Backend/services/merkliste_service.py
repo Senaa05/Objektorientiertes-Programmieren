@@ -62,3 +62,23 @@ class MerklisteService:
             raise ValueError("Buch konnte nicht aus der Merkliste entfernt werden.")
 
         return True
+
+    def merkliste_laden(self, benutzername: str) -> list[dict]:
+        """Lädt alle Merkliste-Einträge eines Benutzers."""
+        daten_liste = self.merkliste_anzeigen(benutzername)
+        return [
+            {
+                "benutzername": eintrag.benutzername,
+                "isbn": eintrag.isbn,
+                "hinzugefuegt_am": eintrag.hinzugefuegt_am,
+            }
+            for eintrag in daten_liste
+        ]
+
+    def merkliste_hinzufuegen(self, benutzername: str, isbn: str) -> bool:
+        """Fügt ein Buch zur Merkliste hinzu."""
+        return self.zur_merkliste_hinzufuegen(benutzername, isbn)
+
+    def merkliste_entfernen(self, benutzername: str, isbn: str) -> bool:
+        """Entfernt ein Buch aus der Merkliste."""
+        return self.aus_merkliste_entfernen(benutzername, isbn)
