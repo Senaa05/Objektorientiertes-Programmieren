@@ -2,11 +2,11 @@
 tab_buecher.py – Bücher-Tab inkl. Karussell
 ============================================
 """
- 
+
 from nicegui import ui
-from state import db, service, merkliste_service, ist_admin, aktueller_benutzer
- 
- 
+from state import buch_service, service, merkliste_service, ist_admin, aktueller_benutzer
+
+
 def baue_buecher_tab(tab_refresh: dict):
     """
     Erstellt den Bücher-Tab-Inhalt.
@@ -16,7 +16,7 @@ def baue_buecher_tab(tab_refresh: dict):
     ui.label("Bücher suchen & ausleihen").style(
         "font-size:1.4rem; font-weight:600; margin:1rem 0"
     )
- 
+
     with ui.row().classes("items-center gap-2 mb-4"):
         such_input = ui.input(placeholder="Titel, Autor oder ISBN...").style("width:300px")
         ui.button("Suchen", on_click=lambda: buecher_laden(such_input.value)).style(
@@ -26,13 +26,13 @@ def baue_buecher_tab(tab_refresh: dict):
             "Zurücksetzen",
             on_click=lambda: (such_input.set_value(""), buecher_laden("")),
         ).props("outline")
- 
+
     # ── Beliebteste Bücher Karussell ──
     ui.label("Unsere beliebtesten Ausleihen").style(
         "font-size:1.1rem; font-weight:600; margin:0.5rem 0"
     )
-    beliebt = db.beliebte_buecher_karussell()
- 
+    beliebt = buch_service.beliebte_buecher_karussell()
+
     if beliebt:
         with ui.row().classes("w-full items-center gap-2"):
             pfeil_links = ui.button(
@@ -41,7 +41,7 @@ def baue_buecher_tab(tab_refresh: dict):
                     "scrollBy", {"left": -200, "behavior": "smooth"}
                 ),
             ).props("flat dense").style("font-size:1.2rem; min-width:2rem")
- 
+
             with ui.element("div").style(
                 "display:flex; gap:1rem; overflow:hidden; flex:1; scroll-behavior:smooth"
             ) as karussell:
@@ -65,7 +65,7 @@ def baue_buecher_tab(tab_refresh: dict):
                                 "font-size:0.7rem; color:#999"
                             )
                             isbn_kopie = buch["isbn"]
-                            verfuegbar = len(db.verfuegbare_exemplare(isbn_kopie)) > 0
+                            verfuegbar = len(buch_service.verfuegbare_exemplare(isbn_kopie)) > 0
                             if verfuegbar and not ist_admin():
                                 ui.button(
                                     "Ausleihen",
@@ -75,31 +75,31 @@ def baue_buecher_tab(tab_refresh: dict):
                                 ui.label("Nicht verfügbar").style(
                                     "color:#dc2626; font-size:0.75rem; margin-top:0.25rem"
                                 )
- 
+
             ui.button(
                 "→",
                 on_click=lambda: karussell.run_method(
                     "scrollBy", {"left": 200, "behavior": "smooth"}
                 ),
             ).props("flat dense").style("font-size:1.2rem; min-width:2rem")
- 
+
     ui.separator().classes("mb-4")
- 
+
     buecher_container = ui.column().classes("w-full gap-2")
- 
+
     # ── Bücher laden ──
     def buecher_laden(suchbegriff=""):
         buecher_container.clear()
         ergebnisse = (
-            db.bucher_suchen(suchbegriff) if suchbegriff else db.alle_buecher_laden()
+            buch_service.bucher_suchen(suchbegriff) if suchbegriff else buch_service.alle_buecher_laden()
         )
         if not ergebnisse:
             with buecher_container:
                 ui.label("Keine Bücher gefunden.").style("color:#888")
             return
- 
+
         for buch in ergebnisse:
-            verfuegbar = len(db.verfuegbare_exemplare(buch["isbn"])) > 0
+            verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"])) > 0
             with buecher_container:
                 with ui.card().classes("w-full").style("padding:1rem"):
                     with ui.row().classes("justify-between items-center w-full"):
@@ -112,14 +112,14 @@ def baue_buecher_tab(tab_refresh: dict):
                                 "color:#999; font-size:0.8rem"
                             )
                         with ui.row().classes("items-center gap-2"):
-                            anzahl_verfuegbar = len(db.verfuegbare_exemplare(buch["isbn"]))
+                            anzahl_verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"]))
                             if anzahl_verfuegbar > 0:
                                 ui.label(f"📗 Exemplare übrig: {anzahl_verfuegbar}").style(
                                     "color:#16a34a"
                                 )
                             else:
                                 ui.label("❌ Nicht verfügbar").style("color:#dc2626")
- 
+
                             isbn_kopie = buch["isbn"]
                             if not ist_admin():
                                 merkliste = merkliste_service.merkliste_laden(aktueller_benutzer())
@@ -134,7 +134,7 @@ def baue_buecher_tab(tab_refresh: dict):
                                     "Ausleihen",
                                     on_click=lambda _, i=isbn_kopie: buch_ausleihen(i),
                                 ).style("background:#2563eb; color:white")
- 
+
     # ── Buch ausleihen ──
     def buch_ausleihen(isbn):
         try:
@@ -149,7 +149,7 @@ def baue_buecher_tab(tab_refresh: dict):
             ui.notify(f"❌ {e}", color="negative")
         except Exception as e:
             ui.notify(f"❌ Fehler: {e}", color="negative")
- 
+
     # ── Merkliste toggle ──
     def merkliste_toggle(isbn):
         try:
@@ -166,6 +166,6 @@ def baue_buecher_tab(tab_refresh: dict):
         buecher_laden("")
         if tab_refresh.get("merkliste"):
             tab_refresh["merkliste"]()
- 
+
     # Initial alle Bücher laden
     buecher_laden()
