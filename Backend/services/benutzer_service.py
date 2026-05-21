@@ -119,15 +119,3 @@ class BenutzerService:
         if not daten:
             raise ValueError("Benutzer nicht gefunden.")
         return daten["rolle"] in ["Admin", "Administrator"]
-
-    def passwoerter_migrieren(self) -> int:
-        """Hasht alle noch im Klartext gespeicherten Passwörter. Gibt Anzahl migrierter User zurück."""
-        migriert = 0
-        for daten in self.db.alle_benutzer_laden():
-            gespeichert = daten["passwort"]
-            if _ist_gehasht(gespeichert):
-                continue
-            passwort_hash = _passwort_hashen(gespeichert)
-            if self.db.benutzer_passwort_aktualisieren(daten["benutzername"], passwort_hash):
-                migriert += 1
-        return migriert
