@@ -145,7 +145,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 ## Mockup
 
 ## Architektur
-
+<img width="861" height="671" alt="architektur_v2" src="https://github.com/user-attachments/assets/cb1c900a-2483-418d-a043-ca50c0b51a6e" />
 
 ## Datenbank 
 Die Datenbank beinhaltet die folgenden Entitäten:
