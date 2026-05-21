@@ -64,13 +64,15 @@ class MerklisteService:
         return True
 
     def merkliste_laden(self, benutzername: str) -> list[dict]:
-        """Lädt alle Merkliste-Einträge eines Benutzers."""
         daten_liste = self.merkliste_anzeigen(benutzername)
         return [
             {
                 "benutzername": eintrag.benutzername,
                 "isbn": eintrag.isbn,
                 "hinzugefuegt_am": eintrag.hinzugefuegt_am,
+                "titel": eintrag.titel,
+                "autor": eintrag.autor,
+                "jahr": eintrag.jahr,
             }
             for eintrag in daten_liste
         ]

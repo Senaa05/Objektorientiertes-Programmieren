@@ -29,9 +29,11 @@ db_pfad = os.path.join(projekt_pfad, "bibliothek_orm.db")
 from Datenbank.orm_manager import ORMDatenbankManager
 from Backend.services.buch_service import BuchService
 from Backend.services.benutzer_service import BenutzerService
+from Backend.services.merkliste_service import MerklisteService
 db = ORMDatenbankManager(db_pfad)
 buch_service = BuchService(db)
 benutzer_service = BenutzerService(db)
+merkliste_service = MerklisteService(db)
 
 try:
     from Backend.services.ausleihe_service import AusleiheService
@@ -313,7 +315,7 @@ def zeige_dashboard():
                                         ui.label("❌ Nicht verfügbar").style("color:#dc2626")
                                     isbn_kopie = buch["isbn"]
                                     if not ist_admin():
-                                        merkliste = db.merkliste_laden(aktueller_benutzer())
+                                        merkliste = merkliste_service.merkliste_laden(aktueller_benutzer())
                                         ist_gemerkt = any(m["isbn"] == isbn_kopie for m in merkliste)
                                         stern = "⭐" if ist_gemerkt else "☆"
                                         ui.button(stern,
@@ -338,16 +340,17 @@ def zeige_dashboard():
                     ui.notify(f"❌ Fehler: {e}", color="negative")
 
             def merkliste_toggle(isbn):
-                merkliste = db.merkliste_laden(aktueller_benutzer())
-                ist_gemerkt = any(m["isbn"] == isbn for m in merkliste)
-                if ist_gemerkt:
-                    db.merkliste_entfernen(aktueller_benutzer(), isbn)
-                    ui.notify("☆ Von Merkliste entfernt.", color="info")
-                else:
-                    if db.merkliste_hinzufuegen(aktueller_benutzer(), isbn):
-                        ui.notify("⭐ Zur Merkliste hinzugefügt.", color="positive")
+                try:
+                    merkliste = merkliste_service.merkliste_laden(aktueller_benutzer())
+                    ist_gemerkt = any(m["isbn"] == isbn for m in merkliste)
+                    if ist_gemerkt:
+                        merkliste_service.merkliste_entfernen(aktueller_benutzer(), isbn)
+                        ui.notify("☆ Von Merkliste entfernt.", color="info")
                     else:
-                        ui.notify("Buch steht bereits auf der Merkliste.", color="warning")
+                        merkliste_service.merkliste_hinzufuegen(aktueller_benutzer(), isbn)
+                        ui.notify("⭐ Zur Merkliste hinzugefügt.", color="positive")
+                except ValueError as e:
+                    ui.notify(f"❌ {e}", color="negative")
                 buecher_laden("")
                 if tab_refresh["merkliste"]:
                     tab_refresh["merkliste"]()
@@ -426,7 +429,7 @@ def zeige_dashboard():
 
                 def merkliste_laden_seite():
                     merkliste_container.clear()
-                    eintraege = db.merkliste_laden(aktueller_benutzer())
+                    eintraege = merkliste_service.merkliste_laden(aktueller_benutzer())
                     if not eintraege:
                         with merkliste_container:
                             ui.label("Deine Merkliste ist leer.").style("color:#888")
@@ -453,7 +456,7 @@ def zeige_dashboard():
                                             ).style("background:#2563eb; color:white")
                                         ui.button("⭐ Entfernen",
                                             on_click=lambda _, i=isbn_kopie: (
-                                                db.merkliste_entfernen(aktueller_benutzer(), i),
+                                                merkliste_service.merkliste_entfernen(aktueller_benutzer(), i),
                                                 ui.notify("☆ Von Merkliste entfernt.", color="info"),
                                                 merkliste_laden_seite(),
                                                 buecher_laden("")
