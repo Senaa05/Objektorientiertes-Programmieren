@@ -1,4 +1,21 @@
+import bcrypt
+
 from Backend.modelle.benutzer import User, Administrator
+
+
+def _ist_gehasht(gespeichert: str) -> bool:
+    return bool(gespeichert) and gespeichert.startswith(("$2a$", "$2b$", "$2y$"))
+
+
+def _passwort_hashen(klartext: str) -> str:
+    return bcrypt.hashpw(klartext.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+
+def _passwort_pruefen(klartext: str, gespeichert: str) -> bool:
+    try:
+        return bcrypt.checkpw(klartext.encode("utf-8"), gespeichert.encode("utf-8"))
+    except (ValueError, TypeError):
+        return False
 
 
 class BenutzerService:
@@ -17,7 +34,6 @@ class BenutzerService:
         rolle: str = "Benutzer"
     ) -> bool:
         """Registriert einen neuen Benutzer nach Pflichtfeld- und Eindeutigkeitspruefung."""
-        # Grundvalidierung fuer Pflichtfelder bei der Registrierung.
         if not benutzername or not benutzername.strip():
             raise ValueError("Benutzername darf nicht leer sein.")
 
@@ -41,10 +57,10 @@ class BenutzerService:
         if bestehende_email:
             raise ValueError("E-Mail existiert bereits.")
 
-        # Neue Benutzer werden direkt mit definierter Rolle gespeichert.
+        passwort_hash = _passwort_hashen(passwort.strip())
         erfolg = self.db.benutzer_speichern(
             benutzername=benutzername.strip(),
-            passwort=passwort.strip(),
+            passwort=passwort_hash,
             vorname=vorname.strip(),
             nachname=nachname.strip(),
             email=email.strip(),
@@ -56,69 +72,62 @@ class BenutzerService:
 
         return True
 
+    def _benutzer_aus_daten(self, daten: dict) -> User:
+        """Erzeugt User/Admin ohne Klartext-Passwort im Objekt."""
+        kwargs = {
+            "benutzername": daten["benutzername"],
+            "vorname": daten["vorname"],
+            "nachname": daten["nachname"],
+            "email": daten["email"],
+        }
+        if daten["rolle"] in ["Admin", "Administrator"]:
+            return Administrator(**kwargs)
+        return User(**kwargs, rolle=daten["rolle"])
+
     def benutzer_laden(self, benutzername: str) -> User:
         """Laedt einen Benutzer und liefert je nach Rolle User oder Administrator."""
         daten = self.db.benutzer_laden(benutzername)
         if not daten:
             raise ValueError("Benutzer nicht gefunden.")
-
-        if daten["rolle"] in ["Admin", "Administrator"]:
-            return Administrator(
-                benutzername=daten["benutzername"],
-                passwort=daten["passwort"],
-                vorname=daten["vorname"],
-                nachname=daten["nachname"],
-                email=daten["email"]
-            )
-
-        return User(**daten)
+        return self._benutzer_aus_daten(daten)
 
     def login(self, benutzername: str, passwort: str) -> User:
         """Fuehrt den Login durch und gibt das passende Benutzerobjekt zurueck."""
-        # Aus Sicherheitsgruenden gleiche Fehlermeldung fuer Nutzer/Passwort.
         daten = self.db.benutzer_laden(benutzername)
         if not daten:
             raise ValueError("Benutzername oder Passwort ist falsch.")
 
-        if daten["passwort"] != passwort:
+        gespeichert = daten["passwort"]
+        if _ist_gehasht(gespeichert):
+            ok = _passwort_pruefen(passwort, gespeichert)
+        else:
+            # Legacy-Klartext (sollte nach Migration nicht mehr vorkommen)
+            ok = gespeichert == passwort
+
+        if not ok:
             raise ValueError("Benutzername oder Passwort ist falsch.")
 
-        if daten["rolle"] in ["Admin", "Administrator"]:
-            return Administrator(
-                benutzername=daten["benutzername"],
-                passwort=daten["passwort"],
-                vorname=daten["vorname"],
-                nachname=daten["nachname"],
-                email=daten["email"]
-            )
-
-        return User(**daten)
+        return self._benutzer_aus_daten(daten)
 
     def alle_benutzer(self) -> list[User]:
         """Liefert alle Benutzer aus der DB inkl. korrekter Rollentypen."""
-        daten_liste = self.db.alle_benutzer_laden()
-        benutzer_liste = []
-
-        for daten in daten_liste:
-            if daten["rolle"] in ["Admin", "Administrator"]:
-                benutzer_liste.append(
-                    Administrator(
-                        benutzername=daten["benutzername"],
-                        passwort=daten["passwort"],
-                        vorname=daten["vorname"],
-                        nachname=daten["nachname"],
-                        email=daten["email"]
-                    )
-                )
-            else:
-                benutzer_liste.append(User(**daten))
-
-        return benutzer_liste
+        return [self._benutzer_aus_daten(d) for d in self.db.alle_benutzer_laden()]
 
     def ist_admin(self, benutzername: str) -> bool:
         """Prueft, ob ein Benutzer die Rolle Admin/Administrator besitzt."""
         daten = self.db.benutzer_laden(benutzername)
         if not daten:
             raise ValueError("Benutzer nicht gefunden.")
-
         return daten["rolle"] in ["Admin", "Administrator"]
+
+    def passwoerter_migrieren(self) -> int:
+        """Hasht alle noch im Klartext gespeicherten Passwörter. Gibt Anzahl migrierter User zurück."""
+        migriert = 0
+        for daten in self.db.alle_benutzer_laden():
+            gespeichert = daten["passwort"]
+            if _ist_gehasht(gespeichert):
+                continue
+            passwort_hash = _passwort_hashen(gespeichert)
+            if self.db.benutzer_passwort_aktualisieren(daten["benutzername"], passwort_hash):
+                migriert += 1
+        return migriert

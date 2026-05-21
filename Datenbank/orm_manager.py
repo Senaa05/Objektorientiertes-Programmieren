@@ -311,6 +311,22 @@ class ORMDatenbankManager:
                 }
         return None
 
+    def benutzer_passwort_aktualisieren(self, benutzername: str, passwort_hash: str) -> bool:
+        """Aktualisiert nur das Passwort-Feld (z. B. nach Hash-Migration)."""
+        try:
+            with self.get_session() as session:
+                benutzer = session.query(Benutzer).filter(
+                    Benutzer.benutzername == benutzername
+                ).first()
+                if not benutzer:
+                    return False
+                benutzer.passwort = passwort_hash
+                session.commit()
+                return True
+        except Exception as e:
+            print(f"Fehler beim Aktualisieren des Passworts: {e}")
+            return False
+
     def alle_benutzer_laden(self) -> List[Dict]:
         """Lädt alle Benutzer über ORM"""
         with self.get_session() as session:
