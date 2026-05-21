@@ -28,8 +28,10 @@ db_pfad = os.path.join(projekt_pfad, "bibliothek_orm.db")
 
 from Datenbank.orm_manager import ORMDatenbankManager
 from Backend.services.buch_service import BuchService
+from Backend.services.benutzer_service import BenutzerService
 db = ORMDatenbankManager(db_pfad)
 buch_service = BuchService(db)
+benutzer_service = BenutzerService(db)
 
 try:
     from Backend.services.ausleihe_service import AusleiheService
@@ -126,16 +128,14 @@ def zeige_login():
             def anmelden():
                 bn = bn_input.value.strip()
                 pw = pw_input.value
-                benutzer = db.benutzer_laden(bn)
-                if not benutzer:
-                    fehler_label.set_text("Benutzername nicht gefunden.")
-                    return
-                if benutzer.get("passwort") != pw:
-                    fehler_label.set_text("Falsches Passwort.")
+                try:
+                    benutzer = benutzer_service.login(bn, pw)
+                except ValueError:
+                    fehler_label.set_text("Benutzername oder Passwort ist falsch.")
                     return
                 zustand["angemeldet"]   = True
                 zustand["benutzername"] = bn
-                zustand["rolle"]        = benutzer.get("rolle", "Benutzer")
+                zustand["rolle"]        = benutzer.rolle
                 ui.navigate.to("/dashboard")
 
             ui.button("Login", on_click=anmelden).classes("w-full").style(
@@ -156,28 +156,20 @@ def zeige_login():
                     fehler_label.set_text("Bitte alle Felder ausfüllen.")
                     return
 
-                # Prüfen ob Benutzername schon existiert
-                if db.benutzer_laden(reg_bn_in.value):
-                    fehler_label.set_text("Benutzername bereits vergeben.")
-                    return
-
-                ok = db.benutzer_speichern(
-                    benutzername=reg_bn_in.value,
-                    passwort=reg_pw_in.value,
-                    vorname=vorname_in.value,
-                    nachname=nachname_in.value,
-                    email=email_in.value
-                )
-                if ok:
-                    # Direkt prüfen ob der Benutzer wirklich in der DB ist
-                    gespeichert = db.benutzer_laden(reg_bn_in.value)
-                    if gespeichert:
-                        ui.notify("✅ Registrierung erfolgreich! Bitte einloggen.", color="positive")
-                        zeige_tab("login")
-                    else:
-                        fehler_label.set_text("Benutzer wurde nicht gespeichert – Datenbankfehler.")
-                else:
-                    fehler_label.set_text("Fehler – Benutzername oder Email bereits vergeben.")
+                try:
+                    benutzer_service.benutzer_registrieren(
+                        benutzername=reg_bn_in.value,
+                        passwort=reg_pw_in.value,
+                        vorname=vorname_in.value,
+                        nachname=nachname_in.value,
+                        email=email_in.value
+                    )
+                    ui.notify("✅ Registrierung erfolgreich! Bitte einloggen.", color="positive")
+                    zeige_tab("login")
+                except ValueError as e:
+                    fehler_label.set_text(str(e))
+                except Exception:
+                    fehler_label.set_text("Fehler beim Speichern des Benutzers.")
 
             ui.button("Registrieren", on_click=registrieren).classes("w-full").style(
                 "background:black; color:white; margin-top:0.5rem")
