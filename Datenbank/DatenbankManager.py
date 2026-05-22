@@ -236,6 +236,13 @@ class DatenbankManager:
         """Aktualisiert den Status eines Exemplars"""
         try:
             cursor = self.connection.cursor()
+            if status == 'verfuegbar':
+                heute = date.today().strftime('%Y-%m-%d')
+                cursor.execute('''
+                    UPDATE ausleihen
+                    SET rueckgabedatum = ?
+                    WHERE exemplar_id = ? AND rueckgabedatum IS NULL
+                ''', (heute, exemplar_id))
             cursor.execute('''
                 UPDATE exemplare 
                 SET status = ?
@@ -246,6 +253,22 @@ class DatenbankManager:
         except sqlite3.Error as e:
             print(f"Fehler beim Aktualisieren des Exemplar-Status: {e}")
             return False
+
+    def exemplar_ausleihe_laden(self, exemplar_id: str) -> Optional[Dict]:
+        """Lädt die aktuell offene Ausleihe zu einem Exemplar"""
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            SELECT a.ausleih_id, a.benutzername, a.exemplar_id, a.ausleihdatum, a.faelligkeit,
+                   b.vorname, b.nachname, b.email, e.isbn, bu.titel
+            FROM ausleihen a
+            JOIN benutzer b ON a.benutzername = b.benutzername
+            JOIN exemplare e ON a.exemplar_id = e.exemplar_id
+            JOIN buecher bu ON e.isbn = bu.isbn
+            WHERE a.exemplar_id = ? AND a.rueckgabedatum IS NULL
+            LIMIT 1
+        ''', (exemplar_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
     
     # ==================== BENUTZER-CRUD ====================
     

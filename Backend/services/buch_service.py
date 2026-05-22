@@ -220,6 +220,12 @@ class BuchService:
             raise ValueError("Exemplar konnte nicht gelöscht werden.")
         return True
 
+    def exemplar_ausleihe_laden(self, exemplar_id: str):
+        """Lädt die aktive Ausleihe zu einem Exemplar, falls vorhanden."""
+        if not hasattr(self.db, "exemplar_ausleihe_laden"):
+            raise NotImplementedError("Die DB unterstützt diese Abfrage nicht.")
+        return self.db.exemplar_ausleihe_laden(exemplar_id)
+
     def exemplar_status_aktualisieren(self, exemplar_id: str, status: str) -> bool:
         """Aktualisiert den Status eines Exemplars."""
         if status not in ["verfuegbar", "ausgeliehen"]:

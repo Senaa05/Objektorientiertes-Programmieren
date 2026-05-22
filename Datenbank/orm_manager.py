@@ -251,12 +251,47 @@ class ORMDatenbankManager:
                 ).first()
                 if exemplar:
                     exemplar.status = status
+                    if status == "verfuegbar":
+                        offene_ausleihe = session.query(Ausleihe).filter(
+                            and_(
+                                Ausleihe.exemplar_id == exemplar_id,
+                                Ausleihe.rueckgabedatum.is_(None),
+                            )
+                        ).first()
+                        if offene_ausleihe:
+                            offene_ausleihe.rueckgabedatum = date.today()
                     session.commit()
                     return True
                 return False
         except Exception as e:
             print(f"Fehler beim Aktualisieren des Exemplar-Status: {e}")
             return False
+
+    def exemplar_ausleihe_laden(self, exemplar_id: str) -> Optional[Dict]:
+        """Lädt die aktuell offene Ausleihe zu einem Exemplar, falls vorhanden."""
+        with self.get_session() as session:
+            ausleihe = session.query(Ausleihe).filter(
+                and_(
+                    Ausleihe.exemplar_id == exemplar_id,
+                    Ausleihe.rueckgabedatum.is_(None),
+                )
+            ).join(Ausleihe.benutzer).join(Ausleihe.exemplar).first()
+
+            if not ausleihe:
+                return None
+
+            return {
+                "ausleih_id": ausleihe.ausleih_id,
+                "benutzername": ausleihe.benutzername,
+                "vorname": ausleihe.benutzer.vorname,
+                "nachname": ausleihe.benutzer.nachname,
+                "email": ausleihe.benutzer.email,
+                "exemplar_id": ausleihe.exemplar_id,
+                "isbn": ausleihe.exemplar.isbn,
+                "titel": ausleihe.exemplar.buch.titel,
+                "ausleihdatum": ausleihe.ausleihdatum.strftime("%Y-%m-%d"),
+                "faelligkeit": ausleihe.faelligkeit.strftime("%Y-%m-%d"),
+            }
     
     # ==================== BENUTZER-CRUD ====================
     
