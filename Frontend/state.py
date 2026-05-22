@@ -114,7 +114,7 @@ zustand: dict = {
 # ─────────────────────────────────────────────
  
 def ist_admin() -> bool:
-    return zustand["rolle"] == "Admin"
+    return zustand["rolle"] in ["Admin", "Administrator"]
  
 def aktueller_benutzer() -> str:
     return zustand["benutzername"]

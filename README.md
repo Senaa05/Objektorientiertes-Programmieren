@@ -106,7 +106,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 3. Administrator wählt ein Buch und sieht die zugehörigen Exemplare
 4. Administrator kann Exemplare hinzufügen (Anzahl erhöhen)
 5. Administrator kann ein Exemplar löschen (sofern nicht ausgeliehen)
-6. Administrator kann den Status eines Exemplars manuell setzen (z. B. "verfügbar", "ausgeliehen", "defekt")
+6. Administrator kann den Status eines Exemplars manuell setzen (z. B. "verfügbar", "ausgeliehen")
 7. System speichert die Änderungen und aktualisiert die Verfügbarkeit
 
 ### USE CASE 6: Buch löschen (Administrator)
