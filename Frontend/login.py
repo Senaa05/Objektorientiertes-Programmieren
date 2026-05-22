@@ -71,6 +71,18 @@ def zeige_login():
             email_in    = ui.input(placeholder="Email").classes("w-full")
             reg_bn_in   = ui.input(placeholder="Benutzername").classes("w-full")
             reg_pw_in   = ui.input(placeholder="Passwort", password=True).classes("w-full")
+            reg_pw_in.props("type=password")
+
+            def toggle_reg_passwort():
+                if reg_pw_in.props.get("type") == "password":
+                    reg_pw_in.props("type=text")
+                    reg_auge_btn.props("icon=visibility_off")
+                else:
+                    reg_pw_in.props("type=password")
+                    reg_auge_btn.props("icon=visibility")
+
+            with reg_pw_in.add_slot("append"):
+                reg_auge_btn = ui.icon("visibility").on("click", toggle_reg_passwort).style("cursor:pointer")
  
             def registrieren():
                 if not all([vorname_in.value, nachname_in.value, email_in.value,
