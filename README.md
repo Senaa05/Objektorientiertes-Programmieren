@@ -22,7 +22,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 - Bis zu 5 Bücher gleichzeitig ausleihen
 - Man kann pro Buch 1x verlängern
 - (Persönliche Merkliste verwalten)
-- "Meine Ausleihen" mit aktuellen Ausleihen, das älteste zu oberst und das neuste zu unterst. 
+- "Meine Ausleihen" zeigt aktuelle Ausleihen sortiert nach Fälligkeit (früheste Fälligkeit oben). 
 
 ### Ausleihe 
 - 30 Tage Standard-Ausleihdauer
@@ -57,7 +57,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 - Als Benutzer möchte ich Ausleihen verlängern, damit ich mehr Zeit zum Lesen habe.
 ---
 ### User Story 9: Eigene Ausleihe anzeigen
-- Als Benutzer möchte ich meine Ausleihen sehen, damit ich den Überblick habe
+- Als Benutzer möchte ich meine Ausleihen nach Fälligkeit sortiert sehen, damit ich den Überblick habe
 ---
 ### User Story 10: Bücher in die Merkliste hinzufügen 
 - Als Benutzer möchte ich Bücher merken, damit ich sie später leicht finde.

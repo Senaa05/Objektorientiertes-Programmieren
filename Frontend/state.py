@@ -58,6 +58,16 @@ try:
  
         def ueberfaellige_ausleihen(self):
             return _service.ueberfaellige_ausleihen()
+
+        def popup_ueberfaellige_fuer_benutzer(self, b):
+            return _service.popup_ueberfaellige_fuer_benutzer(b)
+
+        def reminder_fuer_benutzer(self, b, tage=7):
+            return [
+                eintrag
+                for eintrag in _service.reminder_kandidaten_holen(tage)
+                if eintrag["benutzername"] == b
+            ]
  
     service = Service()
     print("AusleiheService erfolgreich geladen.")
@@ -71,6 +81,21 @@ except Exception as e:
         def ausleih_verlaengern(self, i):  raise ValueError("Service nicht geladen")
         def buch_zurueckgeben(self, i):    raise ValueError("Service nicht geladen")
         def ueberfaellige_ausleihen(self): return db.ueberfaellige_ausleihen()
+        def popup_ueberfaellige_fuer_benutzer(self, b):
+            return [
+                eintrag
+                for eintrag in db.ueberfaellige_ausleihen()
+                if eintrag["benutzername"] == b
+            ]
+
+        def reminder_fuer_benutzer(self, b, tage=7):
+            if not hasattr(db, "bald_faellige_ausleihen"):
+                return []
+            return [
+                eintrag
+                for eintrag in db.bald_faellige_ausleihen(tage)
+                if eintrag["benutzername"] == b
+            ]
  
     service = Service()
  

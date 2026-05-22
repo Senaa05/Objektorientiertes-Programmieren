@@ -153,7 +153,7 @@ class BuchService:
 
     def buch_loeschen(self, isbn: str, benutzer_rolle: str) -> bool:
         """Loescht ein Buch, sofern keine aktive Ausleihe dagegen spricht."""
-        if benutzer_rolle != "Admin":
+        if benutzer_rolle not in ["Admin", "Administrator"]:
             raise ValueError("Nur Admins duerfen Buecher loeschen.")
 
         bestehendes_buch = self.db.buch_laden(isbn)
