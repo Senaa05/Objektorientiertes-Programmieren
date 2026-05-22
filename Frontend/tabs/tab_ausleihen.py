@@ -4,7 +4,7 @@ tab_ausleihen.py – Meine Ausleihen Tab
 """
  
 from nicegui import ui
-from state import db, service, aktueller_benutzer
+from state import service, aktueller_benutzer
  
  
 def baue_ausleihen_tab(tab_refresh: dict):
@@ -21,8 +21,9 @@ def baue_ausleihen_tab(tab_refresh: dict):
         ausleihen_container.clear()
         try:
             ausleihen = service.meine_ausleihen(aktueller_benutzer())
-        except Exception:
-            ausleihen = db.ausleihen_benutzer(aktueller_benutzer())
+        except Exception as e:
+            ui.notify(f"❌ Fehler beim Laden der Ausleihen: {e}", color="negative")
+            ausleihen = []
  
         if not ausleihen:
             with ausleihen_container:
