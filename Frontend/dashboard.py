@@ -129,5 +129,5 @@ def zeige_dashboard():
                 baue_admin_tab()
 
     if not ist_admin():
-        ui.timer(0.05, zeige_reminder_bald_faellig, once=True)
-        ui.timer(0.1, zeige_popup_ueberfaellig, once=True)
+        zeige_reminder_bald_faellig()
+        zeige_popup_ueberfaellig()
