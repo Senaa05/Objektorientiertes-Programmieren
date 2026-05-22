@@ -69,12 +69,12 @@ def _exemplare_verwalten():
             "font-weight:600; margin-bottom:0.5rem"
         )
 
+        exemplar_container = ui.column().classes("w-full gap-2")
+
         with ui.row().classes("items-center gap-2 mb-4"):
             isbn_such  = ui.input(placeholder="ISBN eingeben...").style("width:220px")
             titel_such = ui.input(placeholder="Titel...").style("width:200px")
             autor_such = ui.input(placeholder="Autor...").style("width:200px")
-
-            exemplar_container = ui.column().classes("w-full gap-2")
 
             def suche_ausfuehren():
                 isbn  = isbn_such.value.strip()
@@ -128,8 +128,6 @@ def _exemplare_verwalten():
                 ),
             ).props("outline")
 
-        exemplar_container = ui.column().classes("w-full gap-2")
-
         def exemplar_loeschen(exemplar_id, isbn):
             def bestaetigen():
                 if buch_service.exemplar_loeschen(exemplar_id):
@@ -156,15 +154,19 @@ def _exemplare_verwalten():
             if not isbn:
                 ui.notify("Bitte ISBN eingeben.", color="warning")
                 return
-            buch = buch_service.buch_laden(isbn)
-            if not buch:
+
+            try:
+                buch = buch_service.buch_laden(isbn)
+            except ValueError:
                 with exemplar_container:
                     ui.label("Kein Buch mit dieser ISBN gefunden.").style("color:#888")
                 return
+
+            buch_titel = buch.titel if hasattr(buch, "titel") else buch.get("titel", "?")
             alle = buch_service.exemplare_laden(isbn)
             with exemplar_container:
                 ui.label(
-                    f"Buch: {buch['titel']} — {len(alle)} Exemplar(e)"
+                    f"Buch: {buch_titel} — {len(alle)} Exemplar(e)"
                 ).style("font-weight:600; margin-bottom:0.5rem")
                 for ex in alle:
                     farbe = "#16a34a" if ex["status"] == "verfuegbar" else "#dc2626"
@@ -437,22 +439,27 @@ def _buch_bearbeiten():
                         a=neuer_autor,
                         j=neues_jahr,
                     ):
-                        ok = buch_service.buch_bearbeiten(
-                            isbn,
-                            isbn_neu=ni.value if ni.value else None,
-                            titel=t.value if t.value else None,
-                            autor=a.value if a.value else None,
-                            jahr=int(j.value) if j.value else None,
-                        )
-                        if ok:
-                            ui.notify("✅ Buch erfolgreich aktualisiert.", color="positive")
-                            ni.set_value("")
-                            t.set_value("")
-                            a.set_value("")
-                            j.set_value(None)
-                            bearb_container.clear()
-                        else:
-                            ui.notify("❌ Fehler beim Bearbeiten.", color="negative")
+                        try:
+                            ok = buch_service.buch_bearbeiten(
+                                isbn,
+                                isbn_neu=ni.value if ni.value else None,
+                                titel=t.value if t.value else None,
+                                autor=a.value if a.value else None,
+                                jahr=int(j.value) if j.value else None,
+                            )
+                            if ok:
+                                ui.notify("✅ Buch erfolgreich aktualisiert.", color="positive")
+                                ni.set_value("")
+                                t.set_value("")
+                                a.set_value("")
+                                j.set_value(None)
+                                bearb_container.clear()
+                            else:
+                                ui.notify("❌ Fehler beim Bearbeiten.", color="negative")
+                        except ValueError as e:
+                            ui.notify(f"❌ {e}", color="negative")
+                        except Exception:
+                            ui.notify("❌ Fehler beim Speichern.", color="negative")
 
                     ui.button("💾 Speichern", on_click=speichern).style(
                         "background:#2563eb; color:white; margin-top:0.5rem"

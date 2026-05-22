@@ -110,19 +110,41 @@ class BuchService:
         isbn: str,
         titel: str = None,
         autor: str = None,
-        jahr: int = None
+        jahr: int = None,
+        isbn_neu: str = None
     ) -> bool:
         """Aktualisiert einzelne Buchfelder; nicht angegebene Felder bleiben unveraendert."""
         bestehendes_buch = self.db.buch_laden(isbn)
         if not bestehendes_buch:
             raise ValueError("Buch nicht gefunden.")
 
-        erfolg = self.db.buch_bearbeiten(
-            isbn=isbn,
-            titel=titel,
-            autor=autor,
-            jahr=jahr
-        )
+        if isbn_neu is not None:
+            isbn_neu = str(isbn_neu).strip()
+            if not isbn_neu:
+                isbn_neu = None
+            elif isbn_neu != isbn:
+                if sum(1 for z in isbn_neu if z.isdigit()) < 13:
+                    raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")
+                if self.db.buch_laden(isbn_neu):
+                    raise ValueError("Ein Buch mit dieser neuen ISBN existiert bereits.")
+
+        try:
+            erfolg = self.db.buch_bearbeiten(
+                isbn=isbn,
+                titel=titel,
+                autor=autor,
+                jahr=jahr,
+                isbn_neu=isbn_neu,
+            )
+        except TypeError:
+            if isbn_neu and isbn_neu != isbn:
+                raise ValueError("ISBN-Aenderung wird von dieser Datenbank-Version nicht unterstuetzt.")
+            erfolg = self.db.buch_bearbeiten(
+                isbn=isbn,
+                titel=titel,
+                autor=autor,
+                jahr=jahr,
+            )
 
         if not erfolg:
             raise ValueError("Buch konnte nicht bearbeitet werden.")

@@ -7,6 +7,7 @@ Nur drei Aufgaben:
   3. ui.run() starten
 """
  
+import os
 from nicegui import ui
 from login import zeige_login
 from dashboard import zeige_dashboard
@@ -31,10 +32,11 @@ def dashboard_seite():
 # ─────────────────────────────────────────────
  
 if __name__ in {"__main__", "__mp_main__"}:
+    reload_aktiv = os.getenv("NICEGUI_RELOAD", "0") == "1"
     ui.run(
         title="Bibliothek",
         port=8080,
-        reload=True,
+        reload=reload_aktiv,
         dark=False,
         show=True,
     )
