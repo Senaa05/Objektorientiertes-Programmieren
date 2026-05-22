@@ -1,6 +1,7 @@
 # Bibflow :books:
-
 Dieses Projekt ist ein webbasiertes Bibliothekssystem, das die Verwaltung und Ausleihe von Büchern übersichtlich und effizient gestaltet. Unterschiedliche Funktionen für Administratoren und Benutzer sorgen für eine klare und strukturierte Nutzung.
+
+<img width="1860" height="799" alt="image" src="https://github.com/user-attachments/assets/c3ae8eac-b237-44e1-b60e-b7cdb7abaeaf" />
 
 ## Problem
 In der Bibliothek «Bibflow» ist die Verwaltung der Bücher und Ausleihen unübersichtlich, weil keine zentrale Lösung vorhanden ist. Benutzer wissen oft nicht, ob ein Buch verfügbar ist, und haben keinen Überblick über ihre Ausleihen. Zudem ist den Benutzern nicht bewusst, welche die beliebtesten Bücher in der Bibliothek sind. Dies führt häufig zu verspäteten Rückgaben und Missverständnissen zwischen Benutzern und Mitarbeitern.
@@ -117,21 +118,21 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 6. Falls möglich, löscht das System die Exemplare und das Buch
 7. Buch erscheint nicht mehr im Bestand
 
-### USE CASE 6: Ausleih verlängern (Benutzer)
+### USE CASE 7: Ausleih verlängern (Benutzer)
 1. Benutzer loggt sich ein
 2. Benutzer öffnet "Meine Ausleihe"
 3. Benutzer wählt eine aktive Ausleihe
 4. System prüft, ob die Ausleihe noch verlängerbar ist (nur 1x erlaubt)
 5. System verlängert die Frist um 14 Tage und speichert die Änderung
 
-### USE CASE 7: Buch verfügbar machen (Administrator)
+### USE CASE 8: Buch verfügbar machen (Administrator)
 1. Administrator loggt sich ein
 2. Administrator wählt ein zurückgegebenes Exemplar
 3. System setzt den Exemplar-Status auf "verfügbar"
 4. System markiert die Ausleihe als zurückgegeben
 5. Exemplar ist wieder ausleihbar
 
-### USE CASE 8: Buch zur Merkliste hinzufügen (Benutzer)
+### USE CASE 9: Buch zur Merkliste hinzufügen (Benutzer)
 1. Benutzer loggt sich ein
 2. Benutzer merkt ein Buch
 3. System prüft, ob Benutzer und Buch existieren
@@ -203,5 +204,6 @@ Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte
 - SQLite3 — Lokale Datenbank
 - uuid — ID Erzeugung
 - typing, datetime — Standard Bibliothek
+- bcrypt — Passwort-Hashing
 
 ## Repository Struktur
