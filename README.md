@@ -207,3 +207,57 @@ Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte
 - bcrypt — Passwort-Hashing
 
 ## Repository Struktur
+
+## Projekt Setup
+
+### 1. Project Setup
+- Python 3.13 oder die im Kurs verwendete Python-Version ist erforderlich.
+- Ein aktueller Webbrowser wird für die Nutzung der Oberfläche benötigt.
+- Das Projekt nutzt eine lokale SQLite-Datenbank und benötigt keine separate Datenbankinstallation.
+
+### 2. Virtuelle Umgebung anlegen
+macOS/Linux:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Windows:
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+Falls PowerShell das Aktivieren blockiert, kann alternativ die Eingabeaufforderung verwendet werden:
+```bat
+.venv\Scripts\activate.bat
+```
+
+### 3. Abhängigkeiten installieren
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configuration
+- Für Bibflow sind keine zusätzlichen Umgebungsvariablen oder geheimen Schlüssel nötig.
+- Die Datenbankdatei `bibliothek_orm.db` wird beim ersten Start automatisch im Projektstamm erstellt.
+- Wenn du mit einer leeren Datenbank neu starten willst, kannst du diese Datei löschen und die Anwendung erneut starten.
+
+### 5. Launch
+macOS/Linux:
+```bash
+python Frontend/main_ui.py
+```
+
+Windows:
+```powershell
+py Frontend\main_ui.py
+```
+
+Die Anwendung startet auf `http://127.0.0.1:8080`. Öffne die Adresse im Browser, sobald sie in der Konsole ausgegeben wird.
+
+### 6. Usage
+- Die Login-Seite öffnen und sich mit einem bestehenden Konto anmelden.
+- Den Tab **Bücher** öffnen und verfügbare Titel durchsuchen.
+- Ein verfügbares Exemplar auswählen und den Ausleihvorgang starten.
+- Die Seite **Meine Ausleihen** aufrufen, um Fälligkeitsdatum und Status zu prüfen.
