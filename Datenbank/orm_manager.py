@@ -10,7 +10,7 @@ from typing import List, Optional, Dict
 import os
 import uuid
 
-from orm_models import (
+from Datenbank.orm_models import (
     Buch, Exemplar, Benutzer, Ausleihe, Merkliste,
     get_session, create_tables, init_database
 )

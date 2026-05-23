@@ -4,7 +4,7 @@ tab_buecher.py – Bücher-Tab inkl. Karussell
 """
 
 from nicegui import ui
-from state import buch_service, service, merkliste_service, ist_admin, aktueller_benutzer
+from Frontend.state import buch_service, service, merkliste_service, ist_admin, aktueller_benutzer
 
 
 def baue_buecher_tab(tab_refresh: dict):

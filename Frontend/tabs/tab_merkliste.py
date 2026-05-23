@@ -4,7 +4,7 @@ tab_merkliste.py – Meine Merkliste Tab
 """
 
 from nicegui import ui
-from state import buch_service, service, merkliste_service, aktueller_benutzer
+from Frontend.state import buch_service, service, merkliste_service, aktueller_benutzer
 
 
 def baue_merkliste_tab(tab_refresh: dict):

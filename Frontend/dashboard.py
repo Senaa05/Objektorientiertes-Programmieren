@@ -6,11 +6,11 @@ Die eigentlichen Tab-Inhalte kommen aus den tab_*.py Modulen.
 """
  
 from nicegui import ui
-from state import zustand, ist_admin, aktueller_benutzer, service
-from tabs.tab_buecher import baue_buecher_tab
-from tabs.tab_ausleihen import baue_ausleihen_tab
-from tabs.tab_merkliste import baue_merkliste_tab
-from tabs.tab_admin import baue_admin_tab
+from Frontend.state import zustand, ist_admin, aktueller_benutzer, service
+from Frontend.tabs.tab_buecher import baue_buecher_tab
+from Frontend.tabs.tab_ausleihen import baue_ausleihen_tab
+from Frontend.tabs.tab_merkliste import baue_merkliste_tab
+from Frontend.tabs.tab_admin import baue_admin_tab
  
  
 def zeige_dashboard():

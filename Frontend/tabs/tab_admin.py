@@ -6,7 +6,7 @@ tab_admin.py – Admin-Tab
 import uuid
 from datetime import date
 from nicegui import ui
-from state import buch_service, service, zustand
+from Frontend.state import buch_service, service, zustand
 
 
 def baue_admin_tab():

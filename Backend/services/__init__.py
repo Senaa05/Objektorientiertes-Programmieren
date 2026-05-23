@@ -5,19 +5,11 @@ Die UI importiert Services von hier und greift nicht direkt auf `db` zu.
 """
 import logging
 import os
-import sys
-import traceback
 
 projekt_pfad = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 db_pfad = os.path.join(projekt_pfad, "bibliothek_orm.db")
 log_pfad = os.path.join(projekt_pfad, "logs")
 log_datei = os.path.join(log_pfad, "bibflow.log")
-
-# Ensure project root and Datenbank folder are importable for modules that use
-# top-level imports like `from orm_models import ...`.
-for pfad in [projekt_pfad, os.path.join(projekt_pfad, "Datenbank"), os.path.join(projekt_pfad, "Backend")]:
-    if pfad not in sys.path:
-        sys.path.insert(0, pfad)
 
 
 def _erzeuge_logger() -> logging.Logger:
@@ -37,10 +29,10 @@ def _erzeuge_logger() -> logging.Logger:
 logger = _erzeuge_logger()
 
 from Datenbank.orm_manager import ORMDatenbankManager
-from .buch_service import BuchService
-from .benutzer_service import BenutzerService
-from .merkliste_service import MerklisteService
-from .ausleihe_service import AusleiheService
+from Backend.services.buch_service import BuchService
+from Backend.services.benutzer_service import BenutzerService
+from Backend.services.merkliste_service import MerklisteService
+from Backend.services.ausleihe_service import AusleiheService
 
 class ServiceInitialisierungFehler(RuntimeError):
     """Wird ausgelöst, wenn die Datenbank- oder Service-Initialisierung scheitert."""
@@ -55,10 +47,7 @@ def _initialisiere_services():
         ausleihe_service = AusleiheService(db)
         return db, buch_service, benutzer_service, merkliste_service, ausleihe_service
     except Exception as exc:
-        logger.error(
-            "Initialisierung von Datenbank oder Services fehlgeschlagen:\n%s",
-            traceback.format_exc(),
-        )
+        logger.exception("Initialisierung von Datenbank oder Services fehlgeschlagen")
         raise ServiceInitialisierungFehler(
             "Bibflow konnte nicht gestartet werden, weil die Datenbank- oder Service-"
             f"Initialisierung fehlgeschlagen ist: {exc}"

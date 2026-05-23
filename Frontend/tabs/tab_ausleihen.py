@@ -4,7 +4,7 @@ tab_ausleihen.py – Meine Ausleihen Tab
 """
  
 from nicegui import ui
-from state import service, aktueller_benutzer
+from Frontend.state import service, aktueller_benutzer
  
  
 def baue_ausleihen_tab(tab_refresh: dict):

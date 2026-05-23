@@ -252,12 +252,12 @@ pip install -r requirements.txt
 ### 5. Launch
 macOS/Linux:
 ```bash
-python Frontend/main_ui.py
+python -m Frontend.main_ui
 ```
 
 Windows:
 ```powershell
-py Frontend\main_ui.py
+py -m Frontend.main_ui
 ```
 
 Die Anwendung startet auf `http://127.0.0.1:8080`. Öffne die Adresse im Browser, sobald sie in der Konsole ausgegeben wird.

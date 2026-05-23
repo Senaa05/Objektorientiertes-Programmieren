@@ -4,7 +4,7 @@ login.py - Login- und Registrierungsseite
 """
  
 from nicegui import ui
-from state import zustand, benutzer_service
+from Frontend.state import zustand, benutzer_service
  
  
 def zeige_login():
