@@ -159,7 +159,15 @@ Die Datenbank beinhaltet die folgenden Entitäten:
 
 ### ER-Diagramm
 ![ERM Diagramm](Diagramm/BibflowERM.png)
+
 ## Projektanforderungen
+Die folgenden Anforderungen wurden für Bibflow umgesetzt und dienen als Nachweis für die Projektabgabe:
+
+- Die Anwendung wurde mit NiceGUI als interaktive webbasierte Oberfläche umgesetzt.
+- Die Eingaben werden in den Service-Klassen geprüft und validiert, bevor Daten gespeichert oder verändert werden.
+- Für die Datenverwaltung wird ein ORM eingesetzt, konkret SQLAlchemy mit einer lokalen SQLite-Datenbank.
+- Die Anwendung ist rollenbasiert aufgebaut und trennt Benutzer- und Administratorfunktionen klar voneinander.
+
 ## Projektmanagement
 | Name      | Beitrag |
 |-----------|--------------|
