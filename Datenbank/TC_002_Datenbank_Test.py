@@ -12,7 +12,6 @@ Ausführen:
   python TC_002_Datenbank_Test.py
   python -m pytest TC_002_Datenbank_Test.py -v
 """
-
 import unittest
 import os
 import sys
