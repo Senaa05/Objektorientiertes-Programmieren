@@ -168,15 +168,6 @@ Die folgenden Anforderungen wurden für Bibflow umgesetzt und dienen als Nachwei
 - Für die Datenverwaltung wird ein ORM eingesetzt, konkret SQLAlchemy mit einer lokalen SQLite-Datenbank.
 - Die Anwendung ist rollenbasiert aufgebaut und trennt Benutzer- und Administratorfunktionen klar voneinander.
 
-## Projektmanagement
-| Name      | Beitrag |
-|-----------|--------------|
-| Sena | Backend + Dokumentation |
-| Naomi | Datenbanken & ORM + Dokumentation |
-| Giulia | Frontend UI + Dokumentation |
-
----
-
 ### Browser-Based App
 
 Die Anwendung ist browserbasiert und läuft in modernen Webbrowsern ohne separaten Desktop-Client. Das Frontend kommuniziert über die Service-Schicht mit dem Backend und zeigt Echtzeit-Statusupdates (z. B. Verfügbarkeit von Exemplaren). Die Oberfläche ist auf einfache Bedienbarkeit für Benutzer und Administratoren optimiert.
@@ -215,6 +206,13 @@ Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte
 - bcrypt — Passwort-Hashing
 
 ## Repository Struktur
+
+## Projektmanagement
+| Name      | Beitrag |
+|-----------|--------------|
+| Sena | Backend + Dokumentation |
+| Naomi | Datenbanken & ORM + Dokumentation |
+| Giulia | Frontend UI + Dokumentation |
 
 ## Projekt Setup
 
@@ -269,3 +267,4 @@ Die Anwendung startet auf `http://127.0.0.1:8080`. Öffne die Adresse im Browser
 - Den Tab **Bücher** öffnen und verfügbare Titel durchsuchen.
 - Ein verfügbares Exemplar auswählen und den Ausleihvorgang starten.
 - Die Seite **Meine Ausleihen** aufrufen, um Fälligkeitsdatum und Status zu prüfen.
+<img width="1886" height="542" alt="image" src="https://github.com/user-attachments/assets/e5d1c3b8-c611-4db3-8e61-1836f0164fda" />
