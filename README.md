@@ -208,11 +208,20 @@ Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte
 ## Repository Struktur
 
 ## Projektmanagement
-| Name      | Beitrag |
-|-----------|--------------|
+### Projektziele
+- Zentralisierte Verwaltung von Büchern und Ausleihen.
+- Klare Trennung von Administrator- und Benutzerfunktionen.
+- Browserbasierte Oberfläche mit NiceGUI.
+- Benutzerfreundlichkeit und intuitive Bedienbarkeit für alle Nutzer.
+
+### Verteilung
+| Name | Beitrag |
+|------|--------------|
 | Sena | Backend + Dokumentation |
 | Naomi | Datenbanken & ORM + Dokumentation |
 | Giulia | Frontend UI + Dokumentation |
+
+### Herausforderungen
 
 ## Projekt Setup
 
