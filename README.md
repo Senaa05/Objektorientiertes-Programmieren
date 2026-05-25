@@ -3,6 +3,116 @@ Dieses Projekt ist ein webbasiertes Bibliothekssystem, das die Verwaltung und Au
 
 <img width="1864" height="913" alt="image" src="https://github.com/user-attachments/assets/2d73f9dd-d97a-4739-aaf0-a8802cdd31b1" />
 
+## Projekt Setup
+
+### 1. Project Setup
+- Python 3.13 oder die im Kurs verwendete Python-Version ist erforderlich.
+- Ein aktueller Webbrowser wird für die Nutzung der Oberfläche benötigt.
+- Das Projekt nutzt eine lokale SQLite-Datenbank und benötigt keine separate Datenbankinstallation.
+
+### 2. Virtuelle Umgebung anlegen
+macOS/Linux:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Windows:
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+Falls PowerShell das Aktivieren blockiert, kann alternativ die Eingabeaufforderung verwendet werden:
+```bat
+.venv\Scripts\activate.bat
+```
+
+### 3. Abhängigkeiten installieren
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configuration
+- Für Bibflow sind keine zusätzlichen Umgebungsvariablen oder geheimen Schlüssel nötig.
+- **Die App-Datenbank ist `bibliothek_orm.db`** im Projektstamm (SQLite). Alle Benutzer, Bücher und Ausleihen liegen dort.
+- Die Datei wird beim ersten Start automatisch angelegt und steht in der `.gitignore` (wird nicht nach GitHub hochgeladen).
+- Test-Datenbanken aus `Test_Cases/` und `Datenbank/TC_002_*` liegen nur im System-Temp und werden nach den Tests gelöscht.
+- Für einen Neustart mit leerer DB: `bibliothek_orm.db` löschen und die App erneut starten - der lokale Admin wird dann neu angelegt (siehe Abschnitt 7).
+
+### 5. Launch
+Aus dem Projektordner starten (Haupteinstiegspunkt `main.py` im Root):
+
+macOS/Linux:
+```bash
+python main.py
+```
+
+Windows:
+```powershell
+py main.py
+```
+
+Die Anwendung startet auf `http://127.0.0.1:8080`. Öffne die Adresse im Browser, sobald sie in der Konsole ausgegeben wird.
+
+### 6. Usage
+- Die Login-Seite öffnen und sich mit einem bestehenden Konto anmelden.
+- Den Tab **Bücher** öffnen und verfügbare Titel durchsuchen.
+- Ein verfügbares Exemplar auswählen und den Ausleihvorgang starten.
+- Die Seite **Meine Ausleihen** aufrufen, um Fälligkeitsdatum und Status zu prüfen.
+
+<img width="1884" height="749" alt="image" src="https://github.com/user-attachments/assets/5738e70d-2076-4422-8dd1-b731981b6c22" />
+
+
+### 7. Lokaler Admin-Zugang (für Test & Abgabe)
+
+Zum Prüfen der **Administrator-Funktionen** (Bibliothek verwalten) mit der echten App-Datenbank `bibliothek_orm.db`:
+
+| Feld | Wert |
+|------|------|
+| **Benutzername** | `admin1` |
+| **Passwort** | `admin123` |
+| **Rolle** | `Admin` |
+
+**Ablauf:**
+1. App starten: `python main.py`
+2. Im Browser `http://127.0.0.1:8080` öffnen
+3. Mit `admin1` / `admin123` einloggen
+4. Tab **Admin** erscheint - dort Bücher erfassen/bearbeiten/löschen, Exemplare verwalten, überfällige Ausleihen einsehen
+
+**Immer verfügbar:** Beim App-Start ist der lokale Admin `admin1` in `bibliothek_orm.db` garantiert vorhanden und mit `admin123` anmeldbar (wird angelegt, falls er fehlt; Passwort wird nur für `admin1` angepasst, wenn es nicht zum README passt).
+
+**Gemeinsamer Demo-Bestand (Bücher):** Enthält die lokale DB noch **keine** Bücher, legt die App automatisch 17 Demo-Titel mit Exemplaren an (Quelle: `Datenbank/seed_demo_daten.py` im Repo).
+
+**Demo-Benutzer** (Ausleihe, Merkliste, Popups testen):
+
+| Benutzername | Passwort | Rolle |
+|--------------|----------|-------|
+| `demo` | `demo123` | `Benutzer` |
+
+`demo` hat nach dem Start zwei Demo-Ausleihen (`seed_demo_daten.py`):
+
+- **Überfällig** (*1984*) -> Popup „Überfällige Bücher“ (`popup_ueberfaellige_fuer_benutzer`)
+- **Bald fällig** (*Harry Potter*, Fälligkeit in weniger als 7 Tagen) -> Reminder-Popup
+
+**Popups testen:** mit `demo` / `demo123` einloggen - **nicht** als `admin1` (Admins sehen diese Dialoge nicht).
+
+Über **Registrieren** in der UI ist nur die Rolle `Benutzer` möglich - Admin-Rechte sind bewusst nicht öffentlich registrierbar.
+
+**Login klappt trotzdem nicht?** `bibliothek_orm.db` löschen und App neu starten - `admin1` wird dann frisch mit obigen Zugangsdaten angelegt.
+
+### 8. `.gitignore` (für GitHub)
+
+Im Projekt liegt eine `.gitignore`, damit lokale Dateien nicht ins Repository gelangen. Ausgeschlossen werden u. a.:
+
+- **Python:** `.venv/`, `__pycache__/`, `*.pyc`, Build-Artefakte
+- **IDE & Editor:** `.idea/` (PyCharm), `.vscode/`, `.cursor/`, Vim/Emacs-Swapfiles
+- **OS-Artefakte:** `.DS_Store` (macOS), `Thumbs.db` (Windows), Linux-Trash
+- **Caches:** `.pytest_cache/`, `.mypy_cache/`, `.ruff_cache/`, `.nicegui/`
+- **Projekt:** `bibliothek_orm.db`, `logs/`, `test_*.db`, `.env` (Secrets)
+
+**Hinweis:** Die SQLite-Datei selbst liegt nicht in Git. Der gemeinsame **Demo-Buchkatalog** steht in `Datenbank/seed_demo_daten.py` und wird beim ersten Start automatisch in die lokale `bibliothek_orm.db` importiert.
+
 ## Problem
 In der Bibliothek «Bibflow» ist die Verwaltung der Bücher und Ausleihen unübersichtlich, weil keine zentrale Lösung vorhanden ist. Benutzer wissen oft nicht, ob ein Buch verfügbar ist, und haben keinen Überblick über ihre Ausleihen. Zudem ist den Benutzern nicht bewusst, welche die beliebtesten Bücher in der Bibliothek sind. Dies führt häufig zu verspäteten Rückgaben und Missverständnissen zwischen Benutzern und Mitarbeitern.
 
@@ -233,114 +343,4 @@ Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte
 | Giulia | Frontend UI + Dokumentation |
 
 ### Herausforderungen
-
-## Projekt Setup
-
-### 1. Project Setup
-- Python 3.13 oder die im Kurs verwendete Python-Version ist erforderlich.
-- Ein aktueller Webbrowser wird für die Nutzung der Oberfläche benötigt.
-- Das Projekt nutzt eine lokale SQLite-Datenbank und benötigt keine separate Datenbankinstallation.
-
-### 2. Virtuelle Umgebung anlegen
-macOS/Linux:
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-Windows:
-```powershell
-py -m venv .venv
-.venv\Scripts\Activate.ps1
-```
-
-Falls PowerShell das Aktivieren blockiert, kann alternativ die Eingabeaufforderung verwendet werden:
-```bat
-.venv\Scripts\activate.bat
-```
-
-### 3. Abhängigkeiten installieren
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configuration
-- Für Bibflow sind keine zusätzlichen Umgebungsvariablen oder geheimen Schlüssel nötig.
-- **Die App-Datenbank ist `bibliothek_orm.db`** im Projektstamm (SQLite). Alle Benutzer, Bücher und Ausleihen liegen dort.
-- Die Datei wird beim ersten Start automatisch angelegt und steht in der `.gitignore` (wird nicht nach GitHub hochgeladen).
-- Test-Datenbanken aus `Test_Cases/` und `Datenbank/TC_002_*` liegen nur im System-Temp und werden nach den Tests gelöscht.
-- Für einen Neustart mit leerer DB: `bibliothek_orm.db` löschen und die App erneut starten — der lokale Admin wird dann neu angelegt (siehe Abschnitt 7).
-
-### 5. Launch
-Aus dem Projektordner starten (Haupteinstiegspunkt `main.py` im Root):
-
-macOS/Linux:
-```bash
-python main.py
-```
-
-Windows:
-```powershell
-py main.py
-```
-
-Die Anwendung startet auf `http://127.0.0.1:8080`. Öffne die Adresse im Browser, sobald sie in der Konsole ausgegeben wird.
-
-### 6. Usage
-- Die Login-Seite öffnen und sich mit einem bestehenden Konto anmelden.
-- Den Tab **Bücher** öffnen und verfügbare Titel durchsuchen.
-- Ein verfügbares Exemplar auswählen und den Ausleihvorgang starten.
-- Die Seite **Meine Ausleihen** aufrufen, um Fälligkeitsdatum und Status zu prüfen.
-
-<img width="1884" height="749" alt="image" src="https://github.com/user-attachments/assets/5738e70d-2076-4422-8dd1-b731981b6c22" />
-
-
-### 7. Lokaler Admin-Zugang (für Test & Abgabe)
-
-Zum Prüfen der **Administrator-Funktionen** (Bibliothek verwalten) mit der echten App-Datenbank `bibliothek_orm.db`:
-
-| Feld | Wert |
-|------|------|
-| **Benutzername** | `admin1` |
-| **Passwort** | `admin123` |
-| **Rolle** | `Admin` |
-
-**Ablauf:**
-1. App starten: `python main.py`
-2. Im Browser `http://127.0.0.1:8080` öffnen
-3. Mit `admin1` / `admin123` einloggen
-4. Tab **Admin** erscheint — dort Bücher erfassen/bearbeiten/löschen, Exemplare verwalten, überfällige Ausleihen einsehen
-
-**Immer verfügbar:** Beim App-Start ist der lokale Admin `admin1` in `bibliothek_orm.db` garantiert vorhanden und mit `admin123` anmeldbar (wird angelegt, falls er fehlt; Passwort wird nur für `admin1` angepasst, wenn es nicht zum README passt).
-
-**Gemeinsamer Demo-Bestand (Bücher):** Enthält die lokale DB noch **keine** Bücher, legt die App automatisch 17 Demo-Titel mit Exemplaren an (Quelle: `Datenbank/seed_demo_daten.py` im Repo). 
-
-**Demo-Benutzer** (Ausleihe, Merkliste, Popups testen):
-
-| Benutzername | Passwort | Rolle |
-|--------------|----------|-------|
-| `demo` | `demo123` | `Benutzer` |
-
-`demo` hat nach dem Start zwei Demo-Ausleihen (`seed_demo_daten.py`):
-
-- **Überfällig** (*1984*) → Popup „Überfällige Bücher“ (`popup_ueberfaellige_fuer_benutzer`)
-- **Bald fällig** (*Harry Potter*, Fälligkeit in weniger als 7 Tagen) → Reminder-Popup
-
-**Popups testen:** mit `demo` / `demo123` einloggen — **nicht** als `admin1` (Admins sehen diese Dialoge nicht).
-
-Über **Registrieren** in der UI ist nur die Rolle `Benutzer` möglich — Admin-Rechte sind bewusst nicht öffentlich registrierbar.
-
-**Login klappt trotzdem nicht?** `bibliothek_orm.db` löschen und App neu starten — `admin1` wird dann frisch mit obigen Zugangsdaten angelegt.
-
-### 8. `.gitignore` (für GitHub)
-
-Im Projekt liegt eine `.gitignore`, damit lokale Dateien nicht ins Repository gelangen. Ausgeschlossen werden u. a.:
-
-- **Python:** `.venv/`, `__pycache__/`, `*.pyc`, Build-Artefakte
-- **IDE & Editor:** `.idea/` (PyCharm), `.vscode/`, `.cursor/`, Vim/Emacs-Swapfiles
-- **OS-Artefakte:** `.DS_Store` (macOS), `Thumbs.db` (Windows), Linux-Trash
-- **Caches:** `.pytest_cache/`, `.mypy_cache/`, `.ruff_cache/`, `.nicegui/`
-- **Projekt:** `bibliothek_orm.db`, `logs/`, `test_*.db`, `.env` (Secrets)
-
-**Hinweis:** Die SQLite-Datei selbst liegt nicht in Git. Der gemeinsame **Demo-Buchkatalog** steht in `Datenbank/seed_demo_daten.py` und wird beim ersten Start automatisch in die lokale `bibliothek_orm.db` importiert.
 
