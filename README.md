@@ -151,6 +151,19 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 ## Klassenstruktur
 <img width="1535" height="1024" alt="bibflow_klassendiagrammv2" src="https://github.com/user-attachments/assets/93860ad5-b2f3-4145-a96d-e9b9284887fb" />
 
+- **Backend/modelle**: Enthält die zentralen Datenklassen für `Benutzer`, `Buch`, `Exemplar`, `Ausleihe` und `Merkliste`.
+- **Backend/services**: Übernimmt die Geschäftslogik, zum Beispiel für Buchsuche, Ausleihe, Rückgabe und Merkliste.
+- **Datenbank/orm_manager.py**: Verwaltet die Datenbankzugriffe und verbindet die Modelle mit SQLite über SQLAlchemy.
+- **Frontend**: Stellt die Benutzeroberfläche mit Login, Dashboard und den einzelnen Tabs dar.
+- **Frontend/tabs**: Trennt die Ansicht in die Bereiche Bücher, Ausleihen, Merkliste und Admin.
+
+### Zu den Klassen
+- `User` / `Administrator`: Speichern Benutzerdaten und unterscheiden normale Benutzer von Admins.
+- `Buch`: Enthält die bibliografischen Daten wie Titel, Autor, ISBN und Jahr.
+- `Exemplar`: Repräsentiert ein einzelnes physisches Buch mit eigenem Status wie `verfuegbar` oder `ausgeliehen`.
+- `Ausleihe`: Verwaltet Ausleihdaten wie Benutzer, Exemplar, Fälligkeit und Verlängerung.
+- `Merkliste`: Speichert vorgemerkte Bücher pro Benutzer.
+
 
 ## Datenbank 
 Die Datenbank beinhaltet die folgenden Entitäten:
