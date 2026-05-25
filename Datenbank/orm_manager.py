@@ -115,7 +115,9 @@ class ORMDatenbankManager:
                 func.count(Ausleihe.ausleih_id).label("anzahl_ausleihen")
             ).outerjoin(Exemplar, Buch.isbn == Exemplar.isbn).outerjoin(
                 Ausleihe, Exemplar.exemplar_id == Ausleihe.exemplar_id
-            ).group_by(Buch.isbn).order_by(desc("anzahl_ausleihen")).limit(limit).all()
+            ).group_by(Buch.isbn).having(
+                func.count(Ausleihe.ausleih_id) > 0
+            ).order_by(desc("anzahl_ausleihen")).limit(limit).all()
             return [
                 {
                     "isbn": row.isbn,
@@ -135,7 +137,9 @@ class ORMDatenbankManager:
                 func.count(Ausleihe.ausleih_id).label("anzahl_ausleihen")
             ).outerjoin(Exemplar, Buch.isbn == Exemplar.isbn).outerjoin(
                 Ausleihe, Exemplar.exemplar_id == Ausleihe.exemplar_id
-            ).group_by(Buch.isbn).order_by(desc("anzahl_ausleihen")).limit(limit).all()
+            ).group_by(Buch.isbn).having(
+                func.count(Ausleihe.ausleih_id) > 0
+            ).order_by(desc("anzahl_ausleihen")).limit(limit).all()
             return [
                 {
                     "isbn": row.isbn,
