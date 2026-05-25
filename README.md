@@ -148,6 +148,10 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 ## Architektur
 <img width="861" height="671" alt="architektur_v2" src="https://github.com/user-attachments/assets/cb1c900a-2483-418d-a043-ca50c0b51a6e" />
 
+## Klassenstruktur
+<img width="1535" height="1024" alt="bibflow_klassendiagrammv2" src="https://github.com/user-attachments/assets/93860ad5-b2f3-4145-a96d-e9b9284887fb" />
+
+
 ## Datenbank 
 Die Datenbank beinhaltet die folgenden Entitäten:
 
