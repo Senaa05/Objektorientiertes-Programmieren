@@ -1,11 +1,15 @@
 """
-TC_002 – ORMDatenbankManager CRUD-Operationen
-==============================================
-Testet alle CRUD-Funktionen des ORMDatenbankManagers (SQLAlchemy).
+Test case ID:       TC_002
+Title:              ORMDatenbankManager – CRUD (DB-Tests)
+Preconditions:      Frische Test-DB pro Test; SQLAlchemy-Tabellen
+Test steps:         Anlegen, Lesen, Ändern, Löschen für alle Entitäten
+Test data/input:    Feste ISBNs, testuser1, Ausleih-IDs (siehe Datei)
+Expected result:    CRUD korrekt; Lösch-Sperre bei Ausleihe; keine Doppel-E-Mail
+Actual result:      (automatisch via unittest)
+Status:             automatisierbar – pass/fail in Konsole
+Comments:           Siehe Test_Cases/README.md; Vorlage: Pizzeria-Reference-Project
 
-Ausführen (aus dem Projektordner):
-  python Datenbank/TC_002_Datenbank_Test.py
-  python -m pytest Datenbank/TC_002_Datenbank_Test.py -v
+Ausführen: python Datenbank/TC_002_Datenbank_Test.py
 """
 import os
 import sys

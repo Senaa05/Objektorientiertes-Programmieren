@@ -1,7 +1,9 @@
 """
 Demo-Bestand für Bibflow (wird ins Repo committed, nicht die .db-Datei).
-Beim ersten Start wird dieser Katalog angelegt, wenn die DB noch keine Bücher hat.
+Beim App-Start werden Bücher und Demo-Ausleihen angelegt, sofern sie noch fehlen.
 """
+
+from datetime import date, timedelta
 
 # titel, autor, isbn (mind. 13 Ziffern), jahr, exemplar_anzahl
 DEMO_BUECHER = [
@@ -25,6 +27,30 @@ DEMO_BUECHER = [
     ("Twilight – Biss zum Morgengrauen", "Stephenie Meyer", "9783551580016", 2005, 2),
 ]
 
+# Demo-Ausleihen: benutzername, isbn-Kandidaten, ausleih_id, tage_seit_ausleihe, tage_bis_faelligkeit
+# tage_bis_faelligkeit < 0  → überfällig (Popup popup_ueberfaellige_fuer_benutzer)
+# 0 .. 7 → bald fällig (Reminder-Popup)
+DEMO_AUSLEIHEN = [
+    ("demo", ["9783548234105", "978-3-548-23410-5"], "DEMO-AUS-UEBERFAELLIG", 50, -14),
+    ("demo", ["9783551551678", "978-3-551-55167-8"], "DEMO-AUS-REMINDER", 23, 5),
+]
+
+
+def _finde_verfuegbares_exemplar(db, isbn_kandidaten: list[str], bereits_belegt: set[str]):
+    """Sucht ein freies Exemplar (Seed-ISBN oder erstes freies Buch in der DB)."""
+    for isbn in isbn_kandidaten:
+        for exemplar in db.verfuegbare_exemplare(isbn):
+            eid = exemplar["exemplar_id"]
+            if eid not in bereits_belegt:
+                return isbn, eid
+
+    for buch in db.alle_buecher_laden():
+        for exemplar in db.verfuegbare_exemplare(buch["isbn"]):
+            eid = exemplar["exemplar_id"]
+            if eid not in bereits_belegt:
+                return buch["isbn"], eid
+    return None, None
+
 
 def seed_demo_buecher(buch_service) -> int:
     """Legt Demo-Bücher an, wenn die Datenbank noch leer ist. Gibt Anzahl angelegter Bücher zurück."""
@@ -44,4 +70,48 @@ def seed_demo_buecher(buch_service) -> int:
             angelegt += 1
         except ValueError:
             pass
+    return angelegt
+
+
+def seed_demo_ausleihen(db) -> int:
+    """
+    Legt Demo-Ausleihen an (überfällig + bald fällig für Benutzer demo).
+    Idempotent über feste ausleih_id. Für popup_ueberfaellige_fuer_benutzer / Reminder.
+    """
+    if db.ausleih_laden("DEMO-AUS-UEBERFAELLIG"):
+        return 0
+
+    heute = date.today()
+    angelegt = 0
+    bereits_belegt: set[str] = set()
+
+    for (
+        benutzername,
+        isbn_kandidaten,
+        ausleih_id,
+        tage_seit_ausleihe,
+        tage_bis_faelligkeit,
+    ) in DEMO_AUSLEIHEN:
+        if not db.benutzer_laden(benutzername):
+            continue
+
+        _isbn, exemplar_id = _finde_verfuegbares_exemplar(db, isbn_kandidaten, bereits_belegt)
+        if not exemplar_id:
+            continue
+        bereits_belegt.add(exemplar_id)
+        ausleihdatum = heute - timedelta(days=tage_seit_ausleihe)
+        faelligkeit = heute + timedelta(days=tage_bis_faelligkeit)
+
+        if not db.ausleih_speichern(
+            ausleih_id=ausleih_id,
+            benutzername=benutzername,
+            exemplar_id=exemplar_id,
+            ausleihdatum=ausleihdatum.strftime("%Y-%m-%d"),
+            faelligkeit=faelligkeit.strftime("%Y-%m-%d"),
+        ):
+            continue
+
+        if db.exemplar_status_aktualisieren(exemplar_id, "ausgeliehen"):
+            angelegt += 1
+
     return angelegt

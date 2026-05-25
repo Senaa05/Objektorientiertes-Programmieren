@@ -1,14 +1,15 @@
 """
-TC_001 – Login-Funktionalität: Integration Test
-================================================
-Testet das Zusammenspiel von BenutzerService + ORMDatenbankManager
-gegen eine echte SQLite-Datenbank (in-memory / temporäre Datei).
+Test case ID:       TC_001
+Title:              Login-Funktionalität (Integration)
+Preconditions:      Leere Test-DB; BenutzerService + ORMDatenbankManager
+Test steps:         Registrieren → Login → Rollen-/Hash-Prüfung
+Test data/input:    lilly2/test123, admin1/admin123, ungültige Logins
+Expected result:    User/Admin korrekt; bcrypt-Hash; Duplikat verhindert
+Actual result:      (automatisch via unittest)
+Status:             automatisierbar – pass/fail in Konsole
+Comments:           Siehe Test_Cases/README.md; Vorlage: Pizzeria-Reference-Project
 
-Geprüft wird der vollständige Login-Ablauf:
-  Registrierung → Passwort-Hashing → Speicherung in DB → Login → Rollenprüfung
-
-Ausführen (aus dem Projektordner):
-    python -m pytest Test_Cases/TC_001_Login_Integrationstest.py -v
+Ausführen: python Test_Cases/TC_001_Login_Integrationstest.py
 """
 
 import unittest

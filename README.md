@@ -303,11 +303,18 @@ Zum Prüfen der **Administrator-Funktionen** (Bibliothek verwalten) mit der echt
 
 **Gemeinsamer Demo-Bestand (Bücher):** Enthält die lokale DB noch **keine** Bücher, legt die App automatisch 18 Demo-Titel mit Exemplaren an (Quelle: `Datenbank/seed_demo_daten.py` im Repo). So sieht das ganze Team nach `git pull` + App-Start denselben Startbestand — ohne die `.db`-Datei in GitHub hochzuladen.
 
-**Normaler Benutzer zum Vergleich** (optional — nur anlegen, wenn `demo` noch fehlt):
+**Demo-Benutzer** (Ausleihe, Merkliste, Popups testen):
 
 | Benutzername | Passwort | Rolle |
 |--------------|----------|-------|
 | `demo` | `demo123` | `Benutzer` |
+
+`demo` hat nach dem Start zwei Demo-Ausleihen (`seed_demo_daten.py`):
+
+- **Überfällig** (*1984*) → Popup „Überfällige Bücher“ (`popup_ueberfaellige_fuer_benutzer`)
+- **Bald fällig** (*Harry Potter*, Fälligkeit in weniger als 7 Tagen) → Reminder-Popup
+
+**Popups testen:** mit `demo` / `demo123` einloggen — **nicht** als `admin1` (Admins sehen diese Dialoge nicht).
 
 Über **Registrieren** in der UI ist nur die Rolle `Benutzer` möglich — Admin-Rechte sind bewusst nicht öffentlich registrierbar.
 
