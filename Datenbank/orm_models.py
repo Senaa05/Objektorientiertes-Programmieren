@@ -126,3 +126,12 @@ def get_session():
     if SessionLocal is None:
         init_database()
     return SessionLocal()
+
+
+def close_database():
+    """Schließt Engine und Sessions (wichtig für Tests, damit SQLite-Dateien gelöscht werden können)."""
+    global engine, SessionLocal
+    if engine is not None:
+        engine.dispose()
+    engine = None
+    SessionLocal = None

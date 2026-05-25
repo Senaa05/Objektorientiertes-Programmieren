@@ -22,10 +22,14 @@ sys.path.insert(0, PROJEKT_ROOT)
 sys.path.insert(0, DATENBANK_DIR)
 
 from Datenbank.orm_manager import ORMDatenbankManager
+from Datenbank.test_db_util import (
+    cleanup_all_test_dbs,
+    cleanup_test_db,
+    create_temp_db_path,
+    remove_legacy_test_db_files,
+)
 from Backend.modelle.benutzer import User, Administrator
 from Backend.services.benutzer_service import BenutzerService
-
-TEST_DB = "test_login_integration.db"
 
 
 class TC_001_I1_LoginIntegration(unittest.TestCase):
@@ -36,12 +40,21 @@ class TC_001_I1_LoginIntegration(unittest.TestCase):
     """
 
     # ── Setup / Teardown ──────────────────────────────────────────────────────
+    @classmethod
+    def setUpClass(cls):
+        remove_legacy_test_db_files(PROJEKT_ROOT)
+
+    @classmethod
+    def tearDownClass(cls):
+        cleanup_all_test_dbs()
+        remove_legacy_test_db_files(PROJEKT_ROOT)
+
     def setUp(self):
         """Arrange: Frische Datenbank + Service vor jedem Test."""
-        if os.path.exists(TEST_DB):
-            os.remove(TEST_DB)
-        self.db = ORMDatenbankManager(TEST_DB)
+        self.db_path = create_temp_db_path("tc001_")
+        self.db = ORMDatenbankManager(self.db_path)
         self.service = BenutzerService(self.db)
+        self.addCleanup(cleanup_test_db, self.db_path, lambda: self.db)
 
         # Zwei Testbenutzer registrieren (mit echtem Hashing)
         self.service.benutzer_registrieren(
@@ -60,15 +73,6 @@ class TC_001_I1_LoginIntegration(unittest.TestCase):
             email="admin1@test.de",
             rolle="Admin",
         )
-
-    def tearDown(self):
-        """Datenbankdatei nach jedem Test aufräumen."""
-        try:
-            self.db.schliessen()
-        except Exception:
-            pass
-        if os.path.exists(TEST_DB):
-            os.remove(TEST_DB)
 
     # ── Testfälle ─────────────────────────────────────────────────────────────
 

@@ -255,8 +255,11 @@ pip install -r requirements.txt
 
 ### 4. Configuration
 - Für Bibflow sind keine zusätzlichen Umgebungsvariablen oder geheimen Schlüssel nötig.
-- Die Datenbankdatei `bibliothek_orm.db` wird beim ersten Start automatisch im Projektstamm erstellt.
-- Wenn du mit einer leeren Datenbank neu starten willst, kannst du diese Datei löschen und die Anwendung erneut starten.
+- **Die App-Datenbank ist `bibliothek_orm.db`** im Projektstamm (SQLite). Alle Benutzer, Bücher und Ausleihen liegen dort.
+- Die Datei wird beim ersten Start automatisch angelegt und steht in der `.gitignore` (wird nicht nach GitHub hochgeladen).
+- **`bibliothek_2.db` wird nicht verwendet** — das war eine alte Test-/Arbeitsdatei und gehört nicht zum Betrieb. Sie ist ignoriert und sollte nicht im Repo liegen.
+- Test-Datenbanken aus `Test_Cases/` und `Datenbank/TC_002_*` liegen nur im System-Temp und werden nach den Tests gelöscht.
+- Für einen Neustart mit leerer DB: `bibliothek_orm.db` löschen und die App erneut starten — der lokale Admin wird dann neu angelegt (siehe Abschnitt 7).
 
 ### 5. Launch
 macOS/Linux:
@@ -277,3 +280,53 @@ Die Anwendung startet auf `http://127.0.0.1:8080`. Öffne die Adresse im Browser
 - Ein verfügbares Exemplar auswählen und den Ausleihvorgang starten.
 - Die Seite **Meine Ausleihen** aufrufen, um Fälligkeitsdatum und Status zu prüfen.
 <img width="1886" height="542" alt="image" src="https://github.com/user-attachments/assets/e5d1c3b8-c611-4db3-8e61-1836f0164fda" />
+
+### 7. Lokaler Admin-Zugang (für Test & Abgabe)
+
+Zum Prüfen der **Administrator-Funktionen** (Bibliothek verwalten) mit der echten App-Datenbank `bibliothek_orm.db`:
+
+| Feld | Wert |
+|------|------|
+| **Benutzername** | `admin1` |
+| **Passwort** | `admin123` |
+| **Rolle** | `Admin` |
+
+**Ablauf:**
+1. App starten: `python -m Frontend.main_ui`
+2. Im Browser `http://127.0.0.1:8080` öffnen
+3. Mit `admin1` / `admin123` einloggen
+4. Tab **Admin** erscheint — dort Bücher erfassen/bearbeiten/löschen, Exemplare verwalten, überfällige Ausleihen einsehen
+
+**Immer verfügbar:** Beim App-Start ist der lokale Admin `admin1` in `bibliothek_orm.db` garantiert vorhanden und mit `admin123` anmeldbar (wird angelegt, falls er fehlt; Passwort wird nur für `admin1` angepasst, wenn es nicht zum README passt).
+
+**Gemeinsamer Demo-Bestand (Bücher):** Enthält die lokale DB noch **keine** Bücher, legt die App automatisch 18 Demo-Titel mit Exemplaren an (Quelle: `Datenbank/seed_demo_daten.py` im Repo). So sieht das ganze Team nach `git pull` + App-Start denselben Startbestand — ohne die `.db`-Datei in GitHub hochzuladen.
+
+**Normaler Benutzer zum Vergleich** (optional — nur anlegen, wenn `demo` noch fehlt):
+
+| Benutzername | Passwort | Rolle |
+|--------------|----------|-------|
+| `demo` | `demo123` | `Benutzer` |
+
+Über **Registrieren** in der UI ist nur die Rolle `Benutzer` möglich — Admin-Rechte sind bewusst nicht öffentlich registrierbar.
+
+**Login klappt trotzdem nicht?** `bibliothek_orm.db` löschen und App neu starten — `admin1` wird dann frisch mit obigen Zugangsdaten angelegt.
+
+### 8. `.gitignore` (für GitHub)
+
+Im Projekt liegt eine `.gitignore`, damit lokale Dateien nicht ins Repository gelangen. Ausgeschlossen werden u. a.:
+
+- **Python:** `.venv/`, `__pycache__/`, `*.pyc`, Build-Artefakte
+- **IDE & Editor:** `.idea/` (PyCharm), `.vscode/`, `.cursor/`, Vim/Emacs-Swapfiles
+- **OS-Artefakte:** `.DS_Store` (macOS), `Thumbs.db` (Windows), Linux-Trash
+- **Caches:** `.pytest_cache/`, `.mypy_cache/`, `.ruff_cache/`, `.nicegui/`
+- **Projekt:** `bibliothek_orm.db`, `logs/`, `test_*.db`, `.env` (Secrets)
+
+**Hinweis:** Die SQLite-Datei selbst liegt nicht in Git. Der gemeinsame **Demo-Buchkatalog** steht in `Datenbank/seed_demo_daten.py` und wird beim ersten Start automatisch in die lokale `bibliothek_orm.db` importiert.
+
+Falls diese Dateien **bereits** in Git eingecheckt wurden, einmalig aus dem Index entfernen (Dateien bleiben lokal erhalten):
+
+```bash
+git rm -r --cached .venv __pycache__ logs bibliothek_orm.db bibliothek_2.db .DS_Store 2>/dev/null
+git add .gitignore
+git commit -m "Add .gitignore and stop tracking local/generated files"
+```

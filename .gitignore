@@ -1,0 +1,175 @@
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-wheel-metadata/
+pip-log.txt
+
+# Virtuelle Umgebungen
+.venv/
+venv/
+ENV/
+env/
+.env/
+.conda/
+
+# =============================================================================
+# IDE & Editor
+# =============================================================================
+# JetBrains (PyCharm, IntelliJ)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Visual Studio Code / Cursor
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.cursor/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# Eclipse / PyDev
+.project
+.pydevproject
+.settings/
+
+# Spyder
+.spyderproject
+.spyproject
+
+# =============================================================================
+# OS-Artefakte
+# =============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =============================================================================
+# Caches & temporäre Dateien
+# =============================================================================
+# Test & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.cache/
+
+# Type checker / Linter
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytype/
+
+# Jupyter / IPython
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+# Paket-Manager
+.pip-cache/
+__pypackages__/
+
+# NiceGUI / Frontend
+.nicegui/
+node_modules/
+
+# Sonstige Tools
+*.bak
+*.tmp
+*.temp
+*.orig
+
+# =============================================================================
+# Projekt-spezifisch (Bibflow)
+# =============================================================================
+# Lokale SQLite-Datenbank (wird beim Start erzeugt)
+bibliothek_orm.db
+bibliothek_2.db
+bibliothek*.db
+test_*.db
+test_*.db-wal
+test_*.db-shm
+test_*.db-journal
+test_login_integration.db
+test_bibliothek.db
+
+# Logs
+logs/
+*.log
+
+# Umgebungsvariablen / Secrets (falls später genutzt)
+.env
+.env.local
+.env.*.local
+*.pem
+secrets.json

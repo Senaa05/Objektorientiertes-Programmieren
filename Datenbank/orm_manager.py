@@ -644,5 +644,7 @@ class ORMDatenbankManager:
             return False
     
     def schliessen(self):
-        """Schließt die Datenbankverbindung (ORM benötigt explizites Schließen nicht)"""
-        print("ORM-Datenbankverbindung geschlossen")
+        """Schließt die Datenbankverbindung und gibt die SQLAlchemy-Engine frei."""
+        from Datenbank.orm_models import close_database
+
+        close_database()
