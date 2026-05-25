@@ -129,8 +129,9 @@ def baue_buecher_tab(tab_refresh: dict):
         for buch in ergebnisse:
             verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"])) > 0
             with buecher_container:
-                with ui.card().classes("w-full flex flex-col items-center p-3 gap-2"):
-                    zeige_buch_cover(buch["isbn"], buch["titel"], buch["autor"])
+                with ui.card().classes("w-full flex flex-col p-3 gap-2"):
+                    with ui.element("div").classes("flex justify-center w-full"):
+                        zeige_buch_cover(buch["isbn"], buch["titel"], buch["autor"])
                     with ui.column().classes("w-full gap-1 items-start"):
                         ui.label(buch["titel"]).classes("font-semibold text-sm leading-snug")
                         ui.label(f"{buch['autor']} · {buch['jahr']}").classes("text-gray-500 text-xs")
