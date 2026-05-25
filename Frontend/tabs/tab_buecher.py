@@ -9,11 +9,6 @@ from Frontend.state import buch_service, service, merkliste_service, ist_admin, 
 
 
 def baue_buecher_tab(tab_refresh: dict):
-    """
-    Erstellt den Bücher-Tab-Inhalt.
-    tab_refresh ist ein gemeinsames Dict, über das andere Tabs
-    nach einer Ausleihe/Merklisten-Aktion neu geladen werden können.
-    """
     ui.label("Bücher suchen & ausleihen").classes("text-2xl font-semibold my-4")
 
     with ui.row().classes("items-center gap-2 mb-4"):
@@ -23,7 +18,7 @@ def baue_buecher_tab(tab_refresh: dict):
         )
         ui.button(
             "Zurücksetzen",
-            on_click=lambda: (such_input.set_value(""), buecher_laden("")),
+            on_click=lambda: (such_input.set_value(""), sortierung.update({"feld": None, "richtung": "asc"}), buecher_laden("")),
         ).props("outline")
 
     # ── Beliebteste Bücher Karussell ──
@@ -106,7 +101,7 @@ def baue_buecher_tab(tab_refresh: dict):
             on_click=lambda: (sortierung.update({"feld": None, "richtung": "asc"}), buecher_laden("")),
         ).props("outline").classes("text-xs")
 
-    buecher_container = ui.column().classes("w-full gap-2")
+    buecher_container = ui.element("div").classes("grid grid-cols-4 gap-4 w-full")
 
     # ── Bücher laden ──
     def buecher_laden(suchbegriff=""):
@@ -134,34 +129,34 @@ def baue_buecher_tab(tab_refresh: dict):
         for buch in ergebnisse:
             verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"])) > 0
             with buecher_container:
-                with ui.card().classes("w-full p-4 box-border"):
-                    with ui.row().classes("items-stretch w-full gap-4 no-wrap"):
-                        zeige_buch_cover(buch["isbn"], buch["titel"], buch["autor"])
-                        with ui.column().classes("flex-1 min-w-0 justify-center gap-1"):
-                            ui.label(buch["titel"]).classes("font-semibold text-base leading-snug")
-                            ui.label(f"{buch['autor']} · {buch['jahr']}").classes("text-gray-500 text-sm")
-                            ui.label(f"ISBN: {buch['isbn']}").classes("text-gray-400 text-xs")
-                        with ui.row().classes("items-center gap-2 flex-shrink-0"):
-                            anzahl_verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"]))
-                            if anzahl_verfuegbar > 0:
-                                ui.label(f"📗 Exemplare übrig: {anzahl_verfuegbar}").classes("text-green-600")
-                            else:
-                                ui.label("❌ Nicht verfügbar").classes("text-red-600")
+                with ui.card().classes("w-full flex flex-col items-center p-3 gap-2"):
+                    zeige_buch_cover(buch["isbn"], buch["titel"], buch["autor"])
+                    with ui.column().classes("w-full gap-1 items-start"):
+                        ui.label(buch["titel"]).classes("font-semibold text-sm leading-snug")
+                        ui.label(f"{buch['autor']} · {buch['jahr']}").classes("text-gray-500 text-xs")
+                        ui.label(f"ISBN: {buch['isbn']}").classes("text-gray-400 text-xs")
 
-                            isbn_kopie = buch["isbn"]
-                            if not ist_admin():
-                                merkliste = merkliste_service.merkliste_laden(aktueller_benutzer())
-                                ist_gemerkt = any(m["isbn"] == isbn_kopie for m in merkliste)
-                                stern = "⭐" if ist_gemerkt else "☆"
-                                ui.button(
-                                    stern,
-                                    on_click=lambda _, i=isbn_kopie: merkliste_toggle(i),
-                                ).props("flat").classes("text-xl")
-                            if not ist_admin() and verfuegbar:
-                                ui.button(
-                                    "Ausleihen",
-                                    on_click=lambda _, i=isbn_kopie: buch_ausleihen(i),
-                                ).classes("bg-blue-600 text-white")
+                        anzahl_verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"]))
+                        if anzahl_verfuegbar > 0:
+                            ui.label(f"📗 Exemplare übrig: {anzahl_verfuegbar}").classes("text-green-600 text-xs")
+                        else:
+                            ui.label("❌ Nicht verfügbar").classes("text-red-600 text-xs")
+
+                    with ui.row().classes("w-full gap-1 items-center justify-end"):
+                        isbn_kopie = buch["isbn"]
+                        if not ist_admin():
+                            merkliste = merkliste_service.merkliste_laden(aktueller_benutzer())
+                            ist_gemerkt = any(m["isbn"] == isbn_kopie for m in merkliste)
+                            stern = "⭐" if ist_gemerkt else "☆"
+                            ui.button(
+                                stern,
+                                on_click=lambda _, i=isbn_kopie: merkliste_toggle(i),
+                            ).props("flat").classes("text-xl")
+                        if not ist_admin() and verfuegbar:
+                            ui.button(
+                                "Ausleihen",
+                                on_click=lambda _, i=isbn_kopie: buch_ausleihen(i),
+                            ).classes("bg-blue-600 text-white text-xs")
 
     # ── Buch ausleihen ──
     def buch_ausleihen(isbn):
