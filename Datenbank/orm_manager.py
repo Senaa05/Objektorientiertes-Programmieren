@@ -128,16 +128,14 @@ class ORMDatenbankManager:
             ]
 
     def beliebte_buecher_karussell(self, limit: int = 5) -> List[Dict]:
-        """Bücher mit mindestens zwei aktiven Ausleihen für das Karussell."""
+        """Gibt die meistgeliehenen Bücher für das Karussell zurück."""
         with self.get_session() as session:
             rows = session.query(
                 Buch.isbn, Buch.titel, Buch.autor, Buch.jahr,
                 func.count(Ausleihe.ausleih_id).label("anzahl_ausleihen")
-            ).join(Exemplar, Buch.isbn == Exemplar.isbn).join(
+            ).outerjoin(Exemplar, Buch.isbn == Exemplar.isbn).outerjoin(
                 Ausleihe, Exemplar.exemplar_id == Ausleihe.exemplar_id
-            ).filter(Ausleihe.rueckgabedatum.is_(None)).group_by(Buch.isbn).having(
-                func.count(Ausleihe.ausleih_id) >= 2
-            ).order_by(desc("anzahl_ausleihen")).limit(limit).all()
+            ).group_by(Buch.isbn).order_by(desc("anzahl_ausleihen")).limit(limit).all()
             return [
                 {
                     "isbn": row.isbn,

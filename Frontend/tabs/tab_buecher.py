@@ -106,7 +106,12 @@ def baue_buecher_tab(tab_refresh: dict):
         )
         if not ergebnisse:
             with buecher_container:
-                ui.label("Keine Bücher gefunden.").style("color:#888")
+                hinweis = (
+                    "Keine Treffer gefunden."
+                    if suchbegriff and suchbegriff.strip()
+                    else "Keine Bücher gefunden."
+                )
+                ui.label(hinweis).style("color:#888")
             return
 
         for buch in ergebnisse:

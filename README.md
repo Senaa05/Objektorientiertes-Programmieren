@@ -331,10 +331,3 @@ Im Projekt liegt eine `.gitignore`, damit lokale Dateien nicht ins Repository ge
 
 **Hinweis:** Die SQLite-Datei selbst liegt nicht in Git. Der gemeinsame **Demo-Buchkatalog** steht in `Datenbank/seed_demo_daten.py` und wird beim ersten Start automatisch in die lokale `bibliothek_orm.db` importiert.
 
-Falls diese Dateien **bereits** in Git eingecheckt wurden, einmalig aus dem Index entfernen (Dateien bleiben lokal erhalten):
-
-```bash
-git rm -r --cached .venv __pycache__ logs bibliothek_orm.db bibliothek_2.db .DS_Store 2>/dev/null
-git add .gitignore
-git commit -m "Add .gitignore and stop tracking local/generated files"
-```
