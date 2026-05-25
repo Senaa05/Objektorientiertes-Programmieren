@@ -1,38 +1,77 @@
 """
 Demo-Bestand für Bibflow (wird ins Repo committed, nicht die .db-Datei).
 Beim App-Start werden Bücher und Demo-Ausleihen angelegt, sofern sie noch fehlen.
+
+Cover-Hinweis: Bücher mit ✓ haben bei Open Library ein Cover zur ISBN.
+Bücher mit ○ zeigen in der UI den farbigen Platzhalter mit Buchtitel.
 """
 
 from datetime import date, timedelta
 
-# titel, autor, isbn (mind. 13 Ziffern), jahr, exemplar_anzahl
+# titel, autor, isbn (13-stellig), jahr, exemplar_anzahl
 DEMO_BUECHER = [
-    ("1984", "George Orwell", "9783548234105", 1949, 3),
-    ("Also sprach Zarathustra", "Friedrich Nietzsche", "9783150071115", 1884, 2),
-    ("Angst", "Stefan Zweig", "9783150197066", 1925, 1),
-    ("BECOMING: Meine Geschichte", "Michelle Obama", "9781524763145", 2021, 2),
-    ("Das Parfum", "Patrick Süskind", "9783257228007", 1985, 2),
-    ("Der Alchimist", "Paulo Coelho", "9783123456789", 1988, 2),
-    ("Der Herr der Ringe", "J.R.R. Tolkien", "9783608938315", 1954, 4),
-    ("Der Prozess", "Franz Kafka", "9783518369007", 1925, 3),
-    ("Der Sandmann", "E.T.A Hoffmann", "9783150002308", 1986, 2),
-    ("Der kleine Prinz", "Antoine de Saint-Exupéry", "9783257068290", 1943, 3),
-    ("Die Verwandlung", "Franz Kafka", "9783987654321", 1915, 1),
-    ("Eine kurze Geschichte der Zeit", "Stephen Hawking", "9783499621567", 1988, 2),
-    ("Harry Potter und der Stein der Weisen", "J.K. Rowling", "9783551551678", 1997, 3),
-    ("Heidi", "Johanna Spyri", "9783314103407", 2015, 2),
-    ("Ich bin Malala", "Malala Yousafzai", "9783596195962", 2013, 3),
-    ("Schöne neue Welt", "Aldous Huxley", "9783596209215", 1932, 3),
-    ("Tribute von Panem - Tödliche Spiele", "Suzanne Collins", "9783789142185", 2008, 3),
-    ("Twilight – Biss zum Morgengrauen", "Stephenie Meyer", "9783551580016", 2005, 2),
+    # ── Mit Cover (Open Library) ──
+    ("1984", "George Orwell", "9783548234106", 1949, 3),  # ✓
+    ("Das Parfum", "Patrick Süskind", "9783257228007", 1985, 2),  # ✓
+    ("Der kleine Prinz", "Antoine de Saint-Exupéry", "9783257068290", 1943, 3),  # ✓
+    (
+        "Harry Potter und der Stein der Weisen",
+        "J.K. Rowling",
+        "9783551354013",
+        1997,
+        3,
+    ),  # ✓
+    ("Der Herr der Ringe", "J.R.R. Tolkien", "9783608938289", 1954, 4),  # ✓
+    ("Der Hobbit", "J.R.R. Tolkien", "9780547928227", 1937, 2),  # ✓
+    ("BECOMING: Meine Geschichte", "Michelle Obama", "9783442314874", 2018, 2),  # ✓
+    ("Der Vorleser", "Bernhard Schlink", "9783257229707", 1995, 2),  # ✓
+    ("Die Bücherdiebin", "Markus Zusak", "9780375831003", 2005, 2),  # ✓
+    ("Der Name der Rose", "Umberto Eco", "9780151446476", 1980, 2),  # ✓
+    (
+        "Die Tribute von Panem - Tödliche Spiele",
+        "Suzanne Collins",
+        "9780545425117",
+        2008,
+        3,
+    ),  # ✓
+    ("Eragon - Das Erbe der Macht", "Christopher Paolini", "9780375826689", 2002, 2),  # ✓
+    # ── Ohne Cover (Platzhalter mit Titel) ──
+    ("Schöne neue Welt", "Aldous Huxley", "9783596209215", 1932, 3),  # ○
+    ("Der Prozess", "Franz Kafka", "9783518369007", 1925, 3),  # ○
+    ("Also sprach Zarathustra", "Friedrich Nietzsche", "9783150071115", 1884, 2),  # ○
+    ("Der Alchimist", "Paulo Coelho", "9783257230600", 1988, 2),  # ○
+    ("Ich bin Malala", "Malala Yousafzai", "9783596195962", 2013, 2),  # ○
 ]
+
+# Nur Ziffern — für UI-Platzhalter (kein Cover-Bild laden)
+DEMO_ISBN_OHNE_COVER = {
+    "9783596209215",
+    "9783518369007",
+    "9783150071115",
+    "9783257230600",
+    "9783596195962",
+}
+
+# Alte Demo-ISBNs → korrigierte ISBN (für bestehende bibliothek_orm.db beim App-Start)
+ISBN_KORREKTUR = {
+    "9783548234105": "9783548234106",
+    "9783150197066": "9783150190494",
+    "9781524763145": "9783442314874",
+    "9783123456789": "9783257230600",
+    "9783608938315": "9783608938289",
+    "9783987654321": "9783518181241",
+    "9783551551678": "9783551354013",
+    "9783314103407": "9783257241804",
+    "9783789142185": "9780545425117",
+    "9783789132186": "9780545425117",
+}
 
 # Demo-Ausleihen: benutzername, isbn-Kandidaten, ausleih_id, tage_seit_ausleihe, tage_bis_faelligkeit
 # tage_bis_faelligkeit < 0  → überfällig (Popup popup_ueberfaellige_fuer_benutzer)
 # 0 .. 7 → bald fällig (Reminder-Popup)
 DEMO_AUSLEIHEN = [
-    ("demo", ["9783548234105", "978-3-548-23410-5"], "DEMO-AUS-UEBERFAELLIG", 50, -14),
-    ("demo", ["9783551551678", "978-3-551-55167-8"], "DEMO-AUS-REMINDER", 23, 5),
+    ("demo", ["9783548234106", "9783548234105", "978-3-548-23410-6"], "DEMO-AUS-UEBERFAELLIG", 50, -14),
+    ("demo", ["9783551354013", "9783551551678", "978-3-551-35401-3"], "DEMO-AUS-REMINDER", 23, 5),
 ]
 
 
@@ -50,6 +89,31 @@ def _finde_verfuegbares_exemplar(db, isbn_kandidaten: list[str], bereits_belegt:
             if eid not in bereits_belegt:
                 return buch["isbn"], eid
     return None, None
+
+
+def korrigiere_demo_isbns(db) -> int:
+    """Passt falsche Demo-ISBNs in einer bestehenden DB an (Primary Key buecher.isbn)."""
+    from Datenbank.orm_models import Buch, Exemplar, Merkliste
+
+    geaendert = 0
+    with db.get_session() as session:
+        for alt, neu in ISBN_KORREKTUR.items():
+            if session.query(Buch).filter(Buch.isbn == neu).first():
+                continue
+            buch = session.query(Buch).filter(Buch.isbn == alt).first()
+            if not buch:
+                continue
+            session.query(Exemplar).filter(Exemplar.isbn == alt).update(
+                {Exemplar.isbn: neu}, synchronize_session=False
+            )
+            session.query(Merkliste).filter(Merkliste.isbn == alt).update(
+                {Merkliste.isbn: neu}, synchronize_session=False
+            )
+            buch.isbn = neu
+            geaendert += 1
+        if geaendert:
+            session.commit()
+    return geaendert
 
 
 def seed_demo_buecher(buch_service) -> int:

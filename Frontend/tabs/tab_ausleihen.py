@@ -4,6 +4,7 @@ tab_ausleihen.py – Meine Ausleihen Tab
 """
  
 from nicegui import ui
+from Frontend.buch_cover import zeige_buch_cover
 from Frontend.state import service, aktueller_benutzer
  
  
@@ -33,11 +34,15 @@ def baue_ausleihen_tab(tab_refresh: dict):
         for a in ausleihen:
             with ausleihen_container:
                 with ui.card().classes("w-full").style("padding:1rem"):
-                    with ui.row().classes("justify-between items-center w-full"):
-                        with ui.column():
-                            ui.label(a.get("titel", "Unbekanntes Buch")).style(
-                                "font-weight:600"
-                            )
+                    with ui.row().classes("items-stretch w-full gap-4 no-wrap"):
+                        isbn = a.get("isbn", "")
+                        titel = a.get("titel", "Unbekanntes Buch")
+                        if isbn:
+                            zeige_buch_cover(isbn, titel, a.get("autor", ""))
+                        with ui.column().style(
+                            "flex:1; min-width:0; justify-content:center; gap:0.25rem;"
+                        ):
+                            ui.label(titel).style("font-weight:600")
                             ui.label(
                                 f"Ausgeliehen: {a['ausleihdatum']}  ·  Fällig: {a['faelligkeit']}"
                             ).style("color:#666; font-size:0.85rem")

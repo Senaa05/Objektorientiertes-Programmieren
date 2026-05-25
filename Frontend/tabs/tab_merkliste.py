@@ -4,6 +4,7 @@ tab_merkliste.py – Meine Merkliste Tab
 """
 
 from nicegui import ui
+from Frontend.buch_cover import zeige_buch_cover
 from Frontend.state import buch_service, service, merkliste_service, aktueller_benutzer
 
 
@@ -30,8 +31,13 @@ def baue_merkliste_tab(tab_refresh: dict):
             verfuegbar = len(buch_service.verfuegbare_exemplare(eintrag["isbn"])) > 0
             with merkliste_container:
                 with ui.card().classes("w-full").style("padding:1rem"):
-                    with ui.row().classes("justify-between items-center w-full"):
-                        with ui.column():
+                    with ui.row().classes("items-stretch w-full gap-4 no-wrap"):
+                        zeige_buch_cover(
+                            eintrag["isbn"], eintrag["titel"], eintrag["autor"]
+                        )
+                        with ui.column().style(
+                            "flex:1; min-width:0; justify-content:center; gap:0.25rem;"
+                        ):
                             ui.label(eintrag["titel"]).style(
                                 "font-weight:600; font-size:1rem"
                             )

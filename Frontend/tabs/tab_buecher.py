@@ -4,6 +4,7 @@ tab_buecher.py – Bücher-Tab inkl. Karussell
 """
 
 from nicegui import ui
+from Frontend.buch_cover import zeige_buch_cover
 from Frontend.state import buch_service, service, merkliste_service, ist_admin, aktueller_benutzer
 
 
@@ -43,25 +44,31 @@ def baue_buecher_tab(tab_refresh: dict):
             ).props("flat dense").style("font-size:1.2rem; min-width:2rem")
 
             with ui.element("div").style(
-                "display:flex; gap:1rem; overflow:hidden; flex:1; scroll-behavior:smooth"
+                "display:flex; gap:1rem; overflow-x:auto; overflow-y:hidden; "
+                "flex:1; scroll-behavior:smooth; padding-bottom:0.25rem;"
             ) as karussell:
-                farben = ["#fce7f3", "#dbeafe", "#dcfce7", "#fef9c3", "#ede9fe"]
-                for idx, buch in enumerate(beliebt):
+                for buch in beliebt:
                     with ui.card().style(
-                        "min-width:160px; max-width:160px; padding:0; overflow:hidden; flex-shrink:0"
+                        "min-width:160px; max-width:160px; padding:0; overflow:hidden; "
+                        "flex-shrink:0; display:flex; flex-direction:column;"
                     ):
-                        farbe = farben[idx % len(farben)]
+                        zeige_buch_cover(
+                            buch["isbn"],
+                            buch["titel"],
+                            buch["autor"],
+                            karussell=True,
+                        )
                         with ui.element("div").style(
-                            f"background:{farbe}; height:120px; display:flex; "
-                            f"align-items:center; justify-content:center; padding:0.5rem"
+                            "padding:0.5rem; flex:1; display:flex; flex-direction:column; "
+                            "gap:0.25rem; width:100%; box-sizing:border-box;"
                         ):
                             ui.label(buch["titel"]).style(
-                                "font-weight:700; font-size:0.85rem; text-align:center; "
-                                "word-break:break-word"
+                                "font-weight:700; font-size:0.8rem; line-height:1.2; "
+                                "display:-webkit-box; -webkit-line-clamp:2; "
+                                "-webkit-box-orient:vertical; overflow:hidden;"
                             )
-                        with ui.element("div").style("padding:0.5rem"):
                             ui.label(buch["autor"]).style("font-size:0.75rem; color:#666")
-                            ui.label(f"📖 {buch.get('anzahl_ausleihen', 0)}x ausgeliehen").style(
+                            ui.label(f"📖 {buch.get('anzahl_ausleihen', 0)}× ausgeliehen").style(
                                 "font-size:0.7rem; color:#999"
                             )
                             isbn_kopie = buch["isbn"]
@@ -82,6 +89,10 @@ def baue_buecher_tab(tab_refresh: dict):
                     "scrollBy", {"left": 200, "behavior": "smooth"}
                 ),
             ).props("flat dense").style("font-size:1.2rem; min-width:2rem")
+    else:
+        ui.label(
+            "Noch keine Ausleih-Statistik — lege Bücher aus, um Beliebtheit zu sehen."
+        ).style("color:#888; font-size:0.9rem; margin-bottom:0.5rem")
 
     ui.separator().classes("mb-4")
 
@@ -101,17 +112,26 @@ def baue_buecher_tab(tab_refresh: dict):
         for buch in ergebnisse:
             verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"])) > 0
             with buecher_container:
-                with ui.card().classes("w-full").style("padding:1rem"):
-                    with ui.row().classes("justify-between items-center w-full"):
-                        with ui.column():
-                            ui.label(buch["titel"]).style("font-weight:600; font-size:1rem")
+                with ui.card().classes("w-full").style(
+                    "padding:1rem; box-sizing:border-box;"
+                ):
+                    with ui.row().classes("items-stretch w-full gap-4 no-wrap").style(
+                        "width:100%;"
+                    ):
+                        zeige_buch_cover(buch["isbn"], buch["titel"], buch["autor"])
+                        with ui.column().style(
+                            "flex:1; min-width:0; justify-content:center; gap:0.25rem;"
+                        ):
+                            ui.label(buch["titel"]).style(
+                                "font-weight:600; font-size:1rem; line-height:1.3;"
+                            )
                             ui.label(f"{buch['autor']} · {buch['jahr']}").style(
                                 "color:#666; font-size:0.85rem"
                             )
                             ui.label(f"ISBN: {buch['isbn']}").style(
                                 "color:#999; font-size:0.8rem"
                             )
-                        with ui.row().classes("items-center gap-2"):
+                        with ui.row().classes("items-center gap-2 flex-shrink-0"):
                             anzahl_verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"]))
                             if anzahl_verfuegbar > 0:
                                 ui.label(f"📗 Exemplare übrig: {anzahl_verfuegbar}").style(

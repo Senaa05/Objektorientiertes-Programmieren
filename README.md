@@ -300,7 +300,7 @@ Zum Prüfen der **Administrator-Funktionen** (Bibliothek verwalten) mit der echt
 
 **Immer verfügbar:** Beim App-Start ist der lokale Admin `admin1` in `bibliothek_orm.db` garantiert vorhanden und mit `admin123` anmeldbar (wird angelegt, falls er fehlt; Passwort wird nur für `admin1` angepasst, wenn es nicht zum README passt).
 
-**Gemeinsamer Demo-Bestand (Bücher):** Enthält die lokale DB noch **keine** Bücher, legt die App automatisch 18 Demo-Titel mit Exemplaren an (Quelle: `Datenbank/seed_demo_daten.py` im Repo). So sieht das ganze Team nach `git pull` + App-Start denselben Startbestand — ohne die `.db`-Datei in GitHub hochzuladen.
+**Gemeinsamer Demo-Bestand (Bücher):** Enthält die lokale DB noch **keine** Bücher, legt die App automatisch 17 Demo-Titel mit Exemplaren an (Quelle: `Datenbank/seed_demo_daten.py` im Repo). 
 
 **Demo-Benutzer** (Ausleihe, Merkliste, Popups testen):
 

@@ -192,7 +192,11 @@ class BuchService:
             raise ValueError("Limit muss mindestens 1 sein.")
         if not hasattr(self.db, "beliebte_buecher_karussell"):
             raise NotImplementedError("Die DB unterstützt keine Karussell-Abfrage.")
-        return self.db.beliebte_buecher_karussell(limit)
+        karussell = self.db.beliebte_buecher_karussell(limit)
+        if karussell:
+            return karussell
+        # Frische Demo-DB: noch keine Buch-Titel mit 2+ aktiven Ausleihen
+        return self.db.beliebteste_buecher_laden(limit)
 
     def exemplare_laden(self, isbn: str) -> list[dict]:
         """Lädt alle Exemplare eines Buches."""

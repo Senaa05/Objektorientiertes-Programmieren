@@ -29,7 +29,7 @@ def _erzeuge_logger() -> logging.Logger:
 logger = _erzeuge_logger()
 
 from Datenbank.orm_manager import ORMDatenbankManager
-from Datenbank.seed_demo_daten import seed_demo_ausleihen, seed_demo_buecher
+from Datenbank.seed_demo_daten import korrigiere_demo_isbns, seed_demo_ausleihen, seed_demo_buecher
 from Backend.services.buch_service import BuchService
 from Backend.services.benutzer_service import BenutzerService
 from Backend.services.merkliste_service import MerklisteService
@@ -123,6 +123,9 @@ def _ensure_lokale_zugaenge(benutzer_service: BenutzerService) -> None:
 
 def _ensure_demo_bibliotheksbestand(buch_service: BuchService) -> None:
     """Legt den Demo-Buchkatalog an, wenn die DB noch keine Bücher enthält."""
+    korrigiert = korrigiere_demo_isbns(db)
+    if korrigiert:
+        logger.info("%s Demo-Buch-ISBN(s) auf echte Verlags-ISBNs korrigiert.", korrigiert)
     angelegt = seed_demo_buecher(buch_service)
     if angelegt:
         logger.info("Demo-Bibliotheksbestand angelegt: %s Bücher.", angelegt)
