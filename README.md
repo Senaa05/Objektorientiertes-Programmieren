@@ -1,7 +1,7 @@
 # Bibflow :books:
 Dieses Projekt ist ein webbasiertes Bibliothekssystem, das die Verwaltung und Ausleihe von Büchern übersichtlich und effizient gestaltet. Unterschiedliche Funktionen für Administratoren und Benutzer sorgen für eine klare und strukturierte Nutzung.
 
-<img width="1860" height="799" alt="image" src="https://github.com/user-attachments/assets/c3ae8eac-b237-44e1-b60e-b7cdb7abaeaf" />
+<img width="1864" height="913" alt="image" src="https://github.com/user-attachments/assets/2d73f9dd-d97a-4739-aaf0-a8802cdd31b1" />
 
 ## Problem
 In der Bibliothek «Bibflow» ist die Verwaltung der Bücher und Ausleihen unübersichtlich, weil keine zentrale Lösung vorhanden ist. Benutzer wissen oft nicht, ob ein Buch verfügbar ist, und haben keinen Überblick über ihre Ausleihen. Zudem ist den Benutzern nicht bewusst, welche die beliebtesten Bücher in der Bibliothek sind. Dies führt häufig zu verspäteten Rückgaben und Missverständnissen zwischen Benutzern und Mitarbeitern.
@@ -151,13 +151,6 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 ## Klassenstruktur
 <img width="1535" height="1024" alt="bibflow_klassendiagrammv3" src="https://github.com/user-attachments/assets/32b94333-58f7-410c-8b36-90769777d6bb" />
 
-
-- **Backend/modelle**: Enthält die zentralen Datenklassen für `Benutzer`, `Buch`, `Exemplar`, `Ausleihe` und `Merkliste`.
-- **Backend/services**: Übernimmt die Geschäftslogik, zum Beispiel für Buchsuche, Ausleihe, Rückgabe und Merkliste.
-- **Datenbank/orm_manager.py**: Verwaltet die Datenbankzugriffe und verbindet die Modelle mit SQLite über SQLAlchemy.
-- **Frontend**: Stellt die Benutzeroberfläche mit Login, Dashboard und den einzelnen Tabs dar.
-- **Frontend/tabs**: Trennt die Ansicht in die Bereiche Bücher, Ausleihen, Merkliste und Admin.
-
 ### Zu den Klassen
 - `User` / `Administrator`: Speichern Benutzerdaten und unterscheiden normale Benutzer von Admins.
 - `Buch`: Enthält die bibliografischen Daten wie Titel, Autor, ISBN und Jahr.
@@ -298,7 +291,9 @@ Die Anwendung startet auf `http://127.0.0.1:8080`. Öffne die Adresse im Browser
 - Den Tab **Bücher** öffnen und verfügbare Titel durchsuchen.
 - Ein verfügbares Exemplar auswählen und den Ausleihvorgang starten.
 - Die Seite **Meine Ausleihen** aufrufen, um Fälligkeitsdatum und Status zu prüfen.
-<img width="1886" height="542" alt="image" src="https://github.com/user-attachments/assets/e5d1c3b8-c611-4db3-8e61-1836f0164fda" />
+
+<img width="1884" height="749" alt="image" src="https://github.com/user-attachments/assets/5738e70d-2076-4422-8dd1-b731981b6c22" />
+
 
 ### 7. Lokaler Admin-Zugang (für Test & Abgabe)
 
