@@ -257,7 +257,6 @@ pip install -r requirements.txt
 - Für Bibflow sind keine zusätzlichen Umgebungsvariablen oder geheimen Schlüssel nötig.
 - **Die App-Datenbank ist `bibliothek_orm.db`** im Projektstamm (SQLite). Alle Benutzer, Bücher und Ausleihen liegen dort.
 - Die Datei wird beim ersten Start automatisch angelegt und steht in der `.gitignore` (wird nicht nach GitHub hochgeladen).
-- **`bibliothek_2.db` wird nicht verwendet** — das war eine alte Test-/Arbeitsdatei und gehört nicht zum Betrieb. Sie ist ignoriert und sollte nicht im Repo liegen.
 - Test-Datenbanken aus `Test_Cases/` und `Datenbank/TC_002_*` liegen nur im System-Temp und werden nach den Tests gelöscht.
 - Für einen Neustart mit leerer DB: `bibliothek_orm.db` löschen und die App erneut starten — der lokale Admin wird dann neu angelegt (siehe Abschnitt 7).
 
