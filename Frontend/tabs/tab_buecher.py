@@ -24,9 +24,9 @@ def baue_buecher_tab(tab_refresh: dict):
             "background:#2563eb; color:white"
         )
         ui.button(
-            "Zurücksetzen",
-            on_click=lambda: (such_input.set_value(""), buecher_laden("")),
-        ).props("outline")
+    "Zurücksetzen",
+        on_click=lambda: (such_input.set_value(""), buecher_laden("")),
+    ).props("outline")
 
     # ── Beliebteste Bücher Karussell ──
     ui.label("Unsere beliebtesten Ausleihen").style(
@@ -96,6 +96,27 @@ def baue_buecher_tab(tab_refresh: dict):
 
     ui.separator().classes("mb-4")
 
+    # ── Filter-State ──
+    sortierung = {"feld": None, "richtung": "asc"}
+
+    # ── Sortierung setzen ──
+    def sortierung_setzen(feld, richtung):
+        sortierung["feld"] = feld
+        sortierung["richtung"] = richtung
+        buecher_laden(such_input.value)
+
+    # ── Filter-Leiste ──
+    with ui.row().classes("items-center gap-2 w-full flex-wrap").style("margin-bottom:0.5rem;"):
+        ui.label("Sortieren:").style("font-weight:600; font-size:0.9rem;")
+        ui.button("Titel A-Z",  on_click=lambda: sortierung_setzen("titel", "asc")).props("outline").style("font-size:0.8rem;")
+        ui.button("Titel Z-A",  on_click=lambda: sortierung_setzen("titel", "desc")).props("outline").style("font-size:0.8rem;")
+        ui.button("Jahr ↑",     on_click=lambda: sortierung_setzen("jahr", "asc")).props("outline").style("font-size:0.8rem;")
+        ui.button("Jahr ↓",     on_click=lambda: sortierung_setzen("jahr", "desc")).props("outline").style("font-size:0.8rem;")
+        ui.button(
+            "Zurücksetzen",
+            on_click=lambda: (sortierung.update({"feld": None, "richtung": "asc"}), buecher_laden("")),
+        ).props("outline")
+
     buecher_container = ui.column().classes("w-full gap-2")
 
     # ── Bücher laden ──
@@ -104,6 +125,13 @@ def baue_buecher_tab(tab_refresh: dict):
         ergebnisse = (
             buch_service.bucher_suchen(suchbegriff) if suchbegriff else buch_service.alle_buecher_laden()
         )
+
+        # Sortierung anwenden
+        if sortierung["feld"] == "titel":
+            ergebnisse = sorted(ergebnisse, key=lambda b: b["titel"].lower(), reverse=(sortierung["richtung"] == "desc"))
+        elif sortierung["feld"] == "jahr":
+            ergebnisse = sorted(ergebnisse, key=lambda b: b["jahr"], reverse=(sortierung["richtung"] == "desc"))
+
         if not ergebnisse:
             with buecher_container:
                 hinweis = (
@@ -159,6 +187,8 @@ def baue_buecher_tab(tab_refresh: dict):
                                     "Ausleihen",
                                     on_click=lambda _, i=isbn_kopie: buch_ausleihen(i),
                                 ).style("background:#2563eb; color:white")
+
+
 
     # ── Buch ausleihen ──
     def buch_ausleihen(isbn):
