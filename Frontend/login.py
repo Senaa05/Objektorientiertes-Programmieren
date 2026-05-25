@@ -21,8 +21,8 @@ def zeige_login():
                 "flex-1 rounded-none bg-blue-600 text-white"
             )
             reg_btn = ui.button("Registrieren", on_click=lambda: zeige_tab("register")).classes(
-                "flex-1 rounded-none bg-white text-black"
-            )
+                "flex-1 rounded-none text-blue-600"
+            ).props("outline")
 
         fehler_label = ui.label("").classes("text-red-500 text-sm")
 
@@ -112,10 +112,14 @@ def zeige_login():
             if tab == "login":
                 login_panel.style("display:block")
                 reg_panel.style("display:none")
-                login_btn.classes(remove="bg-white text-black").classes(add="bg-blue-600 text-white")
-                reg_btn.classes(remove="bg-blue-600 text-white").classes(add="bg-white text-black")
+                login_btn.classes(remove="text-blue-600").classes(add="bg-blue-600 text-white")
+                login_btn.props(remove="outline")
+                reg_btn.classes(remove="bg-blue-600 text-white").classes(add="text-blue-600")
+                reg_btn.props(add="outline")
             else:
                 login_panel.style("display:none")
                 reg_panel.style("display:block")
-                login_btn.classes(remove="bg-blue-600 text-white").classes(add="bg-white text-black")
-                reg_btn.classes(remove="bg-white text-black").classes(add="bg-blue-600 text-white")
+                login_btn.classes(remove="bg-blue-600 text-white").classes(add="text-blue-600")
+                login_btn.props(add="outline")
+                reg_btn.classes(remove="text-blue-600").classes(add="bg-blue-600 text-white")
+                reg_btn.props(remove="outline")
