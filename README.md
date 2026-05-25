@@ -262,14 +262,16 @@ pip install -r requirements.txt
 - Für einen Neustart mit leerer DB: `bibliothek_orm.db` löschen und die App erneut starten — der lokale Admin wird dann neu angelegt (siehe Abschnitt 7).
 
 ### 5. Launch
+Aus dem Projektordner starten (Haupteinstiegspunkt `main.py` im Root):
+
 macOS/Linux:
 ```bash
-python -m Frontend.main_ui
+python main.py
 ```
 
 Windows:
 ```powershell
-py -m Frontend.main_ui
+py main.py
 ```
 
 Die Anwendung startet auf `http://127.0.0.1:8080`. Öffne die Adresse im Browser, sobald sie in der Konsole ausgegeben wird.
@@ -292,7 +294,7 @@ Zum Prüfen der **Administrator-Funktionen** (Bibliothek verwalten) mit der echt
 | **Rolle** | `Admin` |
 
 **Ablauf:**
-1. App starten: `python -m Frontend.main_ui`
+1. App starten: `python main.py`
 2. Im Browser `http://127.0.0.1:8080` öffnen
 3. Mit `admin1` / `admin123` einloggen
 4. Tab **Admin** erscheint — dort Bücher erfassen/bearbeiten/löschen, Exemplare verwalten, überfällige Ausleihen einsehen
