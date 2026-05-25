@@ -14,24 +14,20 @@ def baue_buecher_tab(tab_refresh: dict):
     tab_refresh ist ein gemeinsames Dict, über das andere Tabs
     nach einer Ausleihe/Merklisten-Aktion neu geladen werden können.
     """
-    ui.label("Bücher suchen & ausleihen").style(
-        "font-size:1.4rem; font-weight:600; margin:1rem 0"
-    )
+    ui.label("Bücher suchen & ausleihen").classes("text-2xl font-semibold my-4")
 
     with ui.row().classes("items-center gap-2 mb-4"):
-        such_input = ui.input(placeholder="Titel, Autor oder ISBN...").style("width:300px")
-        ui.button("Suchen", on_click=lambda: buecher_laden(such_input.value)).style(
-            "background:#2563eb; color:white"
+        such_input = ui.input(placeholder="Titel, Autor oder ISBN...").classes("w-72")
+        ui.button("Suchen", on_click=lambda: buecher_laden(such_input.value)).classes(
+            "bg-blue-600 text-white"
         )
         ui.button(
-    "Zurücksetzen",
-        on_click=lambda: (such_input.set_value(""), buecher_laden("")),
-    ).props("outline")
+            "Zurücksetzen",
+            on_click=lambda: (such_input.set_value(""), buecher_laden("")),
+        ).props("outline")
 
     # ── Beliebteste Bücher Karussell ──
-    ui.label("Unsere beliebtesten Ausleihen").style(
-        "font-size:1.1rem; font-weight:600; margin:0.5rem 0"
-    )
+    ui.label("Unsere beliebtesten Ausleihen").classes("text-lg font-semibold mt-2 mb-1")
     beliebt = buch_service.beliebte_buecher_karussell()
 
     if beliebt:
@@ -41,7 +37,7 @@ def baue_buecher_tab(tab_refresh: dict):
                 on_click=lambda: karussell.run_method(
                     "scrollBy", {"left": -200, "behavior": "smooth"}
                 ),
-            ).props("flat dense").style("font-size:1.2rem; min-width:2rem")
+            ).props("flat dense").classes("text-xl min-w-8")
 
             with ui.element("div").style(
                 "display:flex; gap:1rem; overflow-x:auto; overflow-y:hidden; "
@@ -58,41 +54,34 @@ def baue_buecher_tab(tab_refresh: dict):
                             buch["autor"],
                             karussell=True,
                         )
-                        with ui.element("div").style(
-                            "padding:0.5rem; flex:1; display:flex; flex-direction:column; "
-                            "gap:0.25rem; width:100%; box-sizing:border-box;"
-                        ):
+                        with ui.element("div").classes("p-2 flex flex-col gap-1 w-full box-border flex-1"):
                             ui.label(buch["titel"]).style(
                                 "font-weight:700; font-size:0.8rem; line-height:1.2; "
                                 "display:-webkit-box; -webkit-line-clamp:2; "
                                 "-webkit-box-orient:vertical; overflow:hidden;"
                             )
-                            ui.label(buch["autor"]).style("font-size:0.75rem; color:#666")
-                            ui.label(f"📖 {buch.get('anzahl_ausleihen', 0)}× ausgeliehen").style(
-                                "font-size:0.7rem; color:#999"
-                            )
+                            ui.label(buch["autor"]).classes("text-xs text-gray-500")
+                            ui.label(f"📖 {buch.get('anzahl_ausleihen', 0)}× ausgeliehen").classes("text-xs text-gray-400")
                             isbn_kopie = buch["isbn"]
                             verfuegbar = len(buch_service.verfuegbare_exemplare(isbn_kopie)) > 0
                             if verfuegbar and not ist_admin():
                                 ui.button(
                                     "Ausleihen",
                                     on_click=lambda _, i=isbn_kopie: buch_ausleihen(i),
-                                ).classes("w-full").style("background:#2563eb; color:white")
+                                ).classes("w-full bg-blue-600 text-white")
                             elif not verfuegbar:
-                                ui.label("Nicht verfügbar").style(
-                                    "color:#dc2626; font-size:0.75rem; margin-top:0.25rem"
-                                )
+                                ui.label("Nicht verfügbar").classes("text-red-600 text-xs mt-1")
 
             ui.button(
                 "→",
                 on_click=lambda: karussell.run_method(
                     "scrollBy", {"left": 200, "behavior": "smooth"}
                 ),
-            ).props("flat dense").style("font-size:1.2rem; min-width:2rem")
+            ).props("flat dense").classes("text-xl min-w-8")
     else:
         ui.label(
             "Noch keine Ausleih-Statistik — lege Bücher aus, um Beliebtheit zu sehen."
-        ).style("color:#888; font-size:0.9rem; margin-bottom:0.5rem")
+        ).classes("text-sm text-gray-400 mb-2")
 
     ui.separator().classes("mb-4")
 
@@ -106,16 +95,16 @@ def baue_buecher_tab(tab_refresh: dict):
         buecher_laden(such_input.value)
 
     # ── Filter-Leiste ──
-    with ui.row().classes("items-center gap-2 w-full flex-wrap").style("margin-bottom:0.5rem;"):
-        ui.label("Sortieren:").style("font-weight:600; font-size:0.9rem;")
-        ui.button("Titel A-Z",  on_click=lambda: sortierung_setzen("titel", "asc")).props("outline").style("font-size:0.8rem;")
-        ui.button("Titel Z-A",  on_click=lambda: sortierung_setzen("titel", "desc")).props("outline").style("font-size:0.8rem;")
-        ui.button("Jahr ↑",     on_click=lambda: sortierung_setzen("jahr", "asc")).props("outline").style("font-size:0.8rem;")
-        ui.button("Jahr ↓",     on_click=lambda: sortierung_setzen("jahr", "desc")).props("outline").style("font-size:0.8rem;")
+    with ui.row().classes("items-center gap-2 w-full flex-wrap mb-2"):
+        ui.label("Sortieren:").classes("font-semibold text-sm")
+        ui.button("Titel A-Z",  on_click=lambda: sortierung_setzen("titel", "asc")).props("outline").classes("text-xs")
+        ui.button("Titel Z-A",  on_click=lambda: sortierung_setzen("titel", "desc")).props("outline").classes("text-xs")
+        ui.button("Jahr ↑",     on_click=lambda: sortierung_setzen("jahr", "asc")).props("outline").classes("text-xs")
+        ui.button("Jahr ↓",     on_click=lambda: sortierung_setzen("jahr", "desc")).props("outline").classes("text-xs")
         ui.button(
             "Zurücksetzen",
             on_click=lambda: (sortierung.update({"feld": None, "richtung": "asc"}), buecher_laden("")),
-        ).props("outline")
+        ).props("outline").classes("text-xs")
 
     buecher_container = ui.column().classes("w-full gap-2")
 
@@ -139,39 +128,25 @@ def baue_buecher_tab(tab_refresh: dict):
                     if suchbegriff and suchbegriff.strip()
                     else "Keine Bücher gefunden."
                 )
-                ui.label(hinweis).style("color:#888")
+                ui.label(hinweis).classes("text-gray-400")
             return
 
         for buch in ergebnisse:
             verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"])) > 0
             with buecher_container:
-                with ui.card().classes("w-full").style(
-                    "padding:1rem; box-sizing:border-box;"
-                ):
-                    with ui.row().classes("items-stretch w-full gap-4 no-wrap").style(
-                        "width:100%;"
-                    ):
+                with ui.card().classes("w-full p-4 box-border"):
+                    with ui.row().classes("items-stretch w-full gap-4 no-wrap"):
                         zeige_buch_cover(buch["isbn"], buch["titel"], buch["autor"])
-                        with ui.column().style(
-                            "flex:1; min-width:0; justify-content:center; gap:0.25rem;"
-                        ):
-                            ui.label(buch["titel"]).style(
-                                "font-weight:600; font-size:1rem; line-height:1.3;"
-                            )
-                            ui.label(f"{buch['autor']} · {buch['jahr']}").style(
-                                "color:#666; font-size:0.85rem"
-                            )
-                            ui.label(f"ISBN: {buch['isbn']}").style(
-                                "color:#999; font-size:0.8rem"
-                            )
+                        with ui.column().classes("flex-1 min-w-0 justify-center gap-1"):
+                            ui.label(buch["titel"]).classes("font-semibold text-base leading-snug")
+                            ui.label(f"{buch['autor']} · {buch['jahr']}").classes("text-gray-500 text-sm")
+                            ui.label(f"ISBN: {buch['isbn']}").classes("text-gray-400 text-xs")
                         with ui.row().classes("items-center gap-2 flex-shrink-0"):
                             anzahl_verfuegbar = len(buch_service.verfuegbare_exemplare(buch["isbn"]))
                             if anzahl_verfuegbar > 0:
-                                ui.label(f"📗 Exemplare übrig: {anzahl_verfuegbar}").style(
-                                    "color:#16a34a"
-                                )
+                                ui.label(f"📗 Exemplare übrig: {anzahl_verfuegbar}").classes("text-green-600")
                             else:
-                                ui.label("❌ Nicht verfügbar").style("color:#dc2626")
+                                ui.label("❌ Nicht verfügbar").classes("text-red-600")
 
                             isbn_kopie = buch["isbn"]
                             if not ist_admin():
@@ -181,14 +156,12 @@ def baue_buecher_tab(tab_refresh: dict):
                                 ui.button(
                                     stern,
                                     on_click=lambda _, i=isbn_kopie: merkliste_toggle(i),
-                                ).props("flat").style("font-size:1.3rem")
+                                ).props("flat").classes("text-xl")
                             if not ist_admin() and verfuegbar:
                                 ui.button(
                                     "Ausleihen",
                                     on_click=lambda _, i=isbn_kopie: buch_ausleihen(i),
-                                ).style("background:#2563eb; color:white")
-
-
+                                ).classes("bg-blue-600 text-white")
 
     # ── Buch ausleihen ──
     def buch_ausleihen(isbn):

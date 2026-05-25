@@ -13,9 +13,7 @@ def baue_merkliste_tab(tab_refresh: dict):
     Erstellt den Merkliste-Tab-Inhalt.
     Registriert außerdem tab_refresh["merkliste"] für externe Aktualisierungen.
     """
-    ui.label("Meine Merkliste").style(
-        "font-size:1.4rem; font-weight:600; margin:1rem 0"
-    )
+    ui.label("Meine Merkliste").classes("text-2xl font-semibold my-4")
     merkliste_container = ui.column().classes("w-full gap-2")
 
     def merkliste_laden_seite():
@@ -24,33 +22,27 @@ def baue_merkliste_tab(tab_refresh: dict):
 
         if not eintraege:
             with merkliste_container:
-                ui.label("Deine Merkliste ist leer.").style("color:#888")
+                ui.label("Deine Merkliste ist leer.").classes("text-gray-400")
             return
 
         for eintrag in eintraege:
             verfuegbar = len(buch_service.verfuegbare_exemplare(eintrag["isbn"])) > 0
             with merkliste_container:
-                with ui.card().classes("w-full").style("padding:1rem"):
+                with ui.card().classes("w-full p-4"):
                     with ui.row().classes("items-stretch w-full gap-4 no-wrap"):
                         zeige_buch_cover(
                             eintrag["isbn"], eintrag["titel"], eintrag["autor"]
                         )
-                        with ui.column().style(
-                            "flex:1; min-width:0; justify-content:center; gap:0.25rem;"
-                        ):
-                            ui.label(eintrag["titel"]).style(
-                                "font-weight:600; font-size:1rem"
-                            )
+                        with ui.column().classes("flex-1 min-w-0 justify-center gap-1"):
+                            ui.label(eintrag["titel"]).classes("font-semibold text-base")
                             ui.label(
                                 f"{eintrag['autor']} · ISBN: {eintrag['isbn']}"
-                            ).style("color:#666; font-size:0.85rem")
+                            ).classes("text-gray-500 text-sm")
                             anzahl = len(buch_service.verfuegbare_exemplare(eintrag["isbn"]))
                             if anzahl > 0:
-                                ui.label(f"📗 Exemplare übrig: {anzahl}").style(
-                                    "color:#16a34a"
-                                )
+                                ui.label(f"📗 Exemplare übrig: {anzahl}").classes("text-green-600")
                             else:
-                                ui.label("❌ Nicht verfügbar").style("color:#dc2626")
+                                ui.label("❌ Nicht verfügbar").classes("text-red-600")
 
                         with ui.row().classes("gap-2"):
                             isbn_kopie = eintrag["isbn"]
@@ -58,11 +50,11 @@ def baue_merkliste_tab(tab_refresh: dict):
                                 ui.button(
                                     "Ausleihen",
                                     on_click=lambda _, i=isbn_kopie: buch_ausleihen(i),
-                                ).style("background:#2563eb; color:white")
+                                ).classes("bg-blue-600 text-white")
                             ui.button(
                                 "⭐ Entfernen",
                                 on_click=lambda _, i=isbn_kopie: eintrag_entfernen(i),
-                            ).props("outline").style("color:#dc2626")
+                            ).props("outline").classes("text-red-600")
 
     def buch_ausleihen(isbn):
         try:

@@ -2,39 +2,37 @@
 login.py - Login- und Registrierungsseite
 =========================================
 """
- 
+
 from nicegui import ui
 from Frontend.state import zustand, benutzer_service
- 
- 
+
+
 def zeige_login():
     ui.query("body").style("background: #f0f4f8")
- 
-    with ui.card().classes("absolute-center").style("width:400px; padding:2rem"):
-        ui.label("Willkommen bei Bibflow").style(
-            "font-size:1.6rem; font-weight:700; margin-bottom:1.5rem; text-align:center"
+
+    with ui.card().classes("absolute-center w-96 p-8"):
+        ui.label("Willkommen bei Bibflow").classes(
+            "text-2xl font-bold mb-6 text-center w-full"
         )
- 
+
         # ── Tab-Buttons ──
-        with ui.row().classes("w-full mb-4").style(
-            "border:1px solid #ddd; border-radius:6px; overflow:hidden"
-        ):
-            login_btn = ui.button("Login", on_click=lambda: zeige_tab("login")).style(
-                "flex:1; border-radius:0; background:black; color:white"
+        with ui.row().classes("w-full mb-4 overflow-hidden rounded border border-gray-300"):
+            login_btn = ui.button("Login", on_click=lambda: zeige_tab("login")).classes(
+                "flex-1 rounded-none bg-black text-white"
             )
-            reg_btn = ui.button("Registrieren", on_click=lambda: zeige_tab("register")).style(
-                "flex:1; border-radius:0; background:white; color:black; border:none"
+            reg_btn = ui.button("Registrieren", on_click=lambda: zeige_tab("register")).classes(
+                "flex-1 rounded-none bg-white text-black"
             )
- 
-        fehler_label = ui.label("").style("color:red; font-size:0.85rem")
- 
+
+        fehler_label = ui.label("").classes("text-red-500 text-sm")
+
         # ── LOGIN FELDER ──
         login_panel = ui.column().classes("w-full gap-2")
         with login_panel:
             bn_input = ui.input(placeholder="Benutzername").classes("w-full")
             pw_input = ui.input(placeholder="Passwort", password=True).classes("w-full")
             pw_input.props("type=password")
- 
+
             def toggle_passwort():
                 if pw_input.props.get("type") == "password":
                     pw_input.props("type=text")
@@ -42,10 +40,10 @@ def zeige_login():
                 else:
                     pw_input.props("type=password")
                     auge_btn.props("icon=visibility")
- 
+
             with pw_input.add_slot("append"):
-                auge_btn = ui.icon("visibility").on("click", toggle_passwort).style("cursor:pointer")
- 
+                auge_btn = ui.icon("visibility").on("click", toggle_passwort).classes("cursor-pointer")
+
             def anmelden():
                 bn = bn_input.value.strip()
                 pw = pw_input.value
@@ -54,15 +52,15 @@ def zeige_login():
                 except ValueError:
                     fehler_label.set_text("Benutzername oder Passwort ist falsch.")
                     return
-                zustand["angemeldet"]    = True
-                zustand["benutzername"]  = bn
-                zustand["rolle"]         = benutzer.rolle
+                zustand["angemeldet"]   = True
+                zustand["benutzername"] = bn
+                zustand["rolle"]        = benutzer.rolle
                 ui.navigate.to("/dashboard")
- 
-            ui.button("Login", on_click=anmelden).classes("w-full").style(
-                "background:black; color:white; margin-top:0.5rem"
+
+            ui.button("Login", on_click=anmelden).classes(
+                "w-full bg-black text-white mt-2"
             )
- 
+
         # ── REGISTRIEREN FELDER ──
         reg_panel = ui.column().classes("w-full gap-2").style("display:none")
         with reg_panel:
@@ -82,8 +80,8 @@ def zeige_login():
                     reg_auge_btn.props("icon=visibility")
 
             with reg_pw_in.add_slot("append"):
-                reg_auge_btn = ui.icon("visibility").on("click", toggle_reg_passwort).style("cursor:pointer")
- 
+                reg_auge_btn = ui.icon("visibility").on("click", toggle_reg_passwort).classes("cursor-pointer")
+
             def registrieren():
                 if not all([vorname_in.value, nachname_in.value, email_in.value,
                             reg_bn_in.value, reg_pw_in.value]):
@@ -103,21 +101,21 @@ def zeige_login():
                     fehler_label.set_text(str(e))
                 except Exception:
                     fehler_label.set_text("Fehler beim Speichern des Benutzers.")
- 
-            ui.button("Registrieren", on_click=registrieren).classes("w-full").style(
-                "background:black; color:white; margin-top:0.5rem"
+
+            ui.button("Registrieren", on_click=registrieren).classes(
+                "w-full bg-black text-white mt-2"
             )
- 
+
         # ── Tab-Wechsel Logik ──
         def zeige_tab(tab: str):
             fehler_label.set_text("")
             if tab == "login":
                 login_panel.style("display:block")
                 reg_panel.style("display:none")
-                login_btn.style("background:black; color:white")
-                reg_btn.style("background:white; color:black")
+                login_btn.classes(remove="bg-white text-black").classes(add="bg-black text-white")
+                reg_btn.classes(remove="bg-black text-white").classes(add="bg-white text-black")
             else:
                 login_panel.style("display:none")
                 reg_panel.style("display:block")
-                login_btn.style("background:white; color:black")
-                reg_btn.style("background:black; color:white")
+                login_btn.classes(remove="bg-black text-white").classes(add="bg-white text-black")
+                reg_btn.classes(remove="bg-white text-black").classes(add="bg-black text-white")

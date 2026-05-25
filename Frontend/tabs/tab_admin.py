@@ -12,19 +12,17 @@ from Frontend.state import buch_service, service, zustand
 def baue_admin_tab():
     """Erstellt den Admin-Tab-Inhalt."""
 
-    ui.label("Admin-Bereich").style(
-        "font-size:1.4rem; font-weight:600; margin:1rem 0"
-    )
+    ui.label("Admin-Bereich").classes("text-2xl font-semibold my-4")
 
     with ui.row().classes("gap-4 w-full items-start"):
 
         # ── Linke Spalte ──
-        with ui.column().classes("gap-4").style("flex:1"):
+        with ui.column().classes("gap-4 flex-1"):
             _ueberfaellige_ausleihen()
             _exemplare_verwalten()
 
         # ── Rechte Spalte ──
-        with ui.card().style("flex:1; padding:1rem"):
+        with ui.card().classes("flex-1 p-4"):
             _buch_hinzufuegen()
             ui.separator()
             _buch_loeschen()
@@ -37,26 +35,22 @@ def baue_admin_tab():
 # ─────────────────────────────────────────────
 
 def _ueberfaellige_ausleihen():
-    with ui.card().classes("w-full").style("padding:1rem"):
-        ui.label("⚠️ Überfällige Ausleihen").style(
-            "font-weight:600; margin-bottom:0.5rem"
-        )
+    with ui.card().classes("w-full p-4"):
+        ui.label("⚠️ Überfällige Ausleihen").classes("font-semibold mb-2")
         try:
             ueberfaellig = service.ueberfaellige_ausleihen()
         except Exception:
             ueberfaellig = service.ueberfaellige_ausleihen()
 
         if not ueberfaellig:
-            ui.label("Keine überfälligen Ausleihen.").style("color:#888")
+            ui.label("Keine überfälligen Ausleihen.").classes("text-gray-400")
         else:
             for e in ueberfaellig:
-                with ui.card().style(
-                    "background:#fef2f2; padding:0.75rem; margin:0.25rem 0"
-                ):
-                    ui.label(e.get("titel", "?")).style("font-weight:600")
+                with ui.card().classes("bg-red-50 p-3 my-1"):
+                    ui.label(e.get("titel", "?")).classes("font-semibold")
                     ui.label(
                         f"Benutzer: {e['benutzername']}  ·  Fällig: {e['faelligkeit']}"
-                    ).style("font-size:0.85rem; color:#dc2626")
+                    ).classes("text-sm text-red-600")
 
 
 # ─────────────────────────────────────────────
@@ -64,17 +58,15 @@ def _ueberfaellige_ausleihen():
 # ─────────────────────────────────────────────
 
 def _exemplare_verwalten():
-    with ui.card().classes("w-full").style("padding:1rem"):
-        ui.label("📦 Exemplare verwalten").style(
-            "font-weight:600; margin-bottom:0.5rem"
-        )
+    with ui.card().classes("w-full p-4"):
+        ui.label("📦 Exemplare verwalten").classes("font-semibold mb-2")
 
         exemplar_container = ui.column().classes("w-full gap-2")
 
         with ui.row().classes("items-center gap-2 mb-4"):
-            isbn_such  = ui.input(placeholder="ISBN eingeben...").style("width:220px")
-            titel_such = ui.input(placeholder="Titel...").style("width:200px")
-            autor_such = ui.input(placeholder="Autor...").style("width:200px")
+            isbn_such  = ui.input(placeholder="ISBN eingeben...").classes("w-52")
+            titel_such = ui.input(placeholder="Titel...").classes("w-48")
+            autor_such = ui.input(placeholder="Autor...").classes("w-48")
 
             def suche_ausfuehren():
                 isbn  = isbn_such.value.strip()
@@ -90,7 +82,7 @@ def _exemplare_verwalten():
                 if not treffer:
                     exemplar_container.clear()
                     with exemplar_container:
-                        ui.label("Keine Bücher gefunden.").style("color:#888")
+                        ui.label("Keine Bücher gefunden.").classes("text-gray-400")
                     return
                 if len(treffer) == 1:
                     exemplare_laden(treffer[0]["isbn"])
@@ -99,25 +91,21 @@ def _exemplare_verwalten():
                     with exemplar_container:
                         ui.label(
                             f"{len(treffer)} Bücher gefunden – bitte auswählen:"
-                        ).style("color:#555; margin-bottom:0.5rem")
+                        ).classes("text-gray-500 mb-2")
                         for b in treffer:
-                            with ui.card().classes("w-full").style("padding:0.75rem"):
+                            with ui.card().classes("w-full p-3"):
                                 with ui.row().classes("justify-between items-center w-full"):
                                     with ui.column():
-                                        ui.label(b["titel"]).style("font-weight:600")
+                                        ui.label(b["titel"]).classes("font-semibold")
                                         ui.label(
                                             f"{b['autor']} · ISBN: {b['isbn']}"
-                                        ).style("color:#666; font-size:0.85rem")
+                                        ).classes("text-gray-500 text-sm")
                                     ui.button(
                                         "Auswählen",
                                         on_click=lambda _, i=b["isbn"]: exemplare_laden(i),
-                                    ).style(
-                                        "background:#2563eb; color:white; font-size:0.8rem"
-                                    )
+                                    ).classes("bg-blue-600 text-white text-xs")
 
-            ui.button("Suchen", on_click=suche_ausfuehren).style(
-                "background:#2563eb; color:white"
-            )
+            ui.button("Suchen", on_click=suche_ausfuehren).classes("bg-blue-600 text-white")
             ui.button(
                 "Zurücksetzen",
                 on_click=lambda: (
@@ -140,12 +128,10 @@ def _exemplare_verwalten():
                 exemplare_laden(isbn)
 
             with ui.dialog() as dialog, ui.card():
-                ui.label("Exemplar wirklich löschen?").style("font-weight:600")
-                ui.label(f"Exemplar-ID: {exemplar_id}").style("color:#666")
+                ui.label("Exemplar wirklich löschen?").classes("font-semibold")
+                ui.label(f"Exemplar-ID: {exemplar_id}").classes("text-gray-500")
                 with ui.row().classes("gap-2 mt-2"):
-                    ui.button("Ja, löschen", on_click=bestaetigen).style(
-                        "background:#dc2626; color:white"
-                    )
+                    ui.button("Ja, löschen", on_click=bestaetigen).classes("bg-red-600 text-white")
                     ui.button("Abbrechen", on_click=dialog.close).props("outline")
             dialog.open()
 
@@ -159,7 +145,7 @@ def _exemplare_verwalten():
                 buch = buch_service.buch_laden(isbn)
             except ValueError:
                 with exemplar_container:
-                    ui.label("Kein Buch mit dieser ISBN gefunden.").style("color:#888")
+                    ui.label("Kein Buch mit dieser ISBN gefunden.").classes("text-gray-400")
                 return
 
             buch_titel = buch.titel if hasattr(buch, "titel") else buch.get("titel", "?")
@@ -167,18 +153,14 @@ def _exemplare_verwalten():
             with exemplar_container:
                 ui.label(
                     f"Buch: {buch_titel} — {len(alle)} Exemplar(e)"
-                ).style("font-weight:600; margin-bottom:0.5rem")
+                ).classes("font-semibold mb-2")
                 for ex in alle:
-                    farbe = "#16a34a" if ex["status"] == "verfuegbar" else "#dc2626"
-                    with ui.card().classes("w-full").style("padding:0.75rem"):
+                    farbe = "text-green-600" if ex["status"] == "verfuegbar" else "text-red-600"
+                    with ui.card().classes("w-full p-3"):
                         with ui.row().classes("justify-between items-center w-full"):
                             with ui.column():
-                                ui.label(f"Exemplar-ID: {ex['exemplar_id']}").style(
-                                    "font-size:0.9rem"
-                                )
-                                ui.label(f"Status: {ex['status']}").style(
-                                    f"color:{farbe}; font-size:0.85rem"
-                                )
+                                ui.label(f"Exemplar-ID: {ex['exemplar_id']}").classes("text-sm")
+                                ui.label(f"Status: {ex['status']}").classes(f"{farbe} text-sm")
                             ex_id = ex["exemplar_id"]
                             if ex["status"] != "verfuegbar":
                                 ui.button(
@@ -188,22 +170,16 @@ def _exemplare_verwalten():
                                         ui.notify("Status aktualisiert.", color="positive"),
                                         exemplare_laden(s),
                                     ),
-                                ).style(
-                                    "background:#16a34a; color:white; font-size:0.8rem"
-                                )
+                                ).classes("bg-green-600 text-white text-xs")
                             ui.button(
                                 "🗑️ Löschen",
                                 on_click=lambda _, i=ex_id, s=isbn: exemplar_loeschen(i, s),
-                            ).style("background:#dc2626; color:white; font-size:0.8rem")
+                            ).classes("bg-red-600 text-white text-xs")
 
                 ui.separator()
-                ui.label("Neues Exemplar hinzufügen").style(
-                    "font-weight:600; margin-top:0.5rem"
-                )
+                ui.label("Neues Exemplar hinzufügen").classes("font-semibold mt-2")
                 with ui.row().classes("items-center gap-2"):
-                    anzahl_in = ui.number("Anzahl Exemplare", min=1, max=20, value=1).style(
-                        "width:200px"
-                    )
+                    anzahl_in = ui.number("Anzahl Exemplare", min=1, max=20, value=1).classes("w-48")
 
                 def exemplar_hinzufuegen(isbn=isbn):
                     anzahl = int(anzahl_in.value or 1)
@@ -223,8 +199,8 @@ def _exemplare_verwalten():
                         )
                     exemplare_laden(isbn)
 
-                ui.button("Exemplare hinzufügen", on_click=exemplar_hinzufuegen).style(
-                    "background:#2563eb; color:white; margin-top:0.5rem"
+                ui.button("Exemplare hinzufügen", on_click=exemplar_hinzufuegen).classes(
+                    "bg-blue-600 text-white mt-2"
                 )
 
 
@@ -233,9 +209,7 @@ def _exemplare_verwalten():
 # ─────────────────────────────────────────────
 
 def _buch_hinzufuegen():
-    ui.label("➕ Neues Buch hinzufügen").style(
-        "font-weight:600; margin-bottom:0.5rem"
-    )
+    ui.label("➕ Neues Buch hinzufügen").classes("font-semibold mb-2")
     titel_in     = ui.input("Titel").classes("w-full")
     autor_in     = ui.input("Autor").classes("w-full")
     isbn_in      = ui.input("ISBN").classes("w-full")
@@ -288,9 +262,7 @@ def _buch_hinzufuegen():
         except ValueError as e:
             ui.notify(f"❌ {e}", color="negative")
 
-    ui.button("Buch speichern", on_click=buch_hinzufuegen).style(
-        "background:#2563eb; color:white; margin-top:0.5rem"
-    )
+    ui.button("Buch speichern", on_click=buch_hinzufuegen).classes("bg-blue-600 text-white mt-2")
 
 
 # ─────────────────────────────────────────────
@@ -298,12 +270,12 @@ def _buch_hinzufuegen():
 # ─────────────────────────────────────────────
 
 def _buch_loeschen():
-    ui.label("🗑️ Buch löschen").style("font-weight:600; margin-top:0.5rem")
+    ui.label("🗑️ Buch löschen").classes("font-semibold mt-2")
 
     with ui.row().classes("gap-2"):
-        isbn_loeschen  = ui.input("ISBN").style("width:150px")
-        titel_loeschen = ui.input("Titel").style("width:150px")
-        autor_loeschen = ui.input("Autor").style("width:150px")
+        isbn_loeschen  = ui.input("ISBN").classes("w-36")
+        titel_loeschen = ui.input("Titel").classes("w-36")
+        autor_loeschen = ui.input("Autor").classes("w-36")
 
     loeschen_container = ui.column().classes("w-full gap-2")
 
@@ -327,22 +299,22 @@ def _buch_loeschen():
 
         if not treffer:
             with loeschen_container:
-                ui.label("Keine Bücher gefunden.").style("color:#888")
+                ui.label("Keine Bücher gefunden.").classes("text-gray-400")
             return
 
         with loeschen_container:
             for b in treffer:
-                with ui.card().classes("w-full").style("padding:0.75rem"):
+                with ui.card().classes("w-full p-3"):
                     with ui.row().classes("justify-between items-center w-full"):
                         with ui.column():
-                            ui.label(b["titel"]).style("font-weight:600")
+                            ui.label(b["titel"]).classes("font-semibold")
                             ui.label(
                                 f"{b['autor']} · {b['jahr']} · ISBN: {b['isbn']}"
-                            ).style("color:#666; font-size:0.85rem")
+                            ).classes("text-gray-500 text-sm")
                         ui.button(
                             "🗑️ Löschen",
                             on_click=lambda _, buch=b: buch_loeschen_bestaetigen(buch),
-                        ).style("background:#dc2626; color:white; font-size:0.8rem")
+                        ).classes("bg-red-600 text-white text-xs")
 
     def buch_loeschen_bestaetigen(buch):
         def bestaetigen():
@@ -356,21 +328,17 @@ def _buch_loeschen():
                 dialog.close()
 
         with ui.dialog() as dialog, ui.card():
-            ui.label("Buch wirklich löschen?").style("font-weight:600")
+            ui.label("Buch wirklich löschen?").classes("font-semibold")
             ui.label(
                 f"'{buch['titel']}' von {buch['autor']} wird unwiderruflich gelöscht."
-            ).style("color:#666")
+            ).classes("text-gray-500")
             with ui.row().classes("gap-2 mt-2"):
-                ui.button("Ja, löschen", on_click=bestaetigen).style(
-                    "background:#dc2626; color:white"
-                )
+                ui.button("Ja, löschen", on_click=bestaetigen).classes("bg-red-600 text-white")
                 ui.button("Abbrechen", on_click=dialog.close).props("outline")
         dialog.open()
 
     with ui.row().classes("gap-2"):
-        ui.button("Suchen", on_click=buecher_zum_loeschen_suchen).style(
-            "background:#2563eb; color:white"
-        )
+        ui.button("Suchen", on_click=buecher_zum_loeschen_suchen).classes("bg-blue-600 text-white")
         ui.button(
             "Zurücksetzen",
             on_click=lambda: (
@@ -387,12 +355,12 @@ def _buch_loeschen():
 # ─────────────────────────────────────────────
 
 def _buch_bearbeiten():
-    ui.label("✏️ Buch bearbeiten").style("font-weight:600; margin-top:0.5rem")
+    ui.label("✏️ Buch bearbeiten").classes("font-semibold mt-2")
 
     with ui.row().classes("gap-2"):
-        isbn_bearb_such  = ui.input("ISBN").style("width:150px")
-        titel_bearb_such = ui.input("Titel").style("width:150px")
-        autor_bearb_such = ui.input("Autor").style("width:150px")
+        isbn_bearb_such  = ui.input("ISBN").classes("w-36")
+        titel_bearb_such = ui.input("Titel").classes("w-36")
+        autor_bearb_such = ui.input("Autor").classes("w-36")
 
     bearb_container = ui.column().classes("w-full gap-2")
 
@@ -416,16 +384,16 @@ def _buch_bearbeiten():
 
         if not treffer:
             with bearb_container:
-                ui.label("Keine Bücher gefunden.").style("color:#888")
+                ui.label("Keine Bücher gefunden.").classes("text-gray-400")
             return
 
         with bearb_container:
             for b in treffer:
-                with ui.card().classes("w-full").style("padding:0.75rem"):
+                with ui.card().classes("w-full p-3"):
                     ui.label(
                         f"{b['titel']} — {b['autor']} · {b['jahr']}"
-                    ).style("font-weight:600")
-                    ui.label(f"ISBN: {b['isbn']}").style("color:#888; font-size:0.8rem")
+                    ).classes("font-semibold")
+                    ui.label(f"ISBN: {b['isbn']}").classes("text-gray-400 text-xs")
 
                     neue_isbn   = ui.input("Neue ISBN", value=b["isbn"]).classes("w-full")
                     neuer_titel = ui.input("Neuer Titel", value=b["titel"]).classes("w-full")
@@ -461,14 +429,12 @@ def _buch_bearbeiten():
                         except Exception:
                             ui.notify("❌ Fehler beim Speichern.", color="negative")
 
-                    ui.button("💾 Speichern", on_click=speichern).style(
-                        "background:#2563eb; color:white; margin-top:0.5rem"
+                    ui.button("💾 Speichern", on_click=speichern).classes(
+                        "bg-blue-600 text-white mt-2"
                     )
 
     with ui.row().classes("gap-2"):
-        ui.button("Suchen", on_click=buecher_zum_bearbeiten_suchen).style(
-            "background:#2563eb; color:white"
-        )
+        ui.button("Suchen", on_click=buecher_zum_bearbeiten_suchen).classes("bg-blue-600 text-white")
         ui.button(
             "Zurücksetzen",
             on_click=lambda: (
