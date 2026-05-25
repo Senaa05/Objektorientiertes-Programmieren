@@ -18,7 +18,7 @@ def zeige_login():
         # ── Tab-Buttons ──
         with ui.row().classes("w-full mb-4 overflow-hidden rounded border border-gray-300"):
             login_btn = ui.button("Login", on_click=lambda: zeige_tab("login")).classes(
-                "flex-1 rounded-none bg-black text-white"
+                "flex-1 rounded-none bg-blue-600 text-white"
             )
             reg_btn = ui.button("Registrieren", on_click=lambda: zeige_tab("register")).classes(
                 "flex-1 rounded-none bg-white text-black"
@@ -58,7 +58,7 @@ def zeige_login():
                 ui.navigate.to("/dashboard")
 
             ui.button("Login", on_click=anmelden).classes(
-                "w-full bg-black text-white mt-2"
+                "w-full bg-blue-600 text-white mt-2"
             )
 
         # ── REGISTRIEREN FELDER ──
@@ -103,7 +103,7 @@ def zeige_login():
                     fehler_label.set_text("Fehler beim Speichern des Benutzers.")
 
             ui.button("Registrieren", on_click=registrieren).classes(
-                "w-full bg-black text-white mt-2"
+                "w-full bg-blue-600 text-white mt-2"
             )
 
         # ── Tab-Wechsel Logik ──
@@ -112,10 +112,10 @@ def zeige_login():
             if tab == "login":
                 login_panel.style("display:block")
                 reg_panel.style("display:none")
-                login_btn.classes(remove="bg-white text-black").classes(add="bg-black text-white")
-                reg_btn.classes(remove="bg-black text-white").classes(add="bg-white text-black")
+                login_btn.classes(remove="bg-white text-black").classes(add="bg-blue-600 text-white")
+                reg_btn.classes(remove="bg-blue-600 text-white").classes(add="bg-white text-black")
             else:
                 login_panel.style("display:none")
                 reg_panel.style("display:block")
-                login_btn.classes(remove="bg-black text-white").classes(add="bg-white text-black")
-                reg_btn.classes(remove="bg-white text-black").classes(add="bg-black text-white")
+                login_btn.classes(remove="bg-blue-600 text-white").classes(add="bg-white text-black")
+                reg_btn.classes(remove="bg-white text-black").classes(add="bg-blue-600 text-white")
