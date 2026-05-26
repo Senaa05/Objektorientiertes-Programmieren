@@ -216,6 +216,37 @@ def _label_klassen(karussell: bool) -> str:
     return _LABEL_KARUSSELL if karussell else _LABEL_LISTE
 
 
+def _nach_bild_geladen(bild: ui.image, platzhalter: ui.element) -> None:
+    """Platzhalter nur ausblenden, wenn das Bild wirklich gross genug ist (wie früher onload)."""
+    bild.run_javascript(
+        f"""
+        (() => {{
+            const root = getElement({bild.id});
+            const ph = getElement({platzhalter.id});
+            if (!root || !ph) return;
+            const img = root.querySelector('img');
+            if (!img) {{
+                root.style.display = 'none';
+                ph.style.display = '';
+                return;
+            }}
+            const pruefen = () => {{
+                const ok = img.naturalWidth > 50 && img.naturalHeight > 50;
+                if (ok) {{
+                    ph.style.display = 'none';
+                    root.style.display = '';
+                }} else {{
+                    root.style.display = 'none';
+                    ph.style.display = '';
+                }}
+            }};
+            if (img.complete) pruefen();
+            else img.addEventListener('load', pruefen, {{ once: true }});
+        }})()
+        """
+    )
+
+
 def _zeige_nur_platzhalter(
     titel: str,
     *,
@@ -260,7 +291,7 @@ def _zeige_cover_mit_bild(
         retry = {"done": False}
 
         def bei_laden(_event=None) -> None:
-            platzhalter.visible = False
+            _nach_bild_geladen(bild, platzhalter)
 
         def bei_fehler(_event=None) -> None:
             if not retry["done"]:
@@ -268,6 +299,7 @@ def _zeige_cover_mit_bild(
                 bild.set_source(api_url)
             else:
                 bild.visible = False
+                platzhalter.visible = True
 
         bild.on("load", bei_laden)
         bild.on("error", bei_fehler)
@@ -299,6 +331,12 @@ def zeige_buch_cover(
 
     src = cover_bild_pfad(isbn, titel, autor)
     if not src:
+        _zeige_nur_platzhalter(titel, breite=breite, hoehe=hoehe, rund=rund, karussell=karussell)
+        return
+
+    # Bereits bekannt: kein Cover in der API → nur farbiger Platzhalter
+    cache_key = _cache_key(isbn, titel, autor)
+    if cache_key in _bytes_cache and not _bytes_cache[cache_key][0]:
         _zeige_nur_platzhalter(titel, breite=breite, hoehe=hoehe, rund=rund, karussell=karussell)
         return
 
