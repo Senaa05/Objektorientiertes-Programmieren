@@ -255,7 +255,18 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 
 ## Mockup
 ### Login und Registration Seite
+
 <img width="1560" height="622" alt="image" src="https://github.com/user-attachments/assets/9ed984da-5728-4247-b370-a75cb9662af6" />
+
+### Startseite Benutzersicht
+
+<img width="707" height="358" alt="Bildschirmfoto 2026-05-26 um 19 15 59" src="https://github.com/user-attachments/assets/be683fae-d4ec-4a7a-9ce8-7c1a13f51521" />
+
+### Adminbereich mit überfällige Ausleihen, Buch erstellen und Buch löschen
+
+<img width="1136" height="683" alt="Bildschirmfoto 2026-05-26 um 20 09 08" src="https://github.com/user-attachments/assets/5215baee-c1e8-4450-b581-aaf5f0cc7415" />
+
+
 
 
 ## Architektur
