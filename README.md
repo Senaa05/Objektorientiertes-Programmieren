@@ -254,6 +254,7 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 - Benutzer
 
 ## Mockup
+### Login und Registration Seite
 <img width="1560" height="622" alt="image" src="https://github.com/user-attachments/assets/9ed984da-5728-4247-b370-a75cb9662af6" />
 
 
