@@ -328,6 +328,58 @@ Die Applikation stellt sicher, dass alle Eingaben und Operationen durch gezielte
 
 ## Repository Struktur
 
+```text
+Objektorientiertes-Programmieren/
+├── main.py
+├── README.md
+├── requirements.txt
+├── Backend/
+│   ├── __init__.py
+│   ├── modelle/
+│   │   ├── __init__.py
+│   │   ├── ausleihe.py
+│   │   ├── benutzer.py
+│   │   ├── buch.py
+│   │   ├── exemplar.py
+│   │   └── merkliste.py
+│   └── services/
+│       ├── __init__.py
+│       ├── ausleihe_service.py
+│       ├── benutzer_service.py
+│       ├── buch_service.py
+│       └── merkliste_service.py
+├── Datenbank/
+│   ├── __init__.py
+│   ├── orm_manager.py
+│   ├── orm_models.py
+│   ├── seed_demo_daten.py
+│   ├── test_db_util.py
+│   └── alternative/
+│       └── DatenbankManager.py
+├── Frontend/
+│   ├── __init__.py
+│   ├── buch_cover.py
+│   ├── dashboard.py
+│   ├── login.py
+│   ├── main_ui.py
+│   ├── state.py
+│   └── tabs/
+│       ├── __init__.py
+│       ├── tab_admin.py
+│       ├── tab_ausleihen.py
+│       ├── tab_buecher.py
+│       └── tab_merkliste.py
+├── Diagramm/
+├── logs/
+├── Mockups/
+│   ├── Admin_Sicht/
+│   └── Benutzer_Sicht/
+└── Test_Cases/
+    ├── TC_001_Login_Integrationstest.py
+    ├── TC_002_Datenbank_Test.py
+    └── TC_003_Popup_Ueberfaellig_Test.py
+```
+
 ## Projektmanagement
 ### Projektziele
 - Zentralisierte Verwaltung von Büchern und Ausleihen.

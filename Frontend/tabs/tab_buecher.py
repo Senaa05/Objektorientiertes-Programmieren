@@ -52,6 +52,7 @@ def baue_buecher_tab(tab_refresh: dict):
                         with ui.element("div").classes("p-2 flex flex-col gap-1 w-full box-border flex-1"):
                             ui.label(buch["titel"]).style(
                                 "font-weight:700; font-size:0.8rem; line-height:1.2; "
+                                "min-height:calc(0.8rem * 1.2 * 2); "
                                 "display:-webkit-box; -webkit-line-clamp:2; "
                                 "-webkit-box-orient:vertical; overflow:hidden;"
                             )
@@ -63,9 +64,9 @@ def baue_buecher_tab(tab_refresh: dict):
                                 ui.button(
                                     "Ausleihen",
                                     on_click=lambda _, i=isbn_kopie: buch_ausleihen(i),
-                                ).classes("w-full bg-blue-600 text-white")
+                                ).classes("w-full bg-blue-600 text-white mt-auto")
                             elif not verfuegbar:
-                                ui.label("Nicht verfügbar").classes("text-red-600 text-xs mt-1")
+                                ui.label("Nicht verfügbar").classes("text-red-600 text-xs mt-auto")
 
             ui.button(
                 "→",

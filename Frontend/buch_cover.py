@@ -4,7 +4,6 @@ Buchcover für die UI — Open Library (ISBN + Titelsuche).
 Anzeige per nativem <img> und Route /buchcover/{isbn} (zuverlässig in NiceGUI).
 """
 
-import html
 import json
 import re
 import urllib.error
@@ -24,6 +23,18 @@ OPEN_LIBRARY_SEARCH = "https://openlibrary.org/search.json"
 OPEN_LIBRARY_COVER_ID = "https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
 
 PLATZHALTER_FARBEN = ["#fce7f3", "#dbeafe", "#dcfce7", "#fef9c3", "#ede9fe", "#ffedd5"]
+
+# Tailwind-Klassen für Cover-Rahmen und Inhalt
+_RAHMEN = "shrink-0 overflow-hidden border border-slate-200 shadow-md box-border"
+_KARUSSELL_BOX = f"w-40 h-[140px] {_RAHMEN}"
+_LISTE_BOX = f"w-24 h-36 min-w-24 max-w-24 min-h-36 rounded-lg {_RAHMEN} self-stretch"
+_PLATZHALTER_SCHICHT = (
+    "absolute inset-0 z-0 flex items-center justify-center p-2 "
+    "text-center font-semibold text-slate-700 break-words box-border"
+)
+_LABEL_KARUSSELL = "text-xs leading-tight line-clamp-4 m-0 w-full"
+_LABEL_LISTE = "text-[0.7rem] leading-snug line-clamp-5 m-0 w-full px-1.5"
+_BILD = "absolute inset-0 z-[1] w-full h-full object-cover"
 
 _bytes_cache: dict[str, Tuple[bytes, str]] = {}
 _route_registriert = False
@@ -186,6 +197,25 @@ def registriere_cover_route() -> None:
     _route_registriert = True
 
 
+def _box_klassen(karussell: bool, breite: str, hoehe: str, rund: str, *, mit_bild: bool = False) -> str:
+    if karussell:
+        klassen = _KARUSSELL_BOX
+    elif breite == "96px" and hoehe == "144px" and rund == "8px":
+        klassen = _LISTE_BOX
+    else:
+        klassen = (
+            f"w-[{breite}] min-w-[{breite}] max-w-[{breite}] "
+            f"h-[{hoehe}] min-h-[{hoehe}] rounded-[{rund}] {_RAHMEN} self-stretch"
+        )
+    if mit_bild:
+        klassen += " relative"
+    return klassen
+
+
+def _label_klassen(karussell: bool) -> str:
+    return _LABEL_KARUSSELL if karussell else _LABEL_LISTE
+
+
 def _zeige_nur_platzhalter(
     titel: str,
     *,
@@ -197,38 +227,50 @@ def _zeige_nur_platzhalter(
     """Farbkasten mit Buchtitel — volle Cover-Fläche."""
     farbe = _platzhalter_farbe(titel)
     titel_anzeige = (titel or "Unbekannt").strip()
-    schrift = (
-        "font-weight:600; font-size:0.75rem; line-height:1.2; color:#334155; "
-        "text-align:center; padding:0.5rem; box-sizing:border-box; width:100%; "
-        "display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; "
-        "overflow:hidden; word-break:break-word; margin:0;"
-    )
-    if not karussell:
-        schrift = (
-            "font-weight:600; font-size:0.7rem; line-height:1.15; color:#334155; "
-            "text-align:center; padding:0.35rem; box-sizing:border-box; width:100%; "
-            "display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; "
-            "overflow:hidden; word-break:break-word; margin:0;"
-        )
+    box = _box_klassen(karussell, breite, hoehe, rund)
+    with ui.element("div").classes(f"{box} flex items-center justify-center").style(
+        f"background-color:{farbe}"
+    ):
+        ui.label(titel_anzeige).classes(_label_klassen(karussell))
 
-    rahmen = (
-        f"width:{breite}; min-width:{breite}; max-width:{breite}; "
-        f"height:{hoehe}; min-height:{hoehe}; flex-shrink:0; align-self:stretch; "
-        f"border-radius:{rund}; overflow:hidden; background:{farbe}; "
-        "display:flex; align-items:center; justify-content:center; box-sizing:border-box; "
-        "box-shadow:0 2px 8px rgba(15,23,42,0.12); border:1px solid #e2e8f0;"
-    )
-    if karussell:
-        with ui.element("div").style(
-            "width:160px; height:140px; flex-shrink:0; display:flex; "
-            f"align-items:center; justify-content:center; border-radius:{rund}; "
-            f"overflow:hidden; background:{farbe}; box-sizing:border-box; "
-            "box-shadow:0 2px 8px rgba(15,23,42,0.12); border:1px solid #e2e8f0;"
-        ):
-            ui.label(titel_anzeige).style(schrift)
-    else:
-        with ui.element("div").style(rahmen):
-            ui.label(titel_anzeige).style(schrift)
+
+def _zeige_cover_mit_bild(
+    titel: str,
+    farbe: str,
+    ol_url: str,
+    api_url: str,
+    *,
+    breite: str,
+    hoehe: str,
+    rund: str,
+    karussell: bool,
+) -> None:
+    """Cover-Bild mit farbigem Platzhalter-Fallback (Open Library → API-Route)."""
+    titel_anzeige = (titel or "Unbekannt").strip()
+    box = _box_klassen(karussell, breite, hoehe, rund, mit_bild=True)
+
+    with ui.element("div").classes(box):
+        platzhalter = ui.element("div").classes(_PLATZHALTER_SCHICHT).style(
+            f"background-color:{farbe}"
+        )
+        with platzhalter:
+            ui.label(titel_anzeige).classes(_label_klassen(karussell))
+
+        bild = ui.image(ol_url).classes(_BILD)
+        retry = {"done": False}
+
+        def bei_laden(_event=None) -> None:
+            platzhalter.visible = False
+
+        def bei_fehler(_event=None) -> None:
+            if not retry["done"]:
+                retry["done"] = True
+                bild.set_source(api_url)
+            else:
+                bild.visible = False
+
+        bild.on("load", bei_laden)
+        bild.on("error", bei_fehler)
 
 
 def zeige_buch_cover(
@@ -244,7 +286,7 @@ def zeige_buch_cover(
     """Echtes Cover oder farbiger Platzhalter mit Titel."""
     registriere_cover_route()
 
-    # Karussell-Karten sind 160px breit — feste Maße, sonst lädt ui.html kein Bild
+    # Karussell-Karten sind 160×140 px (Tailwind w-40 h-[140px])
     if karussell:
         breite = "160px"
         hoehe = "140px"
@@ -255,52 +297,18 @@ def zeige_buch_cover(
         _zeige_nur_platzhalter(titel, breite=breite, hoehe=hoehe, rund=rund, karussell=karussell)
         return
 
-    titel_anzeige = html.escape((titel or "Unbekannt").strip())
     src = cover_bild_pfad(isbn, titel, autor)
     if not src:
         _zeige_nur_platzhalter(titel, breite=breite, hoehe=hoehe, rund=rund, karussell=karussell)
         return
 
-    farbe = _platzhalter_farbe(titel)
-    ol_direkt = OPEN_LIBRARY_ISBN.format(isbn=raw)
-    api_src = html.escape(src)
-
-    if karussell:
-        schrift = "font-size:0.75rem; -webkit-line-clamp:4;"
-    else:
-        schrift = "font-size:0.7rem; -webkit-line-clamp:5;"
-
-    rahmen = (
-        f"width:{breite}; min-width:{breite}; max-width:{breite}; "
-        f"height:{hoehe}; min-height:{hoehe}; flex-shrink:0; align-self:stretch; "
-        f"border-radius:{rund}; overflow:hidden; position:relative; "
-        f"box-sizing:border-box; box-shadow:0 2px 8px rgba(15,23,42,0.12); "
-        "border:1px solid #e2e8f0;"
+    _zeige_cover_mit_bild(
+        titel,
+        _platzhalter_farbe(titel),
+        OPEN_LIBRARY_ISBN.format(isbn=raw),
+        src,
+        breite=breite,
+        hoehe=hoehe,
+        rund=rund,
+        karussell=karussell,
     )
-    platzhalter = (
-        f"position:absolute; inset:0; z-index:0; background:{farbe}; "
-        "display:flex; align-items:center; justify-content:center; "
-        "padding:0.35rem; box-sizing:border-box; text-align:center; "
-        f"font-weight:600; color:#334155; line-height:1.15; word-break:break-word; {schrift}"
-    )
-    bild = (
-        "position:absolute; inset:0; z-index:1; width:100%; height:100%; "
-        "object-fit:cover; display:block;"
-    )
-    cover_html = f"""
-        <div style="{rahmen}">
-            <div class="bibflow-cover-ph" style="{platzhalter}">{titel_anzeige}</div>
-            <img class="bibflow-cover-img" src="{html.escape(ol_direkt)}" alt="{titel_anzeige}"
-                 style="{bild}"
-                 onload="if(this.naturalWidth>50&&this.naturalHeight>50){{this.previousElementSibling.style.display='none'}}else{{this.style.display='none'}}"
-                 onerror="if(!this.dataset.retry){{this.dataset.retry='1';this.src='{api_src}';}}
-                          else{{this.style.display='none'}}">
-        </div>
-    """
-    if karussell:
-        with ui.element("div").style(
-            "width:160px; height:140px; flex-shrink:0; display:block;"
-        ):
-            ui.html(cover_html, sanitize=False)
-    else:
-        ui.html(cover_html, sanitize=False)
