@@ -38,8 +38,7 @@ class ORMDatenbankManager:
                 session.add(buch)
                 session.commit()
                 return True
-        except Exception as e:
-            print(f"Fehler beim Speichern des Buches: {e}")
+        except Exception:
             return False
     
     def buch_laden(self, isbn: str) -> Optional[Dict]:
@@ -85,8 +84,7 @@ class ORMDatenbankManager:
                     buch.isbn = isbn_neu
                 session.commit()
                 return True
-        except Exception as e:
-            print(f"Fehler beim Bearbeiten des Buches: {e}")
+        except Exception:
             return False
 
     def buch_loeschen(self, isbn: str) -> bool:
@@ -104,8 +102,7 @@ class ORMDatenbankManager:
                     session.commit()
                     return True
                 return False
-        except Exception as e:
-            print(f"Fehler beim Löschen des Buches: {e}")
+        except Exception:
             return False
 
     def beliebteste_buecher_laden(self, limit: int = 5) -> List[Dict]:
@@ -183,8 +180,7 @@ class ORMDatenbankManager:
                 session.add(exemplar)
                 session.commit()
                 return True
-        except Exception as e:
-            print(f"Fehler beim Speichern des Exemplars: {e}")
+        except Exception:
             return False
     
     def verfuegbare_exemplare(self, isbn: str) -> List[Dict]:
@@ -231,8 +227,7 @@ class ORMDatenbankManager:
                 session.delete(exemplar)
                 session.commit()
                 return True
-        except Exception as e:
-            print(f"Fehler beim Löschen des Exemplars: {e}")
+        except Exception:
             return False
 
     def exemplare_fuer_buch_anlegen(self, isbn: str, anzahl: int) -> bool:
@@ -265,8 +260,7 @@ class ORMDatenbankManager:
                     session.commit()
                     return True
                 return False
-        except Exception as e:
-            print(f"Fehler beim Aktualisieren des Exemplar-Status: {e}")
+        except Exception:
             return False
 
     def exemplar_ausleihe_laden(self, exemplar_id: str) -> Optional[Dict]:
@@ -313,8 +307,7 @@ class ORMDatenbankManager:
                 session.add(benutzer)
                 session.commit()
                 return True
-        except Exception as e:
-            print(f"Fehler beim Speichern des Benutzers: {e}")
+        except Exception:
             return False
     
     def benutzer_laden(self, benutzername: str) -> Optional[Dict]:
@@ -360,8 +353,7 @@ class ORMDatenbankManager:
                 benutzer.passwort = passwort_hash
                 session.commit()
                 return True
-        except Exception as e:
-            print(f"Fehler beim Aktualisieren des Passworts: {e}")
+        except Exception:
             return False
 
     def alle_benutzer_laden(self) -> List[Dict]:
@@ -400,8 +392,7 @@ class ORMDatenbankManager:
                 session.add(ausleihe)
                 session.commit()
                 return True
-        except Exception as e:
-            print(f"Fehler beim Speichern der Ausleihe: {e}")
+        except Exception:
             return False
     
     def ausleih_laden(self, ausleih_id: str) -> Optional[Dict]:
@@ -527,8 +518,7 @@ class ORMDatenbankManager:
                     session.commit()
                     return True
                 return False
-        except Exception as e:
-            print(f"Fehler beim Verlängern der Ausleihe: {e}")
+        except Exception:
             return False
     
     def ausleihe_rueckgabe(self, ausleih_id: str) -> bool:
@@ -551,8 +541,7 @@ class ORMDatenbankManager:
                     session.commit()
                     return True
                 return False
-        except Exception as e:
-            print(f"Fehler bei der Ausleih-Rückgabe: {e}")
+        except Exception:
             return False
 
     # Aliase wie DatenbankManager (Services nutzen ausleih_*)
@@ -582,8 +571,7 @@ class ORMDatenbankManager:
                     session.commit()
                     return True
                 return False
-        except Exception as e:
-            print(f"Fehler beim Hinzufügen zur Merkliste: {e}")
+        except Exception:
             return False
     
     def merkliste_laden(self, benutzername: str) -> List[Dict]:
@@ -641,8 +629,7 @@ class ORMDatenbankManager:
                     session.commit()
                     return True
                 return False
-        except Exception as e:
-            print(f"Fehler beim Entfernen aus der Merkliste: {e}")
+        except Exception:
             return False
     
     def schliessen(self):
