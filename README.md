@@ -289,6 +289,32 @@ Die folgenden Anforderungen wurden für Bibflow umgesetzt und dienen als Nachwei
 - Für die Datenverwaltung wird ein ORM eingesetzt, konkret SQLAlchemy mit einer lokalen SQLite-Datenbank.
 - Die Anwendung ist rollenbasiert aufgebaut und trennt Benutzer- und Administratorfunktionen klar voneinander.
 
+## Design Entscheidungen
+
+Für Bibflow wurden folgende Design-Entscheidungen (kurz) festgehalten:
+
+- **Trennung von Buch und Exemplar**:
+    - Das `Buch` enthält die allgemeinen Metadaten eines Werkes (Titel, Autor, ISBN, Jahr).
+    - Das `Exemplar` ist das konkrete physische Objekt in der Bibliothek und besitzt einen eigenen Status (z. B. „verfügbar“, „ausgeliehen“).
+    - Diese Trennung erlaubt, mehrere Exemplare desselben Buches separat zu verwalten und genau nachzuverfolgen, welches Exemplar ausgeliehen ist.
+    - Das Buch beschreibt das Werk, das Exemplar das physische Buch, das ausgeliehen werden kann.
+
+- **Geschäftslogik der Ausleihe**:
+    - Ausleihen folgen klassischen Bibliotheksregeln: Standardfrist 30 Tage, eine Verlängerung um 14 Tage ist einmalig möglich.
+    - Diese Einschränkungen sorgen für angemessene Verfügbarkeit und einfache, nachvollziehbare Regeln für Benutzer und Verwaltung.
+
+- **Trennung von Administrator und Benutzer**:
+    - Das System unterscheidet zwischen normalen Benutzern und Administratoren. Benutzer können Bücher ausleihen, ihre Merkliste verwalten und Ausleihen verlängern; Administratoren haben zusätzliche Rechte (Bücher/Exemplare anlegen, bearbeiten, löschen, überfällige Ausleihen einsehen).
+    - Für das Projekt wurde bewusst eine einfache Rollenverwaltung gewählt: ein zentraler Administrator reicht für die Aufgaben dieses Systems; die Struktur lässt sich bei Bedarf auf mehrere Administratoren erweitern.
+
+- **UI / Benutzerführung**:
+    - Die Benutzeroberfläche wurde so gestaltet, dass wichtige Informationen sofort sichtbar sind: Der Status eines Buches bzw. Exemplars wird überall angezeigt, sodass Nutzer unmittelbar erkennen, ob ein Titel verfügbar ist.
+    - Navigation und Controls sind bewusst einfach gehalten, damit zentrale Aktionen (Ausleihe, Verlängerung, Merkliste) schnell erreichbar sind.
+
+- **Datenbank: Konsistenz & eindeutige Werte**:
+    - In der Datenbank wurden eindeutige Felder wie `isbn` und `email` genutzt, um doppelte Einträge zu verhindern und klare Grenzen zu definieren.
+    - Diese Entscheidung dient der Datenkonsistenz (Integrität der Daten) und macht die Datenhaltung zuverlässig und wartbar.
+
 ### Browser-Based App
 
 Die Anwendung ist browserbasiert und läuft in modernen Webbrowsern ohne separaten Desktop-Client. Das Frontend kommuniziert über die Service-Schicht mit dem Backend und zeigt Echtzeit-Statusupdates (z. B. Verfügbarkeit von Exemplaren). Die Oberfläche ist auf einfache Bedienbarkeit für Benutzer und Administratoren optimiert.
@@ -377,8 +403,19 @@ Objektorientiertes-Programmieren/
 └── Test_Cases/
     ├── TC_001_Login_Integrationstest.py
     ├── TC_002_Datenbank_Test.py
-    └── TC_003_Popup_Ueberfaellig_Test.py
+    ├── TC_003_Popup_Ueberfaellig_Test.py
+    └── TC_004_Unit_Tests.py
 ```
+
+## Testing
+
+**Test Mix:** Insgesamt 26 Tests
+
+Die Testdateien liegen im Ordner `Test_Cases/` und sind dort nach Testart und Szenario organisiert.
+
+- **6 Unit Tests**: Validierung der Buch- und Ausleihlogik, z. B. ungültiges Jahr, zu kurze ISBN, Duplikate, maximale 5 Ausleihen und nur eine Verlängerung
+- **11 DB Tests**: Datenbank-CRUD und Persistenz, z. B. Tabelleninitialisierung, Bücher speichern/laden, Exemplare verwalten, Benutzer speichern/laden, Ausleihen, Merkliste und Löschen
+- **9 Integration Tests**: End-to-End-Abläufe, z. B. Login mit Rollenprüfung sowie überfällige Ausleihen für Benutzer und Admin
 
 ## Projektmanagement
 ### Projektziele
