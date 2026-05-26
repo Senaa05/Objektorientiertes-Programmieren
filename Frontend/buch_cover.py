@@ -218,7 +218,7 @@ def _label_klassen(karussell: bool) -> str:
 
 def _nach_bild_geladen(bild: ui.image, platzhalter: ui.element) -> None:
     """Platzhalter nur ausblenden, wenn das Bild wirklich gross genug ist (wie früher onload)."""
-    bild.run_javascript(
+    ui.run_javascript(
         f"""
         (() => {{
             const root = getElement({bild.id});
