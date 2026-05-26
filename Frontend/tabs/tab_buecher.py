@@ -26,22 +26,22 @@ def baue_buecher_tab(tab_refresh: dict):
     beliebt = buch_service.beliebte_buecher_karussell()
 
     if beliebt:
-        with ui.row().classes("w-full items-center gap-2"):
-            pfeil_links = ui.button(
+        with ui.row().classes("w-full items-center gap-2 no-wrap"):
+            ui.button(
                 "←",
                 on_click=lambda: karussell.run_method(
                     "scrollBy", {"left": -200, "behavior": "smooth"}
                 ),
-            ).props("flat dense").classes("text-xl min-w-8")
+            ).props("flat dense").classes("text-xl min-w-8 shrink-0")
 
-            with ui.element("div").style(
-                "display:flex; gap:1rem; overflow-x:auto; overflow-y:hidden; "
-                "flex:1; scroll-behavior:smooth; padding-bottom:0.25rem;"
+            with ui.row().classes(
+                "flex-1 min-w-0 gap-4 overflow-x-auto overflow-y-hidden "
+                "scroll-smooth pb-1 no-wrap"
             ) as karussell:
                 for buch in beliebt:
-                    with ui.card().style(
-                        "min-width:160px; max-width:160px; padding:0; overflow:hidden; "
-                        "flex-shrink:0; display:flex; flex-direction:column;"
+                    with ui.card().classes(
+                        "!w-40 !min-w-40 !max-w-40 p-0 overflow-hidden "
+                        "shrink-0 grow-0 flex flex-col"
                     ):
                         zeige_buch_cover(
                             buch["isbn"],
@@ -50,11 +50,9 @@ def baue_buecher_tab(tab_refresh: dict):
                             karussell=True,
                         )
                         with ui.element("div").classes("p-2 flex flex-col gap-1 w-full box-border flex-1"):
-                            ui.label(buch["titel"]).style(
-                                "font-weight:700; font-size:0.8rem; line-height:1.2; "
-                                "min-height:calc(0.8rem * 1.2 * 2); "
-                                "display:-webkit-box; -webkit-line-clamp:2; "
-                                "-webkit-box-orient:vertical; overflow:hidden;"
+                            ui.label(buch["titel"]).classes(
+                                "font-bold text-[0.8rem] leading-[1.2] "
+                                "min-h-[calc(0.8rem*1.2*2)] line-clamp-2"
                             )
                             ui.label(buch["autor"]).classes("text-xs text-gray-500")
                             ui.label(f"📖 {buch.get('anzahl_ausleihen', 0)}× ausgeliehen").classes("text-xs text-gray-400")
@@ -73,7 +71,7 @@ def baue_buecher_tab(tab_refresh: dict):
                 on_click=lambda: karussell.run_method(
                     "scrollBy", {"left": 200, "behavior": "smooth"}
                 ),
-            ).props("flat dense").classes("text-xl min-w-8")
+            ).props("flat dense").classes("text-xl min-w-8 shrink-0")
     else:
         ui.label(
             "Noch keine Ausleih-Statistik — lege Bücher aus, um Beliebtheit zu sehen."
