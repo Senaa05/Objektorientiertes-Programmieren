@@ -254,6 +254,8 @@ Benutzer verwenden diese Applikation, wenn sie Bücher ausleihen möchten und de
 - Benutzer
 
 ## Mockup
+<img width="1560" height="622" alt="image" src="https://github.com/user-attachments/assets/9ed984da-5728-4247-b370-a75cb9662af6" />
+
 
 ## Architektur
 <img width="861" height="671" alt="architektur_v2" src="https://github.com/user-attachments/assets/cb1c900a-2483-418d-a043-ca50c0b51a6e" />
