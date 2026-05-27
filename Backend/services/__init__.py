@@ -13,7 +13,11 @@ db_pfad = os.path.join(projekt_pfad, "bibliothek_orm.db")
 logger = get_logger("services")
 
 from Datenbank.orm_manager import ORMDatenbankManager
-from Datenbank.seed_demo_daten import korrigiere_demo_isbns, seed_demo_ausleihen, seed_demo_buecher
+from Backend.bootstrap import (
+    ensure_demo_ausleihen,
+    ensure_demo_bibliotheksbestand,
+    ensure_lokale_zugaenge,
+)
 from Backend.services.buch_service import BuchService
 from Backend.services.benutzer_service import BenutzerService
 from Backend.services.merkliste_service import MerklisteService
@@ -39,85 +43,11 @@ def _initialisiere_services():
         ) from exc
 
 
-# Dokumentierter lokaler Admin (README Abschnitt „Lokaler Admin-Zugang“)
-LOKALER_ADMIN = {
-    "benutzername": "admin1",
-    "passwort": "admin123",
-    "vorname": "Lokal",
-    "nachname": "Admin",
-    "email": "admin1@bibflow.local",
-    "rolle": "Admin",
-}
-
-# Optionaler Demo-Benutzer zum Testen der Benutzer-Ansicht
-LOKALER_DEMO_BENUTZER = {
-    "benutzername": "demo",
-    "passwort": "demo123",
-    "vorname": "Demo",
-    "nachname": "Benutzer",
-    "email": "demo@bibflow.local",
-    "rolle": "Benutzer",
-}
-
-
-def _konto_anlegen_wenn_fehlt(benutzer_service: BenutzerService, konto: dict) -> None:
-    if benutzer_service.db.benutzer_laden(konto["benutzername"]):
-        return
-    try:
-        benutzer_service.benutzer_registrieren(**konto)
-    except ValueError as exc:
-        logger.warning(
-            "Lokales Konto '%s' konnte nicht angelegt werden: %s",
-            konto["benutzername"],
-            exc,
-        )
-
-
-def _ensure_lokaler_admin(benutzer_service: BenutzerService) -> None:
-    """Stellt den dokumentierten Admin admin1 immer bereit (anlegen oder README-Passwort sicherstellen)."""
-    from Backend.services.benutzer_service import _passwort_hashen
-
-    bn = LOKALER_ADMIN["benutzername"]
-    pw = LOKALER_ADMIN["passwort"]
-
-    try:
-        benutzer_service.login(bn, pw)
-        return
-    except ValueError:
-        pass
-
-    if benutzer_service.db.benutzer_laden(bn):
-        benutzer_service.db.benutzer_passwort_aktualisieren(bn, _passwort_hashen(pw))
-        return
-
-    try:
-        benutzer_service.benutzer_registrieren(**LOKALER_ADMIN)
-    except ValueError as exc:
-        logger.warning("Lokaler Admin '%s' konnte nicht angelegt werden: %s", bn, exc)
-
-
-def _ensure_lokale_zugaenge(benutzer_service: BenutzerService) -> None:
-    """Lokaler Admin ist immer vorhanden; Demo-Benutzer nur bei Bedarf."""
-    _ensure_lokaler_admin(benutzer_service)
-    _konto_anlegen_wenn_fehlt(benutzer_service, LOKALER_DEMO_BENUTZER)
-
-
-def _ensure_demo_bibliotheksbestand(buch_service: BuchService) -> None:
-    """Legt den Demo-Buchkatalog an, wenn die DB noch keine Bücher enthält."""
-    korrigiere_demo_isbns(db)
-    seed_demo_buecher(buch_service)
-
-
-def _ensure_demo_ausleihen(db) -> None:
-    """Legt überfällige und bald fällige Demo-Ausleihen für Benutzer demo an."""
-    seed_demo_ausleihen(db)
-
-
 # Datenbank und Services initialisieren
 db, buch_service, benutzer_service, merkliste_service, _ausleihe_service = _initialisiere_services()
-_ensure_lokale_zugaenge(benutzer_service)
-_ensure_demo_bibliotheksbestand(buch_service)
-_ensure_demo_ausleihen(db)
+ensure_lokale_zugaenge(benutzer_service, logger)
+ensure_demo_bibliotheksbestand(db, buch_service)
+ensure_demo_ausleihen(db)
 
 class Service:
     def buch_ausleihen(self, b, i):
