@@ -2,55 +2,12 @@
 Demo-Bestand für Bibflow (wird ins Repo committed, nicht die .db-Datei).
 Beim App-Start werden Bücher und Demo-Ausleihen angelegt, sofern sie noch fehlen.
 
-Cover-Hinweis: Bücher mit ✓ haben bei Open Library ein Cover zur ISBN.
-Bücher mit ○ zeigen in der UI den farbigen Platzhalter mit Buchtitel.
+Buchliste: Backend/demo_katalog.py (inkl. ohne_cover für UI-Platzhalter).
 """
 
 from datetime import date, timedelta
 
-# titel, autor, isbn (13-stellig), jahr, exemplar_anzahl
-DEMO_BUECHER = [
-    # ── Mit Cover (Open Library) ──
-    ("1984", "George Orwell", "9783548234106", 1949, 3),  # ✓
-    ("Das Parfum", "Patrick Süskind", "9783257228007", 1985, 2),  # ✓
-    ("Der kleine Prinz", "Antoine de Saint-Exupéry", "9783257068290", 1943, 3),  # ✓
-    (
-        "Harry Potter und der Stein der Weisen",
-        "J.K. Rowling",
-        "9783551354013",
-        1997,
-        3,
-    ),  # ✓
-    ("Der Herr der Ringe", "J.R.R. Tolkien", "9783608938289", 1954, 4),  # ✓
-    ("Der Hobbit", "J.R.R. Tolkien", "9780547928227", 1937, 2),  # ✓
-    ("BECOMING: Meine Geschichte", "Michelle Obama", "9783442314874", 2018, 2),  # ✓
-    ("Der Vorleser", "Bernhard Schlink", "9783257229707", 1995, 2),  # ✓
-    ("Die Bücherdiebin", "Markus Zusak", "9780375831003", 2005, 2),  # ✓
-    ("Der Name der Rose", "Umberto Eco", "9780151446476", 1980, 2),  # ✓
-    (
-        "Die Tribute von Panem - Tödliche Spiele",
-        "Suzanne Collins",
-        "9780545425117",
-        2008,
-        3,
-    ),  # ✓
-    ("Eragon - Das Erbe der Macht", "Christopher Paolini", "9780375826689", 2002, 2),  # ✓
-    # ── Ohne Cover (Platzhalter mit Titel) ──
-    ("Schöne neue Welt", "Aldous Huxley", "9783596209215", 1932, 3),  # ○
-    ("Der Prozess", "Franz Kafka", "9783518369007", 1925, 3),  # ○
-    ("Also sprach Zarathustra", "Friedrich Nietzsche", "9783150071115", 1884, 2),  # ○
-    ("Der Alchimist", "Paulo Coelho", "9783257230600", 1988, 2),  # ○
-    ("Ich bin Malala", "Malala Yousafzai", "9783596195962", 2013, 2),  # ○
-]
-
-# Nur Ziffern — für UI-Platzhalter (kein Cover-Bild laden)
-DEMO_ISBN_OHNE_COVER = {
-    "9783596209215",
-    "9783518369007",
-    "9783150071115",
-    "9783257230600",
-    "9783596195962",
-}
+from Backend.demo_katalog import DEMO_BUECHER
 
 # Alte Demo-ISBNs → korrigierte ISBN (für bestehende bibliothek_orm.db beim App-Start)
 ISBN_KORREKTUR = {
@@ -122,14 +79,14 @@ def seed_demo_buecher(buch_service) -> int:
         return 0
 
     angelegt = 0
-    for titel, autor, isbn, jahr, exemplar_anzahl in DEMO_BUECHER:
+    for buch in DEMO_BUECHER:
         try:
             buch_service.buch_erstellen(
-                titel=titel,
-                autor=autor,
-                isbn=isbn,
-                jahr=jahr,
-                exemplar_anzahl=exemplar_anzahl,
+                titel=buch.titel,
+                autor=buch.autor,
+                isbn=buch.isbn,
+                jahr=buch.jahr,
+                exemplar_anzahl=buch.exemplar_anzahl,
             )
             angelegt += 1
         except ValueError:

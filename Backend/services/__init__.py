@@ -3,30 +3,14 @@ Backend.services - zentrale Initialisierung der Services
 Diese Datei initialisiert die Datenbank und erstellt die Service-Instanzen.
 Die UI importiert Services von hier und greift nicht direkt auf `db` zu.
 """
-import logging
 import os
+
+from log_util import get_logger
 
 projekt_pfad = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 db_pfad = os.path.join(projekt_pfad, "bibliothek_orm.db")
-log_pfad = os.path.join(projekt_pfad, "logs")
-log_datei = os.path.join(log_pfad, "bibflow.log")
 
-
-def _erzeuge_logger() -> logging.Logger:
-    os.makedirs(log_pfad, exist_ok=True)
-    logger = logging.getLogger("bibflow.services")
-    if not logger.handlers:
-        logger.setLevel(logging.INFO)
-        handler = logging.FileHandler(log_datei, encoding="utf-8")
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
-        )
-        logger.addHandler(handler)
-        logger.propagate = False
-    return logger
-
-
-logger = _erzeuge_logger()
+logger = get_logger("services")
 
 from Datenbank.orm_manager import ORMDatenbankManager
 from Datenbank.seed_demo_daten import korrigiere_demo_isbns, seed_demo_ausleihen, seed_demo_buecher
@@ -81,7 +65,6 @@ def _konto_anlegen_wenn_fehlt(benutzer_service: BenutzerService, konto: dict) ->
         return
     try:
         benutzer_service.benutzer_registrieren(**konto)
-        logger.info("Lokales Konto '%s' wurde angelegt.", konto["benutzername"])
     except ValueError as exc:
         logger.warning(
             "Lokales Konto '%s' konnte nicht angelegt werden: %s",
@@ -105,12 +88,10 @@ def _ensure_lokaler_admin(benutzer_service: BenutzerService) -> None:
 
     if benutzer_service.db.benutzer_laden(bn):
         benutzer_service.db.benutzer_passwort_aktualisieren(bn, _passwort_hashen(pw))
-        logger.info("Lokaler Admin '%s': Passwort auf README-Wert gesetzt.", bn)
         return
 
     try:
         benutzer_service.benutzer_registrieren(**LOKALER_ADMIN)
-        logger.info("Lokaler Admin '%s' wurde angelegt.", bn)
     except ValueError as exc:
         logger.warning("Lokaler Admin '%s' konnte nicht angelegt werden: %s", bn, exc)
 
@@ -123,19 +104,13 @@ def _ensure_lokale_zugaenge(benutzer_service: BenutzerService) -> None:
 
 def _ensure_demo_bibliotheksbestand(buch_service: BuchService) -> None:
     """Legt den Demo-Buchkatalog an, wenn die DB noch keine Bücher enthält."""
-    korrigiert = korrigiere_demo_isbns(db)
-    if korrigiert:
-        logger.info("%s Demo-Buch-ISBN(s) auf echte Verlags-ISBNs korrigiert.", korrigiert)
-    angelegt = seed_demo_buecher(buch_service)
-    if angelegt:
-        logger.info("Demo-Bibliotheksbestand angelegt: %s Bücher.", angelegt)
+    korrigiere_demo_isbns(db)
+    seed_demo_buecher(buch_service)
 
 
 def _ensure_demo_ausleihen(db) -> None:
     """Legt überfällige und bald fällige Demo-Ausleihen für Benutzer demo an."""
-    angelegt = seed_demo_ausleihen(db)
-    if angelegt:
-        logger.info("Demo-Ausleihen angelegt: %s (überfällig + bald fällig).", angelegt)
+    seed_demo_ausleihen(db)
 
 
 # Datenbank und Services initialisieren

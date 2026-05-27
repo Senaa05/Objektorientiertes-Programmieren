@@ -118,7 +118,6 @@ def create_tables():
     if engine is None:
         init_database()
     Base.metadata.create_all(bind=engine)
-    print("ORM-Tabellen erstellt")
 
 
 def get_session():

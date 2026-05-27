@@ -1,4 +1,5 @@
 import sqlite3
+
 from datetime import date, timedelta
 from typing import List, Dict, Optional
 
@@ -14,9 +15,7 @@ class DatenbankManager:
         try:
             self.connection = sqlite3.connect(self.db_path)
             self.connection.row_factory = sqlite3.Row  # Ermöglicht Dictionary-Zugriff
-            print(f"Datenbank verbunden: {self.db_path}")
         except sqlite3.Error as e:
-            print(f"Datenbank-Fehler: {e}")
     
     def tabellen_erstellen(self):
         """Erstellt alle notwendigen Tabellen basierend auf Backend-Modellen"""
@@ -83,7 +82,6 @@ class DatenbankManager:
         ''')
         
         self.connection.commit()
-        print("Tabellen erstellt/überprüft")
     
     # ==================== BÜCHER-CRUD ====================
     
@@ -98,7 +96,6 @@ class DatenbankManager:
             self.connection.commit()
             return True
         except sqlite3.Error as e:
-            print(f"Fehler beim Speichern des Buches: {e}")
             return False
     
     def buch_laden(self, isbn: str) -> Optional[Dict]:
@@ -168,7 +165,6 @@ class DatenbankManager:
                 return True
             return False
         except sqlite3.Error as e:
-            print(f"Fehler beim Bearbeiten des Buches: {e}")
             return False
     
     def buch_loeschen(self, isbn: str) -> bool:
@@ -193,7 +189,6 @@ class DatenbankManager:
             self.connection.commit()
             return True
         except sqlite3.Error as e:
-            print(f"Fehler beim Löschen des Buches: {e}")
             return False
     
     # ==================== EXEMPLARE-CRUD ====================
@@ -209,7 +204,6 @@ class DatenbankManager:
             self.connection.commit()
             return True
         except sqlite3.Error as e:
-            print(f"Fehler beim Speichern des Exemplars: {e}")
             return False
     
     def exemplare_laden(self, isbn: str) -> List[Dict]:
@@ -251,7 +245,6 @@ class DatenbankManager:
             self.connection.commit()
             return cursor.rowcount > 0
         except sqlite3.Error as e:
-            print(f"Fehler beim Aktualisieren des Exemplar-Status: {e}")
             return False
 
     def exemplar_ausleihe_laden(self, exemplar_id: str) -> Optional[Dict]:
@@ -284,7 +277,6 @@ class DatenbankManager:
             self.connection.commit()
             return True
         except sqlite3.Error as e:
-            print(f"Fehler beim Speichern des Benutzers: {e}")
             return False
     
     def benutzer_laden(self, benutzername: str) -> Optional[Dict]:
@@ -321,7 +313,6 @@ class DatenbankManager:
             self.connection.commit()
             return True
         except sqlite3.Error as e:
-            print(f"Fehler beim Speichern der Ausleihe: {e}")
             return False
     
     def ausleih_laden(self, ausleih_id: str) -> Optional[Dict]:
@@ -380,7 +371,6 @@ class DatenbankManager:
             self.connection.commit()
             return cursor.rowcount > 0
         except sqlite3.Error as e:
-            print(f"Fehler beim Verlängern der Ausleihe: {e}")
             return False
     
     def ausleih_rueckgabe(self, ausleih_id: str) -> bool:
@@ -396,7 +386,6 @@ class DatenbankManager:
             self.connection.commit()
             return cursor.rowcount > 0
         except sqlite3.Error as e:
-            print(f"Fehler bei der Ausleih-Rückgabe: {e}")
             return False
     
     # ==================== MERKLISTE-CRUD ====================
@@ -412,7 +401,6 @@ class DatenbankManager:
             self.connection.commit()
             return cursor.rowcount > 0
         except sqlite3.Error as e:
-            print(f"Fehler beim Hinzufügen zur Merkliste: {e}")
             return False
     
     def merkliste_laden(self, benutzername: str) -> List[Dict]:
@@ -438,14 +426,12 @@ class DatenbankManager:
             self.connection.commit()
             return cursor.rowcount > 0
         except sqlite3.Error as e:
-            print(f"Fehler beim Entfernen aus der Merkliste: {e}")
             return False
     
     def schliessen(self):
         """Schließt die Datenbankverbindung"""
         if self.connection:
             self.connection.close()
-            print("Datenbankverbindung geschlossen")
     
     def __del__(self):
         """Destructor - schließt Verbindung automatisch"""

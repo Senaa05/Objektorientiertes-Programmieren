@@ -7,6 +7,33 @@ class BuchService:
     def __init__(self, db):
         self.db = db
 
+    def _validiere_isbn(self, isbn: str) -> None:
+        if sum(1 for z in (isbn or "") if z.isdigit()) < 13:
+            raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")
+
+    def _validiere_jahr(self, jahr: int) -> int:
+        jahr_text = str(jahr).strip()
+        aktuelles_jahr = date.today().year
+        if len(jahr_text) != 4 or not jahr_text.isdigit():
+            raise ValueError("Jahr muss genau 4 Ziffern enthalten.")
+        jahr_int = int(jahr_text)
+        if jahr_int < 1000:
+            raise ValueError("Ein Buch muss mindestens 1000 sein.")
+        if jahr_int > aktuelles_jahr:
+            raise ValueError(f"Jahr darf nicht in der Zukunft liegen (max. {aktuelles_jahr}).")
+        return jahr_int
+
+    def _pruefe_isbn_frei(self, isbn: str) -> None:
+        if self.db.buch_laden(isbn):
+            raise ValueError("Ein Buch mit dieser ISBN existiert bereits.")
+
+    def _validiere_neues_buch(self, isbn: str, jahr: int) -> int:
+        """Gemeinsame Regeln für buch_erstellen und buch_speichern."""
+        self._validiere_isbn(isbn)
+        jahr_int = self._validiere_jahr(jahr)
+        self._pruefe_isbn_frei(isbn)
+        return jahr_int
+
     def buch_erstellen(
         self,
         titel: str,
@@ -16,23 +43,7 @@ class BuchService:
         exemplar_anzahl: int = 1
     ) -> bool:
         """Erstellt ein neues Buch und legt die gewuenschte Anzahl Exemplare an."""
-        jahr_text = str(jahr).strip()
-        aktuelles_jahr = date.today().year
-        if len(jahr_text) != 4 or not jahr_text.isdigit():
-            raise ValueError("Jahr muss genau 4 Ziffern enthalten.")
-        jahr_int = int(jahr_text)
-        if jahr_int < 1000:
-            raise ValueError("Ein Buch muss mindestens 1000 sein.")
-        if jahr_int > aktuelles_jahr:
-            raise ValueError(f"Jahr darf nicht in der Zukunft liegen (max. {aktuelles_jahr}).")
-
-        if sum(1 for z in (isbn or "") if z.isdigit()) < 13:
-            raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")
-        
-        # ISBN muss eindeutig sein.
-        bestehendes_buch = self.db.buch_laden(isbn)
-        if bestehendes_buch:
-            raise ValueError("Ein Buch mit dieser ISBN existiert bereits.")
+        self._validiere_neues_buch(isbn, jahr)
 
         if exemplar_anzahl < 1:
             raise ValueError("Ein Buch muss mindestens 1 Exemplar haben.")
@@ -41,7 +52,6 @@ class BuchService:
         if not erfolg:
             raise ValueError("Buch konnte nicht gespeichert werden.")
 
-        # Beim Erfassen werden die Exemplare direkt mitangelegt.
         exemplar_erfolg = self.db.exemplare_fuer_buch_anlegen(isbn, exemplar_anzahl)
         if not exemplar_erfolg:
             raise ValueError("Exemplare konnten nicht erstellt werden.")
@@ -50,22 +60,7 @@ class BuchService:
 
     def buch_speichern(self, titel: str, autor: str, isbn: str, jahr: int) -> bool:
         """Wrapper für das direkte Speichern eines Buches in der DB."""
-        jahr_text = str(jahr).strip()
-        aktuelles_jahr = date.today().year
-        if len(jahr_text) != 4 or not jahr_text.isdigit():
-            raise ValueError("Jahr muss genau 4 Ziffern enthalten.")
-        jahr_int = int(jahr_text)
-        if jahr_int < 1000:
-            raise ValueError("Ein Buch muss mindestens 1000 sein.")
-        if jahr_int > aktuelles_jahr:
-            raise ValueError(f"Jahr darf nicht in der Zukunft liegen (max. {aktuelles_jahr}).")
-
-        if sum(1 for z in (isbn or "") if z.isdigit()) < 13:
-            raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")
-
-        bestehendes_buch = self.db.buch_laden(isbn)
-        if bestehendes_buch:
-            raise ValueError("Ein Buch mit dieser ISBN existiert bereits.")
+        self._validiere_neues_buch(isbn, jahr)
 
         erfolg = self.db.buch_speichern(titel, autor, isbn, jahr)
         if not erfolg:
@@ -93,17 +88,11 @@ class BuchService:
 
     def alle_buecher(self) -> list[Buch]:
         """Gibt den gesamten Buchbestand als Objektliste zurueck."""
-        daten_liste = self.db.alle_buecher_laden()
-        return [Buch(**daten) for daten in daten_liste]
+        return [Buch(**daten) for daten in self.alle_buecher_laden()]
 
     def buecher_suchen(self, suchbegriff: str) -> list[Buch]:
         """Sucht Buecher ueber Titel, Autor oder ISBN."""
-        # Leerer Suchbegriff liefert den Gesamtbestand.
-        if not suchbegriff or not suchbegriff.strip():
-            return self.alle_buecher()
-
-        daten_liste = self.db.bucher_suchen(suchbegriff.strip())
-        return [Buch(**daten) for daten in daten_liste]
+        return [Buch(**daten) for daten in self.bucher_suchen(suchbegriff)]
 
     def buch_bearbeiten(
         self,
@@ -123,8 +112,7 @@ class BuchService:
             if not isbn_neu:
                 isbn_neu = None
             elif isbn_neu != isbn:
-                if sum(1 for z in isbn_neu if z.isdigit()) < 13:
-                    raise ValueError("ISBN muss mindestens 13 Ziffern enthalten.")
+                self._validiere_isbn(isbn_neu)
                 if self.db.buch_laden(isbn_neu):
                     raise ValueError("Ein Buch mit dieser neuen ISBN existiert bereits.")
 
@@ -181,7 +169,6 @@ class BuchService:
 
     def beliebteste_buecher(self, limit: int = 5):
         """Gibt die am meisten ausgeliehenen Buecher in absteigender Reihenfolge zurueck."""
-        # Datenbasis fuer die Startseite "Beliebteste Buecher".
         if limit < 1:
             raise ValueError("Limit muss mindestens 1 sein.")
         return self.db.beliebteste_buecher_laden(limit)
@@ -195,7 +182,6 @@ class BuchService:
         karussell = self.db.beliebte_buecher_karussell(limit)
         if karussell:
             return karussell
-        # Frische Demo-DB: noch keine Buch-Titel mit 2+ aktiven Ausleihen
         return self.db.beliebteste_buecher_laden(limit)
 
     def exemplare_laden(self, isbn: str) -> list[dict]:

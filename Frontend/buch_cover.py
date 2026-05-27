@@ -13,7 +13,7 @@ from typing import Optional, Tuple
 
 from nicegui import app, ui
 
-from Datenbank.seed_demo_daten import DEMO_ISBN_OHNE_COVER
+from Backend.demo_katalog import DEMO_ISBN_OHNE_COVER
 
 OPEN_LIBRARY_ISBN = "https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg"
 OPEN_LIBRARY_API = (

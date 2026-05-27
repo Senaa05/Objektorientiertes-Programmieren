@@ -22,7 +22,6 @@ class ORMDatenbankManager:
         self.db_path = db_path
         init_database(db_path)
         create_tables()
-        print(f"ORM-Datenbank verbunden: {os.path.abspath(db_path)}")
     
     def get_session(self) -> Session:
         """Gibt eine neue Session zurück"""
