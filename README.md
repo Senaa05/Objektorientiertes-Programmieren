@@ -373,8 +373,11 @@ Objektorientiertes-Programmieren/
 ├── main.py
 ├── README.md
 ├── requirements.txt
+├── .gitignore
+├── log_util.py
 ├── Backend/
 │   ├── __init__.py
+│   ├── demo_katalog.py
 │   ├── modelle/
 │   │   ├── __init__.py
 │   │   ├── ausleihe.py
@@ -410,10 +413,20 @@ Objektorientiertes-Programmieren/
 │       ├── tab_buecher.py
 │       └── tab_merkliste.py
 ├── Diagramm/
-├── logs/
+│   ├── architektur_v2.png
+│   ├── BibliothekUseCasesDiagramm.png
+│   ├── BibflowERM.png
+│   └── bibflow_klassendiagrammv3.png
 ├── Mockups/
 │   ├── Admin_Sicht/
+│   │   └── Adminbereich.png
 │   └── Benutzer_Sicht/
+│       ├── Login_Registration_Benutzer.png
+│       ├── Merkliste_Benutzer.png
+│       ├── Benutzer_Ausleihen.png
+│       ├── Benutzer_Ausleihe_Popup.png
+│       ├── Startseite_Benutzer.png
+│       └── Startseite_Benutzer_unten.png
 └── Test_Cases/
     ├── TC_001_Login_Integrationstest.py
     ├── TC_002_Datenbank_Test.py
