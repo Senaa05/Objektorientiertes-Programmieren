@@ -2,11 +2,12 @@ from datetime import date, timedelta
 import uuid
 
 from Backend.modelle.ausleihe import Ausleihe
+from Backend.repository import BibliothekRepository
 
 class AusleiheService:
     """Service fuer alle Geschäftsregeln rund um Ausleihe, Verlängerung und Rueckgabe."""
 
-    def __init__(self, db):
+    def __init__(self, db: BibliothekRepository):
         self.db = db
 
     def buch_ausleihen(self, benutzername: str, isbn: str) -> str:

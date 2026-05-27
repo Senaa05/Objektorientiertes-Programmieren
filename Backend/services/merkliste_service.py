@@ -1,10 +1,11 @@
 from Backend.modelle.merkliste import MerklisteEintrag
+from Backend.repository import BibliothekRepository
 
 
 class MerklisteService:
     """Service fuer persoenliche Merklisten der Benutzer."""
 
-    def __init__(self, db):
+    def __init__(self, db: BibliothekRepository):
         self.db = db
 
     def zur_merkliste_hinzufuegen(self, benutzername: str, isbn: str) -> bool:

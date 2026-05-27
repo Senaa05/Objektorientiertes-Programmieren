@@ -1,6 +1,7 @@
 import bcrypt
 
 from Backend.modelle.benutzer import User, Administrator
+from Backend.repository import BibliothekRepository
 
 
 def _ist_gehasht(gespeichert: str) -> bool:
@@ -21,7 +22,7 @@ def _passwort_pruefen(klartext: str, gespeichert: str) -> bool:
 class BenutzerService:
     """Service fuer Registrierung, Login und Rollenpruefung von Benutzern."""
 
-    def __init__(self, db):
+    def __init__(self, db: BibliothekRepository):
         self.db = db
 
     def benutzer_registrieren(

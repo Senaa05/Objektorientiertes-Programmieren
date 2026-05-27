@@ -1,10 +1,12 @@
 from Backend.modelle.buch import Buch
 from datetime import date
 
+from Backend.repository import BibliothekRepository
+
 class BuchService:
     """Service fuer Buchverwaltung, Suche, Verfuegbarkeit und Popularitaet."""
 
-    def __init__(self, db):
+    def __init__(self, db: BibliothekRepository):
         self.db = db
 
     def _validiere_isbn(self, isbn: str) -> None:
