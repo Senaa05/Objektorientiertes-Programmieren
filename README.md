@@ -461,4 +461,12 @@ Die Testdateien liegen im Ordner `Test_Cases/` und sind dort nach Testart und Sz
 | Giulia | Frontend UI + Dokumentation |
 
 ### Herausforderungen
+Eine der grössten Herausforderungen war die Verbindung der einzelnen Backend-Schichten. Die Kommunikation zwischen Datenbankzugriff, Serviceschicht und Frontend funktionierte nicht von Anfang an reibungslos. Es brauchte einiges an Recherche und Ausprobieren, bis alles sauber verknüpft war.
 
+Eine weitere Challenge war der „Zurücksetzen" Button, der an mehreren Stellen der Anwendung vorkommt. Das Problem lag darin, dass nach dem Klick die Suchergebnisse zwar verschwande, aber der eingetippte Text im Suchfeld bestehen blieb. Es stellte sich heraus, dass die Buttons in verschiedenen Stellen im Code auf dasselbe Eingabefeld zeigte. Die Lösung war, die Variablen an jeder Stelle neu zu definieren, damit jeder Button wirklich nur sein eigenes Feld zurücksetzt.
+
+Zuletzt war ebenfalls die Anbindung der Datenbank herausfordernd, besonders bei der Funktion zum Zurückgeben von Büchern. Obwohl der Button funktioniert hat, wurde das Buch danach trotzdem noch unter „Meine Ausleihen“ angezeigt. Das Problem war, dass der Status des Exemplars in der Datenbank nicht richtig aktualisiert wurde.
+Zusätzlich musste sichergestellt werden, dass Benutzer keine zu einfachen oder beliebigen Passwörter verwenden können. Deshalb wurde eine Passwortprüfung mit Mindestanforderungen eingebaut.
+
+### Zukunftsaussichten
+Es gibt einige Funktionen, die das Projekt in Zukunft noch besser machen würden. Eine Erweiterung wäre eine Passwortrücksetzung zu ermöglichen, beispielweise über eine E-Mail-Bestätigung. Ausserdem würde eine Ausleihhistorie den Benutzern helfen, den Überblick über ihre vergangenen Ausleihen zu behalten. Die Suchfunktion im Bücher-Tab könnte ebenfalls noch ausgebaut werden, beispielsweise durch einer Filtersuche nach Kategorien damit die Bücher zum eigenen Geschmack noch schneller gefunden werden.
