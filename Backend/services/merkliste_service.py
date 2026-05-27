@@ -19,16 +19,10 @@ class MerklisteService:
         if not buch:
             raise ValueError("Buch nicht gefunden.")
 
-        if hasattr(self.db, "merkliste_eintrag_laden"):
-            # Duplikate auf der Merkliste verhindern.
-            bestehend = self.db.merkliste_eintrag_laden(benutzername, isbn)
-            if bestehend:
-                raise ValueError("Buch ist bereits auf der Merkliste.")
-
-        if not hasattr(self.db, "merkliste_eintrag_speichern"):
-            raise NotImplementedError(
-                "Für die Merkliste fehlt die DB-Methode merkliste_eintrag_speichern(benutzername, isbn)."
-            )
+        # Duplikate auf der Merkliste verhindern (ORM unterstützt das immer).
+        bestehend = self.db.merkliste_eintrag_laden(benutzername, isbn)
+        if bestehend:
+            raise ValueError("Buch ist bereits auf der Merkliste.")
 
         erfolg = self.db.merkliste_eintrag_speichern(benutzername, isbn)
         if not erfolg:
@@ -43,21 +37,11 @@ class MerklisteService:
         if not benutzer:
             raise ValueError("Benutzer nicht gefunden.")
 
-        if not hasattr(self.db, "merkliste_benutzer_laden"):
-            raise NotImplementedError(
-                "Für die Merkliste fehlt die DB-Methode merkliste_benutzer_laden(benutzername)."
-            )
-
         daten_liste = self.db.merkliste_benutzer_laden(benutzername)
         return [MerklisteEintrag(**daten) for daten in daten_liste]
 
     def aus_merkliste_entfernen(self, benutzername: str, isbn: str) -> bool:
         """Entfernt ein Buch aus der Merkliste eines Benutzers."""
-        if not hasattr(self.db, "merkliste_eintrag_loeschen"):
-            raise NotImplementedError(
-                "Für die Merkliste fehlt die DB-Methode merkliste_eintrag_loeschen(benutzername, isbn)."
-            )
-
         erfolg = self.db.merkliste_eintrag_loeschen(benutzername, isbn)
         if not erfolg:
             raise ValueError("Buch konnte nicht aus der Merkliste entfernt werden.")
