@@ -118,12 +118,24 @@ def _exemplare_verwalten():
 
         def exemplar_loeschen(exemplar_id, isbn):
             def bestaetigen():
-                if buch_service.exemplar_loeschen(exemplar_id):
+                try:
+                    erfolg = buch_service.exemplar_loeschen(exemplar_id)
+                except ValueError as err:
+                    ui.notify(str(err), color="negative")
+                    dialog.close()
+                    return
+                except Exception:
+                    ui.notify("Unbekannter Fehler beim Löschen des Exemplars.", color="negative")
+                    dialog.close()
+                    return
+
+                if erfolg:
                     ui.notify(f"✅ Exemplar {exemplar_id} gelöscht.", color="positive")
                 else:
                     ui.notify("Exemplar konnte nicht gelöscht werden.", color="negative")
                     dialog.close()
                     return
+
                 dialog.close()
                 exemplare_laden(isbn)
 
@@ -171,6 +183,7 @@ def _exemplare_verwalten():
                                         exemplare_laden(s),
                                     ),
                                 ).classes("bg-green-600 text-white text-xs")
+
                             ui.button(
                                 "🗑️ Löschen",
                                 on_click=lambda _, i=ex_id, s=isbn: exemplar_loeschen(i, s),
