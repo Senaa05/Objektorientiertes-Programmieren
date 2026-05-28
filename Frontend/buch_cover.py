@@ -1,11 +1,12 @@
 """
-Buchcover für die UI — Open Library (ISBN + Titelsuche).
+Buchcover für die UI — Open Library (ISBN, optional API-Fallback).
 
-Anzeige per nativem <img> und Route /buchcover/{isbn} (zuverlässig in NiceGUI).
+Ein Request pro Cover über /buchcover/{isbn} (Server-Cache, kein Doppel-Laden im Browser).
 """
 
 import json
 import re
+import threading
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -15,12 +16,17 @@ from nicegui import app, ui
 
 from Backend.demo_katalog import DEMO_ISBN_OHNE_COVER
 
-OPEN_LIBRARY_ISBN = "https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg"
+OPEN_LIBRARY_ISBN = "https://covers.openlibrary.org/b/isbn/{isbn}-M.jpg"
 OPEN_LIBRARY_API = (
     "https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data"
 )
 OPEN_LIBRARY_SEARCH = "https://openlibrary.org/search.json"
-OPEN_LIBRARY_COVER_ID = "https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
+OPEN_LIBRARY_COVER_ID = "https://covers.openlibrary.org/b/id/{cover_id}-M.jpg"
+
+USER_AGENT = (
+    "Bibflow/1.0 (FHNW Bibliotheks-App; "
+    "+https://github.com/Senaa05/Objektorientiertes-Programmieren)"
+)
 
 PLATZHALTER_FARBEN = ["#fce7f3", "#dbeafe", "#dcfce7", "#fef9c3", "#ede9fe", "#ffedd5"]
 
@@ -38,17 +44,18 @@ _BILD = "absolute inset-0 z-[1] w-full h-full object-cover"
 
 _bytes_cache: dict[str, Tuple[bytes, str]] = {}
 _route_registriert = False
+_ol_semaphore = threading.Semaphore(4)
 
 _GOOGLE_PLATZHALTER_GROESSE = 1269
+_MIN_COVER_BYTES = 800
 
 
 def normalisiere_isbn(isbn: str) -> str:
     return re.sub(r"\D", "", isbn or "")
 
 
-def _cache_key(isbn: str, titel: str, autor: str) -> str:
-    raw = normalisiere_isbn(isbn)
-    return f"{raw}|{(titel or '').strip()}|{(autor or '').strip()}"
+def _cache_key(isbn: str) -> str:
+    return normalisiere_isbn(isbn)
 
 
 def _platzhalter_farbe(titel: str) -> str:
@@ -56,7 +63,7 @@ def _platzhalter_farbe(titel: str) -> str:
 
 
 def _ist_gueltiges_cover(data: bytes, content_type: Optional[str]) -> bool:
-    if len(data) < 1500:
+    if len(data) < _MIN_COVER_BYTES:
         return False
     if content_type and not content_type.startswith("image/"):
         return False
@@ -68,14 +75,26 @@ def _ist_gueltiges_cover(data: bytes, content_type: Optional[str]) -> bool:
 
 
 def _http_get(url: str) -> Tuple[bytes, str]:
-    req = urllib.request.Request(url, headers={"User-Agent": "Bibflow/1.0"})
-    with urllib.request.urlopen(req, timeout=12) as antwort:
-        data = antwort.read()
-        mime = antwort.headers.get("Content-Type") or "image/jpeg"
-        return data, mime.split(";")[0].strip()
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with _ol_semaphore:
+        with urllib.request.urlopen(req, timeout=10) as antwort:
+            data = antwort.read()
+            mime = antwort.headers.get("Content-Type") or "image/jpeg"
+            return data, mime.split(";")[0].strip()
 
 
-def _open_library_api_covers(isbn: str) -> list:
+def _versuche_cover_url(url: str) -> Optional[Tuple[bytes, str]]:
+    try:
+        data, mime = _http_get(url)
+    except (OSError, urllib.error.HTTPError):
+        return None
+    if _ist_gueltiges_cover(data, mime):
+        return data, mime
+    return None
+
+
+def _open_library_api_cover_urls(isbn: str) -> list[str]:
+    """Eine Books-API-Anfrage; bevorzugt medium/small URLs aus der Antwort."""
     raw = normalisiere_isbn(isbn)
     if len(raw) < 10:
         return []
@@ -90,89 +109,75 @@ def _open_library_api_covers(isbn: str) -> list:
     eintrag = data.get(f"ISBN:{raw}") or {}
     cover = eintrag.get("cover") or {}
     urls = []
-    for schluessel in ("large", "medium", "small"):
+    for schluessel in ("medium", "small", "large"):
         if schluessel in cover:
             urls.append(cover[schluessel])
     return urls
 
 
-def _open_library_suche_cover(titel: str, autor: str, isbn: str = "") -> str:
+def _open_library_cover_id_aus_isbn(isbn: str) -> str:
+    """Höchstens eine Search-Anfrage (nur ISBN)."""
     raw = normalisiere_isbn(isbn)
-    suchvarianten = []
+    if len(raw) < 10:
+        return ""
 
-    if titel and autor:
-        suchvarianten.append({"title": titel, "author": autor, "limit": "1"})
-    if titel:
-        suchvarianten.append({"q": titel, "limit": "1"})
-    if len(raw) >= 10:
-        suchvarianten.append({"isbn": raw, "limit": "1"})
+    url = f"{OPEN_LIBRARY_SEARCH}?{urllib.parse.urlencode({'isbn': raw, 'limit': '1'})}"
+    try:
+        roh, _ = _http_get(url)
+        treffer = json.loads(roh.decode("utf-8", errors="replace"))
+    except (OSError, urllib.error.HTTPError, json.JSONDecodeError, UnicodeDecodeError):
+        return ""
 
-    for params in suchvarianten:
-        url = f"{OPEN_LIBRARY_SEARCH}?{urllib.parse.urlencode(params)}"
-        try:
-            roh, _ = _http_get(url)
-            treffer = json.loads(roh.decode("utf-8", errors="replace"))
-        except (OSError, urllib.error.HTTPError, json.JSONDecodeError, UnicodeDecodeError):
-            continue
+    docs = treffer.get("docs") or []
+    if not docs:
+        return ""
 
-        docs = treffer.get("docs") or []
-        if not docs:
-            continue
-
-        cover_id = docs[0].get("cover_i")
-        if cover_id:
-            return OPEN_LIBRARY_COVER_ID.format(cover_id=cover_id)
-
+    cover_id = docs[0].get("cover_i")
+    if cover_id:
+        return OPEN_LIBRARY_COVER_ID.format(cover_id=cover_id)
     return ""
-
-
-def _cover_kandidaten(isbn: str, titel: str, autor: str) -> list:
-    raw = normalisiere_isbn(isbn)
-    kandidaten = []
-    kandidaten.extend(_open_library_api_covers(isbn))
-    if len(raw) >= 10:
-        kandidaten.append(OPEN_LIBRARY_ISBN.format(isbn=raw))
-
-    suche_url = _open_library_suche_cover(titel, autor, isbn)
-    if suche_url:
-        kandidaten.append(suche_url)
-
-    gesehen = set()
-    eindeutig = []
-    for url in kandidaten:
-        if url not in gesehen:
-            gesehen.add(url)
-            eindeutig.append(url)
-    return eindeutig
 
 
 def lade_cover_bytes(
     isbn: str, titel: str = "", autor: str = ""
 ) -> Tuple[Optional[bytes], str]:
-    schluessel = _cache_key(isbn, titel, autor)
+    del titel, autor  # Cover hängt an der ISBN; keine Titelsuche mehr (Rate-Limits)
+
+    schluessel = _cache_key(isbn)
     if schluessel in _bytes_cache:
         data, mime = _bytes_cache[schluessel]
         return (data, mime) if data else (None, "")
 
-    for url in _cover_kandidaten(isbn, titel, autor):
-        try:
-            data, mime = _http_get(url)
-        except (OSError, urllib.error.HTTPError):
-            continue
-        if _ist_gueltiges_cover(data, mime):
-            _bytes_cache[schluessel] = (data, mime)
-            return data, mime
+    raw = normalisiere_isbn(isbn)
+    if len(raw) >= 10:
+        treffer = _versuche_cover_url(OPEN_LIBRARY_ISBN.format(isbn=raw))
+        if treffer:
+            _bytes_cache[schluessel] = treffer
+            return treffer
+
+        for api_url in _open_library_api_cover_urls(isbn):
+            treffer = _versuche_cover_url(api_url)
+            if treffer:
+                _bytes_cache[schluessel] = treffer
+                return treffer
+
+        suche_url = _open_library_cover_id_aus_isbn(isbn)
+        if suche_url:
+            treffer = _versuche_cover_url(suche_url)
+            if treffer:
+                _bytes_cache[schluessel] = treffer
+                return treffer
 
     _bytes_cache[schluessel] = (b"", "")
     return None, ""
 
 
 def cover_bild_pfad(isbn: str, titel: str = "", autor: str = "") -> str:
+    del titel, autor
     raw = normalisiere_isbn(isbn)
     if len(raw) < 10:
         return ""
-    query = urllib.parse.urlencode({"titel": titel or "", "autor": autor or ""})
-    return f"/buchcover/{raw}?{query}"
+    return f"/buchcover/{raw}"
 
 
 def registriere_cover_route() -> None:
@@ -184,8 +189,8 @@ def registriere_cover_route() -> None:
     from starlette.responses import Response
 
     @app.get("/buchcover/{isbn}")
-    async def buchcover_endpoint(isbn: str, titel: str = "", autor: str = ""):
-        data, mime = await run.io_bound(lade_cover_bytes, isbn, titel, autor)
+    async def buchcover_endpoint(isbn: str):
+        data, mime = await run.io_bound(lade_cover_bytes, isbn)
         if not data:
             return Response(status_code=404)
         return Response(
@@ -217,7 +222,7 @@ def _label_klassen(karussell: bool) -> str:
 
 
 def _nach_bild_geladen(bild: ui.image, platzhalter: ui.element) -> None:
-    """Platzhalter nur ausblenden, wenn das Bild wirklich gross genug ist (wie früher onload)."""
+    """Platzhalter ausblenden, sobald das Cover-Bild geladen ist."""
     ui.run_javascript(
         f"""
         (() => {{
@@ -268,15 +273,14 @@ def _zeige_nur_platzhalter(
 def _zeige_cover_mit_bild(
     titel: str,
     farbe: str,
-    ol_url: str,
-    api_url: str,
+    src: str,
     *,
     breite: str,
     hoehe: str,
     rund: str,
     karussell: bool,
 ) -> None:
-    """Cover-Bild mit farbigem Platzhalter-Fallback (Open Library → API-Route)."""
+    """Cover nur über /buchcover/ (ein Request, Server-Cache)."""
     titel_anzeige = (titel or "Unbekannt").strip()
     box = _box_klassen(karussell, breite, hoehe, rund, mit_bild=True)
 
@@ -287,19 +291,14 @@ def _zeige_cover_mit_bild(
         with platzhalter:
             ui.label(titel_anzeige).classes(_label_klassen(karussell))
 
-        bild = ui.image(ol_url).classes(_BILD)
-        retry = {"done": False}
+        bild = ui.image(src).classes(_BILD)
 
         def bei_laden(_event=None) -> None:
             _nach_bild_geladen(bild, platzhalter)
 
         def bei_fehler(_event=None) -> None:
-            if not retry["done"]:
-                retry["done"] = True
-                bild.set_source(api_url)
-            else:
-                bild.visible = False
-                platzhalter.visible = True
+            bild.visible = False
+            platzhalter.visible = True
 
         bild.on("load", bei_laden)
         bild.on("error", bei_fehler)
@@ -318,7 +317,6 @@ def zeige_buch_cover(
     """Echtes Cover oder farbiger Platzhalter mit Titel."""
     registriere_cover_route()
 
-    # Karussell-Karten sind 160×140 px (Tailwind w-40 h-[140px])
     if karussell:
         breite = "160px"
         hoehe = "140px"
@@ -329,13 +327,12 @@ def zeige_buch_cover(
         _zeige_nur_platzhalter(titel, breite=breite, hoehe=hoehe, rund=rund, karussell=karussell)
         return
 
-    src = cover_bild_pfad(isbn, titel, autor)
+    src = cover_bild_pfad(isbn)
     if not src:
         _zeige_nur_platzhalter(titel, breite=breite, hoehe=hoehe, rund=rund, karussell=karussell)
         return
 
-    # Bereits bekannt: kein Cover in der API → nur farbiger Platzhalter
-    cache_key = _cache_key(isbn, titel, autor)
+    cache_key = _cache_key(isbn)
     if cache_key in _bytes_cache and not _bytes_cache[cache_key][0]:
         _zeige_nur_platzhalter(titel, breite=breite, hoehe=hoehe, rund=rund, karussell=karussell)
         return
@@ -343,7 +340,6 @@ def zeige_buch_cover(
     _zeige_cover_mit_bild(
         titel,
         _platzhalter_farbe(titel),
-        OPEN_LIBRARY_ISBN.format(isbn=raw),
         src,
         breite=breite,
         hoehe=hoehe,
