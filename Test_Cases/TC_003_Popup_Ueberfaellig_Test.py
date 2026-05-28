@@ -9,7 +9,9 @@ Actual result:      (automatisch via unittest)
 Status:             automatisierbar – pass/fail in Konsole
 Comments:           UI: Login demo/demo123 → Popup in dashboard.py; siehe Test_Cases/README.md
 
-Ausführen: python Test_Cases/TC_003_Popup_Ueberfaellig_Test.py
+Ausführen im Terminal (Windows): python Test_Cases/TC_003_Popup_Ueberfaellig_Test.py
+Ausführen im Terminal (Mac): python3 Test_Cases/TC_003_Popup_Ueberfaellig_Test.py
+
 """
 
 import os

@@ -9,7 +9,8 @@ Actual result:      (automatisch via unittest)
 Status:             automatisierbar – pass/fail in Konsole
 Comments:           Siehe Test_Cases/README.md; Vorlage: Pizzeria-Reference-Project
 
-Ausführen: python Datenbank/TC_002_Datenbank_Test.py
+Ausführen im Terminal (Windows): python Datenbank/TC_002_Datenbank_Test.py
+Ausführen im Terminal (Mac): python3 Datenbank/TC_002_Datenbank_Test.py
 """
 import os
 import sys

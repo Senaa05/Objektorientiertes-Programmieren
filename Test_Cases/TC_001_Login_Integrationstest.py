@@ -9,7 +9,8 @@ Actual result:      (automatisch via unittest)
 Status:             automatisierbar – pass/fail in Konsole
 Comments:           Siehe Test_Cases/README.md; Vorlage: Pizzeria-Reference-Project
 
-Ausführen: python Test_Cases/TC_001_Login_Integrationstest.py
+Ausführen im Terminal (Windows): python Test_Cases/TC_001_Login_Integrationstest.py
+Ausführen im Terminal (Mac): python3 Test_Cases/TC_001_Login_Integrationstest.py
 """
 
 import unittest
